@@ -1,6 +1,13 @@
 # bootstrap.ps1 - Lawful Nova Agentic Shell Bootstrap (Windows)
 #Requires -Version 5.1
+param(
+    [switch]$NonInteractive
+)
 $ErrorActionPreference = "Stop"
+
+if (-not $PSBoundParameters.ContainsKey('NonInteractive')) {
+    try { $NonInteractive = [Console]::IsInputRedirected } catch { $NonInteractive = $false }
+}
 
 function Write-Log { param([string]$Message) Write-Host "[nova-bootstrap] $Message" -ForegroundColor Blue }
 function Write-Ok { param([string]$Message) Write-Host "[OK] $Message" -ForegroundColor Green }
@@ -110,12 +117,16 @@ Write-Ok "PowerShell profile wired: $PROFILE"
 
 $GitConfig = Join-Path $env:USERPROFILE ".gitconfig"
 if (-not (Test-Path $GitConfig)) {
-    $GitName = Read-Host "Git name"
-    $GitEmail = Read-Host "Git email"
-    $template = Get-Content (Join-Path $RepoRoot "config\.gitconfig.template") -Raw
-    $template = $template -replace '\{\{GIT_NAME\}\}', $GitName -replace '\{\{GIT_EMAIL\}\}', $GitEmail
-    Set-Content -Path $GitConfig -Value $template -Encoding UTF8
-    Write-Ok "~/.gitconfig created."
+    if ($NonInteractive) {
+        Write-Warn "No ~/.gitconfig; skipping git identity (run bootstrap interactively or create manually)."
+    } else {
+        $GitName = Read-Host "Git name"
+        $GitEmail = Read-Host "Git email"
+        $template = Get-Content (Join-Path $RepoRoot "config\.gitconfig.template") -Raw
+        $template = $template -replace '\{\{GIT_NAME\}\}', $GitName -replace '\{\{GIT_EMAIL\}\}', $GitEmail
+        Set-Content -Path $GitConfig -Value $template -Encoding UTF8
+        Write-Ok "~/.gitconfig created."
+    }
 }
 
 Write-Banner "Step 5/6 - Nova Stack Paths"
@@ -142,8 +153,13 @@ function Set-NovaVar {
             }
         }
     }
-    $val = Read-Host "$Prompt [default: $Default]"
-    if ([string]::IsNullOrWhiteSpace($val)) { $val = $Default }
+    $val = $Default
+    if (-not $NonInteractive) {
+        $val = Read-Host "$Prompt [default: $Default]"
+        if ([string]::IsNullOrWhiteSpace($val)) { $val = $Default }
+    } else {
+        Write-Log "$Prompt -> $val (default, non-interactive)"
+    }
     $escaped = $val -replace "'", "''"
     $newLine = "`$env:$Name = '$escaped'"
     $filtered = @($lines | Where-Object { $_ -notlike "$prefix=*" })

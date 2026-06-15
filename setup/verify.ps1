@@ -32,20 +32,24 @@ if (Get-Command node -ErrorAction SilentlyContinue) { Write-Ok "Node.js $(node -
 if (Get-Command npm -ErrorAction SilentlyContinue) { Write-Ok "npm" } else { Write-Fail "npm not found" }
 if (Get-Command python -ErrorAction SilentlyContinue) { Write-Ok "Python $(python --version)" }
 elseif (Get-Command py -ErrorAction SilentlyContinue) { Write-Ok "Python (py launcher)" }
-else { Write-Fail "Python not found" }
+else { Write-WarnLine "Python not found (optional for shell; install 3.12+ for Nova tooling)" }
 
 Write-Sep "Nova LLM Stack"
 @("NOVA_PORT", "NOVA_API_URL", "NOVA_CLI", "NOVA_GPU_DEVICE") | ForEach-Object {
-    if ($env:$_ ) { Write-Ok "$_ set" } else { Write-WarnLine "$_ not set (add to ~/.novarc.ps1)" }
+    $name = $_
+    $val = [Environment]::GetEnvironmentVariable($name)
+    if ($val) { Write-Ok "$name set" } else { Write-WarnLine "$name not set (add to ~/.novarc.ps1)" }
 }
 @("NOVA_VOSS_RUNTIME_PATH", "NOVA_CORTEX_PATH", "NOVA_RSL_PATH") | ForEach-Object {
-    if ($env:$_ -and (Test-Path $env:$_)) { Write-Ok "$_ -> $($env:$_)" }
-    else { Write-WarnLine "$_ path not found or not set" }
+    $name = $_
+    $val = [Environment]::GetEnvironmentVariable($name)
+    if ($val -and (Test-Path $val)) { Write-Ok "$name -> $val" }
+    else { Write-WarnLine "$name path not found or not set" }
 }
 if ($env:NOVA_GOW_CONFIG) { Write-Ok "NOVA_GOW_CONFIG set" } else { Write-WarnLine "NOVA_GOW_CONFIG not set" }
 
 $NovaCli = if ($env:NOVA_CLI) { $env:NOVA_CLI } else { "nova" }
-if (Get-Command $NovaCli -ErrorAction SilentlyContinue) { Write-Ok "Nova CLI reachable" } else { Write-Fail "Nova CLI not in PATH" }
+if (Get-Command $NovaCli -ErrorAction SilentlyContinue) { Write-Ok "Nova CLI reachable" } else { Write-WarnLine "Nova CLI not in PATH (install Nova stack or set NOVA_CLI)" }
 
 $ApiUrl = if ($env:NOVA_API_URL) { $env:NOVA_API_URL } else { "http://localhost:8080" }
 try {
