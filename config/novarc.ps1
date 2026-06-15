@@ -1,7 +1,6 @@
-# .novarc.ps1 — Nova LLM Stack Environment Variables (Windows)
-# Fill these in after your Nova stack is built.
-# This file is gitignored — NEVER commit it.
-# bootstrap.ps1 sets LAWFUL_NOVA_REPO_ROOT automatically.
+# .novarc.ps1 — Nova LLM Stack Environment Variables (Windows template)
+# bootstrap.ps1 copies this to %USERPROFILE%\.novarc.ps1 (gitignored there).
+# Fill in paths after your Nova stack is built.
 
 $env:LAWFUL_NOVA_REPO_ROOT = ""
 
@@ -20,9 +19,6 @@ $env:NOVA_MEGATRON_ENDPOINT = "http://localhost:5000"
 $env:CUDA_VISIBLE_DEVICES = $env:NOVA_GPU_DEVICE
 
 $env:GITHUB_TOKEN = ""
-
-$env:LAWFUL_NOVA_REPO_ROOT = ""
-# Set by setup/bootstrap.ps1 to your cloned repo path
 
 $env:DO_NOT_TRACK = "1"
 $env:NEXT_TELEMETRY_DISABLED = "1"

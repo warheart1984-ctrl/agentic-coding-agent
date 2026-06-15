@@ -1,5 +1,6 @@
-# Nova secrets — NEVER commit these
-.novarc
+# Nova secrets in home directory — NEVER commit these
+/.novarc
+/.novarc.ps1
 .env
 .env.*
 *.pem
