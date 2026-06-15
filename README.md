@@ -1,6 +1,10 @@
-# Lawful Nova — Agentic Coding Shell
+# Agentic Coding Agent (Lawful Nova Shell)
+
+**Repository:** [warheart1984-ctrl/agentic-coding-agent](https://github.com/warheart1984-ctrl/agentic-coding-agent)
 
 Self-bootstrapping agentic coding environment for **macOS**, **Linux**, and **Windows**, powered by the **Nova LLM** stack — Voss Runtime · Gates of Wonder · RSL · Nova Cortex · NVIDIA backend.
+
+This repo does **not** build Nova; it validates paths to your already-built Nova slice and wires your dev shell (zsh / PowerShell), `AGENTS.md`, skills, and devcontainer.
 
 Clone → Run one command → Code with Nova.
 
@@ -64,7 +68,7 @@ Clone → Run one command → Code with Nova.
 ## Repo Structure
 
 ```
-lawful-nova-shell/
+agentic-coding-agent/
 ├── README.md
 ├── AGENTS.md
 ├── LICENSE
@@ -112,8 +116,8 @@ lawful-nova-shell/
 ### macOS / Linux
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/lawful-nova-shell.git && \
-  cd lawful-nova-shell && \
+git clone https://github.com/warheart1984-ctrl/agentic-coding-agent.git && \
+  cd agentic-coding-agent && \
   chmod +x setup/bootstrap.sh setup/*.sh && \
   ./setup/bootstrap.sh
 ```
@@ -121,8 +125,8 @@ git clone https://github.com/YOUR_USERNAME/lawful-nova-shell.git && \
 ### Windows
 
 ```powershell
-git clone https://github.com/YOUR_USERNAME/lawful-nova-shell.git
-cd lawful-nova-shell
+git clone https://github.com/warheart1984-ctrl/agentic-coding-agent.git
+cd agentic-coding-agent
 powershell -ExecutionPolicy Bypass -File setup\bootstrap.ps1
 ```
 
@@ -141,7 +145,7 @@ Bootstrap will:
 
 | Step | Command |
 |---|---|
-| Clone | `git clone https://github.com/YOUR_USERNAME/lawful-nova-shell.git` |
+| Clone | `git clone https://github.com/warheart1984-ctrl/agentic-coding-agent.git` |
 | Bootstrap | `powershell -ExecutionPolicy Bypass -File setup\bootstrap.ps1` |
 | Reload | `. $PROFILE` |
 | Verify | `.\setup\verify.ps1` |
