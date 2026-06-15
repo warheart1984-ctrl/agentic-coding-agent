@@ -1,4 +1,4 @@
-# Lawful Nova Agentic Shell — PowerShell profile
+# Lawful Nova Agentic Shell - PowerShell profile
 # Linked to $PROFILE by bootstrap.ps1
 
 $NovaRepoRoot = $env:LAWFUL_NOVA_REPO_ROOT
@@ -30,7 +30,7 @@ function global:nova-chat {
 }
 
 function global:novr {
-    Write-Host "🌌 Nova reviewing staged changes..." -ForegroundColor Cyan
+    Write-Host "[Nova] Reviewing staged changes..." -ForegroundColor Cyan
     git status
     git diff --cached
     $cmd = $env:NOVA_CLI; if (-not $cmd) { $cmd = "nova" }
@@ -38,38 +38,38 @@ function global:novr {
 }
 
 function global:novtest {
-    Write-Host "🌌 Nova running test suite..." -ForegroundColor Cyan
+    Write-Host "[Nova] Running test suite..." -ForegroundColor Cyan
     $cmd = $env:NOVA_CLI; if (-not $cmd) { $cmd = "nova" }
     & $cmd run "Run all tests in this project. If any fail, identify the root cause and fix the source code. Re-run until all pass. Max 5 iterations."
 }
 
 function global:novpr {
-    Write-Host "🌌 Nova creating PR..." -ForegroundColor Cyan
+    Write-Host "[Nova] Creating PR..." -ForegroundColor Cyan
     $cmd = $env:NOVA_CLI; if (-not $cmd) { $cmd = "nova" }
     & $cmd run "Compare this branch to main. Generate a conventional PR title and a detailed description (What, Why, How to test). Then run: gh pr create --title '<title>' --body '<body>'"
 }
 
 function global:novdoc {
-    Write-Host "🌌 Nova generating documentation..." -ForegroundColor Cyan
+    Write-Host "[Nova] Generating documentation..." -ForegroundColor Cyan
     $cmd = $env:NOVA_CLI; if (-not $cmd) { $cmd = "nova" }
     & $cmd run "Analyze all source files in the current directory. Generate comprehensive documentation and write it to README.md."
 }
 
 function global:novsec {
-    Write-Host "🌌 Nova running security audit..." -ForegroundColor Cyan
+    Write-Host "[Nova] Running security audit..." -ForegroundColor Cyan
     $cmd = $env:NOVA_CLI; if (-not $cmd) { $cmd = "nova" }
     & $cmd run "Perform a thorough security audit of this codebase. Check for: hardcoded secrets, injection vulnerabilities, insecure dependencies, missing auth checks. Output a severity-ranked report."
 }
 
 function global:novrefactor {
     param([Parameter(Mandatory = $true)][string]$File)
-    Write-Host "🌌 Nova refactoring $File..." -ForegroundColor Cyan
+    Write-Host "[Nova] Refactoring $File..." -ForegroundColor Cyan
     $cmd = $env:NOVA_CLI; if (-not $cmd) { $cmd = "nova" }
     & $cmd run "Refactor $File for improved readability, maintainability, and performance. Preserve all existing behavior and public API. Run tests after."
 }
 
 function global:novstack {
-    Write-Host "🌌 Nova Stack Status" -ForegroundColor Cyan
+    Write-Host "[Nova] Stack Status" -ForegroundColor Cyan
     Write-Host "  API:     $($env:NOVA_API_URL)"
     $gpu = "N/A"
     if (Get-Command nvidia-smi -ErrorAction SilentlyContinue) {
@@ -82,13 +82,13 @@ function global:novstack {
     $url = if ($env:NOVA_API_URL) { $env:NOVA_API_URL } else { "http://localhost:8080" }
     try {
         $null = Invoke-WebRequest -Uri "$url/health" -UseBasicParsing -TimeoutSec 3
-        Write-Host "  Health:  ✔ API responding" -ForegroundColor Green
+        Write-Host "  Health:  OK - API responding" -ForegroundColor Green
     } catch {
-        Write-Host "  Health:  ✖ API not responding" -ForegroundColor Yellow
+        Write-Host "  Health:  FAIL - API not responding" -ForegroundColor Yellow
     }
 }
 
 Write-Host ""
-Write-Host "🌌 Lawful Nova shell ready (PowerShell)." -ForegroundColor Green
+Write-Host "[Nova] Lawful Nova shell ready (PowerShell)." -ForegroundColor Green
 Write-Host "   nova-chat | novr | novtest | novpr | novdoc | novsec | novstack"
 Write-Host ""

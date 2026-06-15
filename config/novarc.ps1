@@ -1,4 +1,4 @@
-# .novarc.ps1 — Nova LLM Stack Environment Variables (Windows template)
+# .novarc.ps1 - Nova LLM Stack Environment Variables (Windows template)
 # bootstrap.ps1 copies this to %USERPROFILE%\.novarc.ps1 (gitignored there).
 # Fill in paths after your Nova stack is built.
 

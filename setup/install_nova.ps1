@@ -1,10 +1,10 @@
-# install_nova.ps1 — Validates and wires the Nova LLM stack (Windows)
+# install_nova.ps1 - Validates and wires the Nova LLM stack (Windows)
 #Requires -Version 5.1
 $ErrorActionPreference = "Continue"
 
 function Write-Log { param([string]$Message) Write-Host "[nova] $Message" -ForegroundColor Blue }
-function Write-Ok { param([string]$Message) Write-Host "✔ $Message" -ForegroundColor Green }
-function Write-Warn { param([string]$Message) Write-Host "⚠  $Message" -ForegroundColor Yellow }
+function Write-Ok { param([string]$Message) Write-Host "[OK] $Message" -ForegroundColor Green }
+function Write-Warn { param([string]$Message) Write-Host "[WARN] $Message" -ForegroundColor Yellow }
 
 $NovarcPath = Join-Path $env:USERPROFILE ".novarc.ps1"
 if (Test-Path $NovarcPath) { . $NovarcPath }
@@ -42,7 +42,7 @@ try {
     $null = Invoke-WebRequest -Uri "$NovaApiUrl/health" -UseBasicParsing -TimeoutSec 3
     Write-Ok "Nova API responding at $NovaApiUrl"
 } catch {
-    Write-Warn "Nova API not responding at $NovaApiUrl — is the stack running?"
+    Write-Warn "Nova API not responding at $NovaApiUrl (is the stack running?)"
 }
 
 if (Get-Command nvidia-smi -ErrorAction SilentlyContinue) {

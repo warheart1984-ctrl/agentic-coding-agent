@@ -1,22 +1,22 @@
-# verify.ps1 — Lawful Nova Agentic Shell verification (Windows)
+# verify.ps1 - Lawful Nova Agentic Shell verification (Windows)
 #Requires -Version 5.1
 param([switch]$Verbose)
 
 $Pass = 0; $Fail = 0; $Warn = 0
 
-function Write-Ok { param([string]$Message) Write-Host "  ✔ $Message" -ForegroundColor Green; $script:Pass++ }
-function Write-Fail { param([string]$Message) Write-Host "  ✖ $Message" -ForegroundColor Red; $script:Fail++ }
-function Write-WarnLine { param([string]$Message) Write-Host "  ⚠  $Message" -ForegroundColor Yellow; $script:Warn++ }
+function Write-Ok { param([string]$Message) Write-Host "  [OK] $Message" -ForegroundColor Green; $script:Pass++ }
+function Write-Fail { param([string]$Message) Write-Host "  [FAIL] $Message" -ForegroundColor Red; $script:Fail++ }
+function Write-WarnLine { param([string]$Message) Write-Host "  [WARN] $Message" -ForegroundColor Yellow; $script:Warn++ }
 function Write-Sep { param([string]$Title)
     Write-Host ""
-    Write-Host "── $Title ──────────────────────────────" -ForegroundColor Cyan
+    Write-Host "-- $Title --------------------------------" -ForegroundColor Cyan
 }
 
 $NovarcPath = Join-Path $env:USERPROFILE ".novarc.ps1"
 if (Test-Path $NovarcPath) { . $NovarcPath }
 
 Write-Host ""
-Write-Host "🌌 Lawful Nova — Agentic Shell Verification (Windows)" -ForegroundColor White
+Write-Host "Lawful Nova - Agentic Shell Verification (Windows)" -ForegroundColor White
 Write-Host "   $(Get-Date)"
 Write-Host ""
 
@@ -39,7 +39,7 @@ Write-Sep "Nova LLM Stack"
     if ($env:$_ ) { Write-Ok "$_ set" } else { Write-WarnLine "$_ not set (add to ~/.novarc.ps1)" }
 }
 @("NOVA_VOSS_RUNTIME_PATH", "NOVA_CORTEX_PATH", "NOVA_RSL_PATH") | ForEach-Object {
-    if ($env:$_ -and (Test-Path $env:$_)) { Write-Ok "$_ → $($env:$_)" }
+    if ($env:$_ -and (Test-Path $env:$_)) { Write-Ok "$_ -> $($env:$_)" }
     else { Write-WarnLine "$_ path not found or not set" }
 }
 if ($env:NOVA_GOW_CONFIG) { Write-Ok "NOVA_GOW_CONFIG set" } else { Write-WarnLine "NOVA_GOW_CONFIG not set" }
@@ -60,7 +60,7 @@ if (Get-Command nvidia-smi -ErrorAction SilentlyContinue) {
     $gpu = (nvidia-smi --query-gpu=name,memory.total --format=csv,noheader 2>$null | Select-Object -First 1)
     Write-Ok "GPU: $gpu"
 } else {
-    Write-WarnLine "nvidia-smi not found — GPU acceleration unavailable"
+    Write-WarnLine "nvidia-smi not found - GPU acceleration unavailable"
 }
 
 Write-Sep "Config Files"
@@ -75,7 +75,7 @@ if (Get-Command docker -ErrorAction SilentlyContinue) { Write-Ok "Docker" } else
 if (Get-Command code -ErrorAction SilentlyContinue) { Write-Ok "VS Code" } else { Write-WarnLine "VS Code not found" }
 
 Write-Host ""
-Write-Host "── Summary ───────────────────────────────" -ForegroundColor White
+Write-Host "-- Summary --------------------------------" -ForegroundColor White
 Write-Host "  Passed: $Pass   Warnings: $Warn   Failed: $Fail"
 Write-Host ""
 if ($Fail -gt 0) {
@@ -86,5 +86,5 @@ if ($Warn -gt 0) {
     Write-Host "  Critical checks passed. Some items need attention." -ForegroundColor Yellow
     exit 0
 }
-Write-Host "  All checks passed! 🌌 Nova shell is ready." -ForegroundColor Green
+Write-Host "  All checks passed! Nova shell is ready." -ForegroundColor Green
 exit 0
