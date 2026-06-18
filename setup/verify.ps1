@@ -7,6 +7,7 @@ $Pass = 0; $Fail = 0; $Warn = 0
 function Write-Ok { param([string]$Message) Write-Host "  [OK] $Message" -ForegroundColor Green; $script:Pass++ }
 function Write-Fail { param([string]$Message) Write-Host "  [FAIL] $Message" -ForegroundColor Red; $script:Fail++ }
 function Write-WarnLine { param([string]$Message) Write-Host "  [WARN] $Message" -ForegroundColor Yellow; $script:Warn++ }
+function Write-InfoLine { param([string]$Message) Write-Host "  [INFO] $Message" -ForegroundColor DarkCyan }
 function Write-Sep { param([string]$Title)
     Write-Host ""
     Write-Host "-- $Title --------------------------------" -ForegroundColor Cyan
@@ -14,6 +15,35 @@ function Write-Sep { param([string]$Title)
 
 $NovarcPath = Join-Path $env:USERPROFILE ".novarc.ps1"
 if (Test-Path $NovarcPath) { . $NovarcPath }
+
+function Get-CandidateRepoRoots {
+    $roots = @()
+    if ($env:LAWFUL_NOVA_REPO_ROOT) { $roots += $env:LAWFUL_NOVA_REPO_ROOT }
+    $roots += (Resolve-Path (Join-Path $PSScriptRoot "..") -ErrorAction SilentlyContinue | ForEach-Object { $_.Path })
+    $roots += (Resolve-Path (Join-Path $PSScriptRoot "..\..") -ErrorAction SilentlyContinue | ForEach-Object { $_.Path })
+    $roots += (Get-Location).Path
+    $roots | Where-Object { $_ } | Select-Object -Unique
+}
+
+function Get-RepoPython {
+    foreach ($root in Get-CandidateRepoRoots) {
+        foreach ($rel in @(".venv\Scripts\python.exe", "venv\Scripts\python.exe")) {
+            $candidate = Join-Path $root $rel
+            if (Test-Path $candidate) { return $candidate }
+        }
+    }
+    return $null
+}
+
+function Get-RepoNovaCli {
+    foreach ($root in Get-CandidateRepoRoots) {
+        foreach ($rel in @("lawful-nova-shell\bin\nova.ps1", "bin\nova.ps1")) {
+            $candidate = Join-Path $root $rel
+            if (Test-Path $candidate) { return $candidate }
+        }
+    }
+    return $null
+}
 
 Write-Host ""
 Write-Host "Lawful Nova - Agentic Shell Verification (Windows)" -ForegroundColor White
@@ -32,6 +62,7 @@ if (Get-Command node -ErrorAction SilentlyContinue) { Write-Ok "Node.js $(node -
 if (Get-Command npm -ErrorAction SilentlyContinue) { Write-Ok "npm" } else { Write-Fail "npm not found" }
 if (Get-Command python -ErrorAction SilentlyContinue) { Write-Ok "Python $(python --version)" }
 elseif (Get-Command py -ErrorAction SilentlyContinue) { Write-Ok "Python (py launcher)" }
+elseif ($repoPython = Get-RepoPython) { Write-Ok "Python .venv $repoPython" }
 else { Write-WarnLine "Python not found (optional for shell; install 3.12+ for Nova tooling)" }
 
 Write-Sep "Nova LLM Stack"
@@ -49,7 +80,9 @@ Write-Sep "Nova LLM Stack"
 if ($env:NOVA_GOW_CONFIG) { Write-Ok "NOVA_GOW_CONFIG set" } else { Write-WarnLine "NOVA_GOW_CONFIG not set" }
 
 $NovaCli = if ($env:NOVA_CLI) { $env:NOVA_CLI } else { "nova" }
-if (Get-Command $NovaCli -ErrorAction SilentlyContinue) { Write-Ok "Nova CLI reachable" } else { Write-WarnLine "Nova CLI not in PATH (install Nova stack or set NOVA_CLI)" }
+if (Get-Command $NovaCli -ErrorAction SilentlyContinue) { Write-Ok "Nova CLI reachable" }
+elseif ($repoNovaCli = Get-RepoNovaCli) { Write-Ok "Nova CLI repo shim reachable -> $repoNovaCli" }
+else { Write-WarnLine "Nova CLI not in PATH (install Nova stack or set NOVA_CLI)" }
 
 $ApiUrl = if ($env:NOVA_API_URL) { $env:NOVA_API_URL } else { "http://localhost:8080" }
 try {
@@ -75,7 +108,7 @@ if (Test-Path (Join-Path $env:USERPROFILE ".gitconfig")) { Write-Ok "~/.gitconfi
 if (Test-Path $PROFILE) { Write-Ok "PowerShell profile" } else { Write-WarnLine "PowerShell profile missing" }
 
 Write-Sep "Optional"
-if (Get-Command docker -ErrorAction SilentlyContinue) { Write-Ok "Docker" } else { Write-WarnLine "Docker not found" }
+if (Get-Command docker -ErrorAction SilentlyContinue) { Write-Ok "Docker" } else { Write-InfoLine "Docker not found - optional for native Windows agent" }
 if (Get-Command code -ErrorAction SilentlyContinue) { Write-Ok "VS Code" } else { Write-WarnLine "VS Code not found" }
 
 Write-Host ""

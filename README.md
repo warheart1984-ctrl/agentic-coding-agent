@@ -4,9 +4,32 @@
 
 Self-bootstrapping agentic coding environment for **macOS**, **Linux**, and **Windows**, powered by the **Nova LLM** stack — Voss Runtime · Gates of Wonder · RSL · Nova Cortex · NVIDIA backend.
 
-This repo does **not** build Nova; it validates paths to your already-built Nova slice and wires your dev shell (zsh / PowerShell), `AGENTS.md`, skills, and devcontainer.
+This repo ships the **source** for the local Lawful Nova shell and validates paths to either the bundled local lawful slice or your own built Nova stack. It wires your dev shell (zsh / PowerShell), `AGENTS.md`, skills, and devcontainer.
+
+No generated `.exe`, installer, model weights, checkpoints, `.venv`, or runtime databases are committed. Build artifacts stay local.
 
 Clone → Run one command → Code with Nova.
+
+## Windows-native status
+
+Lawful Nova is Windows-native first. Docker is optional and is only needed later
+for Linux parity, isolated CI, container deployment, or GPU/container proof
+lanes.
+
+The repo includes:
+
+- `bin/nova.ps1` and `bin/nova.cmd` local CLI shims
+- `nova/` source package for the local lawful runtime, CLI, and API
+- `scripts/nova_productization_gate.py` for source-level readiness proof
+- `setup/verify.ps1` for Windows environment checks
+
+Core local checks:
+
+```powershell
+python -m pip install -r requirements-dev.txt
+python -m pytest tests -q
+python scripts\nova_productization_gate.py
+```
 
 [![macOS](https://img.shields.io/badge/macOS-13%2B-black?logo=apple)](https://apple.com)
 [![Linux](https://img.shields.io/badge/Linux-Ubuntu%2022.04%2B-orange?logo=linux)](https://ubuntu.com)

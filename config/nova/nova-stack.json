@@ -1,7 +1,7 @@
 {
   "name": "Lawful Nova LLM Slice",
   "version": "1.0.0",
-  "description": "Voss Runtime + Gates of Wonder + RSL + Nova Cortex + NVIDIA backend",
+  "description": "Local Lawful Nova slice: Voss receipt runtime + Gates of Wonder presentation + RSL policy + Nova Cortex, with optional NVIDIA backend",
   "stack": {
     "voss_runtime": {
       "path": "${NOVA_VOSS_RUNTIME_PATH}",
@@ -22,6 +22,7 @@
     "nvidia_backend": {
       "endpoint": "${NOVA_MEGATRON_ENDPOINT}",
       "gpu_device": "${NOVA_GPU_DEVICE}",
+      "required_for_local_lawful_slice": false,
       "description": "NVIDIA Megatron / NIM GPU compute layer"
     }
   },
