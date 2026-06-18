@@ -64,6 +64,22 @@ if (Get-Command py -ErrorAction SilentlyContinue) {
     Write-Warn "Python not found. Install 3.12+ from python.org or winget."
 }
 
+$VenvPython = Join-Path $RepoRoot ".venv\Scripts\python.exe"
+if (-not (Test-Path $VenvPython)) {
+    if (Get-Command py -ErrorAction SilentlyContinue) {
+        py -3.12 -m venv (Join-Path $RepoRoot ".venv")
+    } elseif (Get-Command python -ErrorAction SilentlyContinue) {
+        python -m venv (Join-Path $RepoRoot ".venv")
+    }
+}
+if (Test-Path $VenvPython) {
+    & $VenvPython -m pip install --upgrade pip
+    & $VenvPython -m pip install -e "$RepoRoot"
+    Write-Ok "Local Lawful Nova package installed in .venv."
+} else {
+    Write-Warn "Could not create .venv; install Python 3.12+ and rerun bootstrap."
+}
+
 Write-Banner "Step 3/6 - Nova Stack Validation"
 & "$ScriptDir\install_nova.ps1"
 Write-Ok "Nova stack validated."
@@ -169,11 +185,11 @@ function Set-NovaVar {
 }
 
 Set-NovaVar -Name "NOVA_PORT" -Prompt "Nova API port" -Default "8080"
-Set-NovaVar -Name "NOVA_CLI" -Prompt "Nova CLI command" -Default "nova"
-Set-NovaVar -Name "NOVA_VOSS_RUNTIME_PATH" -Prompt "Path to Voss Runtime" -Default "C:\opt\nova\voss-runtime"
-Set-NovaVar -Name "NOVA_CORTEX_PATH" -Prompt "Path to Nova Cortex" -Default "C:\opt\nova\cortex"
-Set-NovaVar -Name "NOVA_GOW_CONFIG" -Prompt "Path to Gates of Wonder config" -Default "C:\opt\nova\gow\config.json"
-Set-NovaVar -Name "NOVA_RSL_PATH" -Prompt "Path to RSL" -Default "C:\opt\nova\rsl"
+Set-NovaVar -Name "NOVA_CLI" -Prompt "Nova CLI command" -Default (Join-Path $RepoRoot "bin\nova.ps1")
+Set-NovaVar -Name "NOVA_VOSS_RUNTIME_PATH" -Prompt "Path to Voss Runtime" -Default (Join-Path $RepoRoot "nova")
+Set-NovaVar -Name "NOVA_CORTEX_PATH" -Prompt "Path to Nova Cortex" -Default (Join-Path $RepoRoot "nova")
+Set-NovaVar -Name "NOVA_GOW_CONFIG" -Prompt "Path to Gates of Wonder config" -Default (Join-Path $RepoRoot "config\nova\nova-stack.json")
+Set-NovaVar -Name "NOVA_RSL_PATH" -Prompt "Path to RSL" -Default (Join-Path $RepoRoot "nova")
 Set-NovaVar -Name "NOVA_GPU_DEVICE" -Prompt "NVIDIA GPU device index" -Default "0"
 Set-NovaVar -Name "GITHUB_TOKEN" -Prompt "GitHub PAT (optional, leave blank)" -Default ""
 

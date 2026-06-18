@@ -26,11 +26,23 @@ venv/
 *.pyc
 .pytest_cache/
 
+# Packaged binaries/build artifacts - do not commit generated executables.
+*.exe
+*.msi
+*.msix
+*.appx
+*.appxbundle
+*.pyd
+*.dll
+*.so
+*.dylib
+
 # Editor
 .idea/
 *.swp
 
 # Nova runtime artifacts
+.runtime/
 .nova/sessions/
 agent.db
 *.sqlite
