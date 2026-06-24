@@ -1,258 +1,204 @@
-# Agentic Coding Agent (Lawful Nova Shell)
+# Agentic Coding Agent — Nova Mission #002
 
 **Repository:** [warheart1984-ctrl/agentic-coding-agent](https://github.com/warheart1984-ctrl/agentic-coding-agent)
 
-Self-bootstrapping agentic coding environment for **macOS**, **Linux**, and **Windows**, powered by the **Nova LLM** stack — Voss Runtime · Gates of Wonder · RSL · Nova Cortex · NVIDIA backend.
+Founder-independent reproduction bundle for **Nova × CRK-2** constitutional agentic coding. Mission #002 proves that an external observer can build, run, and verify a governed coding agent — with receipts, invariant enforcement, continuity snapshots, multi-agent orchestration, and a live cockpit — using only this repository.
 
-This repo does **not** build Nova; it validates paths to your already-built Nova slice and wires your dev shell (zsh / PowerShell), `AGENTS.md`, skills, and devcontainer.
-
-Clone → Run one command → Code with Nova.
-
-[![macOS](https://img.shields.io/badge/macOS-13%2B-black?logo=apple)](https://apple.com)
-[![Linux](https://img.shields.io/badge/Linux-Ubuntu%2022.04%2B-orange?logo=linux)](https://ubuntu.com)
-[![Windows](https://img.shields.io/badge/Windows-10%2B-0078D6?logo=windows)](https://microsoft.com/windows)
-[![NVIDIA](https://img.shields.io/badge/NVIDIA-CUDA%2012%2B-76b900?logo=nvidia)](https://developer.nvidia.com/cuda-downloads)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
 ---
 
-## Table of Contents
+## What Mission #002 Proves
 
-- [Nova Stack Architecture](#nova-stack-architecture)
-- [Repo Structure](#repo-structure)
-- [Prerequisites](#prerequisites)
-- [Quick Start](#quick-start-one-command)
-- [Windows Quick Start](#windows-quick-start)
-- [Manual Setup](#manual-setup)
-- [Nova Configuration](#nova-configuration)
-- [Shell Commands](#shell-commands)
-- [AGENTS.md Spec](#agentsmd-spec)
-- [Dev Container](#dev-container-support)
-- [Troubleshooting](#troubleshooting)
+| Component | Role |
+|-----------|------|
+| **CRK-2** | Constitutional Runtime Kernel v2 — dLAP constraints, PIT engine, MACC clustering, hash-chained ledger |
+| **Agent SDK** (`agent/`) | `AgentRuntime` — validate → execute → receipt → `ledger.append` for every action |
+| **Control Tower** | Multi-agent orchestration, consensus, drift detection, cluster replay |
+| **Backend** | Unified service layer + WebSocket events gateway for the cockpit |
+| **Cockpit** | React flight deck — plans, receipts, invariants, continuity matrix, drift map |
+| **Observer bundle** | Frozen reproduction artifact with independent verification protocol |
 
----
-
-## Nova Stack Architecture
-
-```
-┌─────────────────────────────────────────────────────────────┐
-│                       Your Terminal                         │
-│  ┌───────────────────────────────────────────────────────┐  │
-│  │           Lawful Nova Agentic Shell                     │  │
-│  │   nova chat | novr | novtest | novpr | novstack        │  │
-│  │  ┌─────────────────────────────────────────────────┐  │  │
-│  │  │              Nova LLM Slice                     │  │  │
-│  │  │  [Voss Runtime] → [Gates of Wonder] → [RSL]    │  │  │
-│  │  │          ↓                                      │  │  │
-│  │  │    [Nova Cortex]  ←──────────────────────────  │  │  │
-│  │  │          ↓                                      │  │  │
-│  │  │  [NVIDIA Megatron / NIM Backend]                │  │  │
-│  │  │          ↓                                      │  │  │
-│  │  │   REST API  localhost:${NOVA_PORT}              │  │  │
-│  │  └─────────────────────────────────────────────────┘  │  │
-│  └───────────────────────────────────────────────────────┘  │
-└─────────────────────────────────────────────────────────────┘
-```
-
-| Layer | Component | Role |
-|---|---|---|
-| Runtime | Voss Runtime | Execution host for the Nova slice |
-| Routing | Gates of Wonder | Request gating, context injection, guardrails |
-| Scripting | RSL | Nova's internal scripting/reasoning layer |
-| Core | Nova Cortex | The LLM brain — weights + inference loop |
-| Backend | NVIDIA Megatron/NIM | GPU-accelerated tensor compute |
-| Interface | REST API / CLI | How the shell talks to Nova |
+An observer clones this repo, runs `npm install && npm run build`, executes the reproduction protocol, and signs off — no founder guidance required.
 
 ---
 
-## Repo Structure
+## Repository Layout
 
 ```
 agentic-coding-agent/
-├── README.md
-├── AGENTS.md
-├── LICENSE
-├── setup/
-│   ├── bootstrap.sh          # macOS / Linux
-│   ├── bootstrap.ps1         # Windows
-│   ├── install_macos.sh
-│   ├── install_linux.sh
-│   ├── install_windows.ps1
-│   ├── install_nova.sh / install_nova.ps1
-│   └── verify.sh / verify.ps1
-├── config/
-│   ├── .zshrc                # macOS / Linux shell
-│   ├── profile.ps1           # Windows PowerShell profile
-│   ├── .novarc               # Unix env (gitignored template)
-│   ├── novarc.ps1            # Windows env (gitignored template)
-│   ├── .gitconfig.template
-│   └── nova/nova-stack.json
-├── .devcontainer/
-├── .nova/commands/
-├── skills/
-└── .vscode/
+├── README.md                    # This file
+├── MISSION-002.md               # Mission brief + reproduction protocol
+├── RELEASE.md                   # Release notes + observer bundle attestation
+├── observer-bundle-mission-002.zip
+│
+├── agent/                       # Nova Agent SDK (AgentRuntime + governance)
+│   ├── runtime/agent-runtime.ts # Primary API entry point
+│   ├── governance/              # validate, receipt, ledger, invariants
+│   ├── core/                    # Planner, executor, code generation
+│   ├── continuity/              # Snapshots, substrate, replay
+│   └── cli.ts                   # `nova` CLI
+│
+├── crk2/                        # CRK-2 constitutional kernel
+│   ├── kernel/                  # dLAP, PIT, panic handler
+│   ├── invariants/              # Invariant engine
+│   ├── continuity/              # CRP, substrate, replay
+│   ├── ledger/                  # Ledger v2
+│   └── cluster/                 # MACC multi-agent continuity
+│
+├── control-tower/               # Orchestration layer
+│   ├── orchestrator/            # Cluster manager, consensus, drift detector
+│   ├── replay/                  # Cluster replay
+│   └── drift/                   # Drift simulation
+│
+├── backend/                     # Service adapters
+│   ├── crk2-service.ts
+│   ├── control-tower-service.ts
+│   ├── nova-adapter.ts
+│   └── events-gateway.ts
+│
+├── cockpit/                     # React UI (NovaShell + Flight Deck)
+│
+├── observer/                    # Independent verification
+│   ├── REPRO_PROTOCOL.md
+│   ├── CHECKLIST.md
+│   └── EXPECTED_OUTPUT.md
+│
+├── config/                      # Mission invariants (nova.config.ts)
+├── docs/                        # Specs, operator certification, integrity suites
+├── examples/                    # Governed project templates
+├── tools/fuzz/                  # Kernel fuzz harness
+├── web/                         # Marketing site
+│
+└── shell/                       # Lawful Nova dev shell (bootstrap, separate concern)
+    ├── setup/                   # bootstrap.sh / bootstrap.ps1
+    ├── config/                  # .zshrc, profile.ps1, novarc templates
+    ├── skills/
+    └── AGENTS.md
 ```
 
----
-
-## Prerequisites
-
-| Dependency | macOS | Linux | Windows | Auto-installed |
-|---|---|---|---|---|
-| Homebrew | Required | — | — | Yes |
-| Git / gh | Yes | Yes | Yes | Yes (winget) |
-| Node.js 20+ | via nvm | via nvm | nvm-windows / winget | Yes |
-| Python 3.12+ | via pyenv | via pyenv | py / winget | Yes |
-| NVIDIA Driver + CUDA 12+ | Manual | Manual | Manual | Checked |
-| **Nova stack (built)** | **Required** | **Required** | **Required** | No |
-| Docker + NVIDIA toolkit | Optional | Optional | WSL2 + toolkit | Prompt |
-
-> Your Nova stack must already be built and paths set in `~/.novarc` (Unix) or `~/.novarc.ps1` (Windows) before bootstrap.
+> **Note:** `shell/` is the self-bootstrapping Nova dev environment (macOS/Linux/Windows). It is intentionally separate from Mission #002 runtime code. See [`shell/README.md`](shell/README.md).
 
 ---
 
-## Quick Start (One Command)
+## Quick Start
 
-### macOS / Linux
+### Prerequisites
+
+- Node.js 18+
+- Git
+
+### Install & Build
 
 ```bash
-git clone https://github.com/warheart1984-ctrl/agentic-coding-agent.git && \
-  cd agentic-coding-agent && \
-  chmod +x setup/bootstrap.sh setup/*.sh && \
-  ./setup/bootstrap.sh
-```
-
-### Windows
-
-```powershell
 git clone https://github.com/warheart1984-ctrl/agentic-coding-agent.git
 cd agentic-coding-agent
-powershell -ExecutionPolicy Bypass -File setup\bootstrap.ps1
+npm install
+npm run build
 ```
 
-Bootstrap will:
+### 30-Second Agent Example
 
-1. Detect OS and install system dependencies
-2. Install Node.js 20 and Python 3.12
-3. Validate your Nova stack is reachable
-4. Deploy dotfiles / PowerShell profile
-5. Prompt for Nova paths (port, Voss, Cortex, etc.)
-6. Run verification and print a status report
+```typescript
+import { AgentRuntime, governance } from "./agent";
+import { invariants } from "./config/nova.config";
 
----
+// Register constitutional invariants
+for (const inv of invariants) {
+  await governance.requireInvariant(inv);
+}
 
-## Windows Quick Start
+const runtime = new AgentRuntime();
 
-| Step | Command |
-|---|---|
-| Clone | `git clone https://github.com/warheart1984-ctrl/agentic-coding-agent.git` |
-| Bootstrap | `powershell -ExecutionPolicy Bypass -File setup\bootstrap.ps1` |
-| Reload | `. $PROFILE` |
-| Verify | `.\setup\verify.ps1` |
+// Governed code generation — validate → receipt → ledger.append
+const result = await runtime.generateCode({
+  prompt: "Write a TypeScript function to compute Fibonacci numbers.",
+});
 
-Default Windows paths (prompted during bootstrap):
+console.log(result.code);
+console.log(result.receipts[0].ledgerHash);
+```
 
-| Variable | Default |
-|---|---|
-| `NOVA_VOSS_RUNTIME_PATH` | `C:\opt\nova\voss-runtime` |
-| `NOVA_CORTEX_PATH` | `C:\opt\nova\cortex` |
-| `NOVA_GOW_CONFIG` | `C:\opt\nova\gow\config.json` |
-| `NOVA_RSL_PATH` | `C:\opt\nova\rsl` |
-
-PowerShell functions (after profile load): `nova-chat`, `novr`, `novtest`, `novpr`, `novdoc`, `novsec`, `novrefactor`, `novstack`.
-
----
-
-## Manual Setup
-
-**Unix:**
+### CLI
 
 ```bash
-./setup/install_macos.sh    # or install_linux.sh
-./setup/install_nova.sh
-ln -sf "$(pwd)/config/.zshrc" ~/.zshrc
-ln -sf "$(pwd)/config/.novarc" ~/.novarc
-source ~/.zshrc
-./setup/verify.sh
+npx nova generate "Write a factorial function in TypeScript."
+npx nova plan "Refactor the data access layer"
+npx nova continuity
+npx nova receipts
 ```
 
-**Windows:**
-
-```powershell
-.\setup\install_windows.ps1
-.\setup\install_nova.ps1
-Copy-Item config\novarc.ps1 $env:USERPROFILE\.novarc.ps1
-. $PROFILE   # after bootstrap wires profile.ps1
-.\setup\verify.ps1
-```
-
----
-
-## Nova Configuration
-
-**Unix** — `~/.novarc` (gitignored):
+### Cockpit (Flight Deck UI)
 
 ```bash
-export NOVA_PORT=8080
-export NOVA_API_URL="http://localhost:${NOVA_PORT}"
-export NOVA_CLI="nova"
-export NOVA_VOSS_RUNTIME_PATH="/path/to/voss-runtime"
-export NOVA_CORTEX_PATH="/path/to/nova-cortex"
-export NOVA_GOW_CONFIG="/path/to/gates-of-wonder/config.json"
-export NOVA_RSL_PATH="/path/to/rsl"
-export NOVA_GPU_DEVICE="0"
-export GITHUB_TOKEN=""
+npm run cockpit
 ```
 
-**Windows** — `~/.novarc.ps1` (gitignored): same variables as `$env:NAME`.
+Opens the React cockpit at `http://localhost:5173` with kernel status, receipts, continuity matrix, and drift visualization.
 
 ---
 
-## Shell Commands
+## Observer Bundle
 
-| Command | macOS / Linux (zsh) | Windows (PowerShell) |
-|---|---|---|
-| Interactive Nova | `nova chat` / `nova-chat` | `nova-chat` |
-| Review + commit | `novr` | `novr` |
-| Test + auto-fix | `novtest` | `novtest` |
-| Create PR | `novpr` | `novpr` |
-| Generate docs | `novdoc` | `novdoc` |
-| Security audit | `novsec` | `novsec` |
-| Refactor file | `novrefactor <file>` | `novrefactor <file>` |
-| Stack status | `novstack` | `novstack` |
+Mission #002 ships a frozen observer bundle for independent verification:
 
----
+| Property | Value |
+|----------|-------|
+| File | [`observer-bundle-mission-002.zip`](observer-bundle-mission-002.zip) |
+| SHA-256 | `5FFDF5B95095E9FA2C4331EE71739850C335D3F0FF7EBBC3F0E3C1BAB020BD82` |
+| Size | 151,078 bytes |
 
-## AGENTS.md Spec
-
-`AGENTS.md` at the repo root sets behavioral rules Nova follows in every session. Edit it to match your project's conventions.
-
----
-
-## Dev Container Support
-
-Built on NVIDIA CUDA 12 + Ubuntu 22.04. Requires Docker + NVIDIA Container Toolkit on Linux/WSL2.
-
-```
-Ctrl+Shift+P → Dev Containers: Reopen in Container
-```
-
----
-
-## Troubleshooting
-
-| Symptom | Fix |
-|---|---|
-| `nova: command not found` | Add `NOVA_VOSS_RUNTIME_PATH` to PATH in `~/.novarc` or `~/.novarc.ps1` |
-| Nova API not responding | `curl $NOVA_API_URL/health` or `Invoke-WebRequest` on Windows |
-| CUDA not found | Run `nvidia-smi` — install NVIDIA drivers + CUDA 12 |
-| Windows execution policy | `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned` |
-| GPU index error | Set `NOVA_GPU_DEVICE=0` in novarc |
+Verify:
 
 ```bash
-./setup/verify.sh --verbose          # Unix
-.\setup\verify.ps1 -Verbose          # Windows
+# macOS / Linux
+shasum -a 256 observer-bundle-mission-002.zip
+
+# Windows PowerShell
+Get-FileHash -Algorithm SHA256 observer-bundle-mission-002.zip
 ```
+
+Follow [`observer/REPRO_PROTOCOL.md`](observer/REPRO_PROTOCOL.md) and sign off with [`observer/CHECKLIST.md`](observer/CHECKLIST.md).
+
+---
+
+## SDK API Surface
+
+**Primary:** `AgentRuntime`
+
+```typescript
+const runtime = new AgentRuntime();
+
+await runtime.validate(action);           // Pre-flight invariant check
+await runtime.receipt(action, invIds);    // Record + hash-chain
+runtime.ledger.append(receipt);           // Direct ledger access
+runtime.ledger.tailHash();                // Chain tip
+```
+
+**Governance namespace:**
+
+```typescript
+import { governance } from "./agent";
+
+await governance.validate(action);
+await governance.receipt(action, ["no-dangerous-shell"]);
+governance.ledger.append(receipt);
+```
+
+Legacy `nova.*` and `runtime.*` namespaces remain exported for backward compatibility but are deprecated.
+
+---
+
+## Documentation
+
+| Doc | Purpose |
+|-----|---------|
+| [MISSION-002.md](MISSION-002.md) | Mission brief + reproduction protocol |
+| [RELEASE.md](RELEASE.md) | Release notes + bundle attestation |
+| [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | System architecture |
+| [docs/CRK-2-SPEC.md](docs/CRK-2-SPEC.md) | CRK-2 constitutional kernel spec |
+| [docs/NOVA-CONTROL-TOWER.md](docs/NOVA-CONTROL-TOWER.md) | Control Tower orchestration |
+| [observer/REPRO_PROTOCOL.md](observer/REPRO_PROTOCOL.md) | Observer reproduction steps |
 
 ---
 
