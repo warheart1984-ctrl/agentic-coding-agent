@@ -16,7 +16,7 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
     "paths": {
-      "nova-sdk": ["../src/index.ts"]
+      "nova-sdk": ["./src/bridge/nova-sdk-browser.ts"]
     }
   },
   "include": ["src"]

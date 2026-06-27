@@ -18,7 +18,7 @@ export function DiffInspector() {
   if (!diff) {
     return (
       <Panel title="Diff Inspector">
-        <div className={styles.empty}>No diff selected — generate code or refactor to inspect.</div>
+        <div className={styles.empty}>No diff selected - generate code or refactor to inspect.</div>
       </Panel>
     );
   }
@@ -26,14 +26,14 @@ export function DiffInspector() {
   return (
     <Panel title="Diff Inspector">
       <div className={styles.columns}>
-        <div className={styles.col}>— before —</div>
+        <div className={styles.col}>- before -</div>
         <div className={styles.col}>{diff.text}</div>
       </div>
       <div className={styles.meta}>
         <div>Action: {diff.metadata.action}</div>
         <div>Invariants: [{diff.metadata.invariantsChecked.join(", ")}]</div>
         <div>Continuity Hash: {diff.metadata.continuityHash}</div>
-        <div>Receipt: {diff.metadata.receiptId ?? "—"}</div>
+        <div>Receipt: {diff.metadata.receiptId ?? "-"}</div>
       </div>
       <div className={styles.actions}>
         <button type="button" className={styles.btnPrimary} onClick={() => void applyPatch()}>
