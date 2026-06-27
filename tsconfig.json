@@ -17,6 +17,16 @@
     "noImplicitReturns": true,
     "moduleResolution": "node"
   },
-  "include": ["agent/**/*", "config/nova.config.ts", "crk2/**/*", "control-tower/**/*", "backend/**/*", "tools/**/*"],
+  "include": [
+    "agent/**/*",
+    "src/**/*",
+    "bin/**/*",
+    "tests/**/*",
+    "config/nova.config.ts",
+    "crk2/**/*",
+    "control-tower/**/*",
+    "backend/**/*",
+    "tools/**/*"
+  ],
   "exclude": ["node_modules", "dist", "examples", "cockpit"]
 }
