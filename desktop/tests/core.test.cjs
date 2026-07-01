@@ -7,7 +7,8 @@ const test = require("node:test");
 test("node client posts code and wire tasks to configured node tool endpoint", async () => {
   const calls = [];
   const client = require("../core/node-client");
-  client.updateConfig({ nodeUrl: "http://127.0.0.1:8080/", model: "phi3" });
+  assert.equal(client.getConfig().model, "qwen2.5-coder:3b");
+  client.updateConfig({ nodeUrl: "http://127.0.0.1:8080/", model: "qwen2.5-coder:7b" });
   client.setTransport(async (url, options) => {
     calls.push({ url, options });
     return {
@@ -22,17 +23,24 @@ test("node client posts code and wire tasks to configured node tool endpoint", a
   assert.equal(calls[0].url, "http://127.0.0.1:8080/node/tool");
   assert.deepEqual(JSON.parse(calls[0].options.body), {
     intent: "code",
-    model: "phi3",
+    model: "qwen2.5-coder:7b",
     file_path: "src/app.py",
     instruction: "Add health",
     current_code: "print('x')",
   });
   assert.deepEqual(JSON.parse(calls[1].options.body), {
     intent: "wire",
-    model: "phi3",
+    model: "qwen2.5-coder:7b",
     goal: "Connect coder",
     components: ["main.py"],
   });
+});
+
+test("desktop exposes both installed qwen coding models", () => {
+  const html = fs.readFileSync(path.join(__dirname, "..", "renderer", "index.html"), "utf8");
+
+  assert.match(html, /value="qwen2\.5-coder:3b"/);
+  assert.match(html, /value="qwen2\.5-coder:7b"/);
 });
 
 test("node client reads status and replays by trace id", async () => {

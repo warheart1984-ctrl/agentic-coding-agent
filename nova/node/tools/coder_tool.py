@@ -24,7 +24,11 @@ Current Code:
 Return ONLY the updated code.
 """
 
-    updated_code = generate(prompt, model=str(task.get("model") or "deepseek-coder"), temperature=0.15)
+    updated_code = generate(
+        prompt,
+        model=str(task.get("model") or "qwen2.5-coder:3b"),
+        temperature=0.15,
+    )
     diff_lines = difflib.unified_diff(
         current_code.splitlines(),
         updated_code.splitlines(),

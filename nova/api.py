@@ -208,9 +208,9 @@ def build_provider(cfg: dict[str, Any]) -> Any:
         return _LegacyOllamaProviderAdapter(
             OllamaChatProvider(
                 base_url=str(cfg.get("ollama_url") or "http://127.0.0.1:11434"),
-                model=str(cfg.get("ollama_model") or "qwen2.5-coder:7b"),
+                model=str(cfg.get("ollama_model") or "qwen2.5-coder:3b"),
             ),
-            model=str(cfg.get("ollama_model") or "qwen2.5-coder:7b"),
+            model=str(cfg.get("ollama_model") or "qwen2.5-coder:3b"),
         )
     return _registry_build_provider(cfg)
 
@@ -268,7 +268,7 @@ def openai_models(_: None = Depends(_require_api_key)) -> dict[str, Any]:
     ]
     if cfg.get("provider") == "ollama":
         models.append({
-            "id": str(cfg.get("ollama_model") or "qwen2.5-coder:7b"),
+            "id": str(cfg.get("ollama_model") or "qwen2.5-coder:3b"),
             "object": "model",
             "created": 0,
             "owned_by": "ollama",
@@ -452,7 +452,7 @@ def _build_provider() -> Any | None:
         raise RuntimeError(f"unsupported NOVA_PROVIDER: {provider}")
     return OllamaChatProvider(
         base_url=os.environ.get("NOVA_OLLAMA_BASE_URL", "http://127.0.0.1:11434"),
-        model=os.environ.get("NOVA_OLLAMA_MODEL", "qwen2.5-coder:7b"),
+        model=os.environ.get("NOVA_OLLAMA_MODEL", "qwen2.5-coder:3b"),
     )
 
 
@@ -521,7 +521,7 @@ def _completion_prompt_to_text(prompt: Any) -> str:
 def _active_model(cfg: dict[str, Any]) -> str:
     provider = cfg.get("provider")
     if provider == "ollama":
-        return str(cfg.get("ollama_model") or "qwen2.5-coder:7b")
+        return str(cfg.get("ollama_model") or "qwen2.5-coder:3b")
     if provider == "external":
         return str(cfg.get("external_model") or "unknown-external-model")
     return str(cfg.get("local_model") or "nova-local")

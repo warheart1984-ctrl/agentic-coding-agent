@@ -16,18 +16,29 @@ function Write-Fail([string]$Message) { Write-Host "[FAIL] $Message"; $script:Fa
 Write-Host "=== Lawful Nova verify (windows) ==="
 Write-Host "Repo: $RepoRoot"
 
-$VenvPy = Join-Path $RepoRoot ".venv\Scripts\python.exe"
-if (Test-Path $VenvPy) {
-    $PyExe = $VenvPy
-    Write-Ok "Python .venv $PyExe"
+$PythonCandidates = @(
+    (Join-Path $ShellRoot ".venv\Scripts\python.exe"),
+    (Join-Path $RepoRoot ".venv\Scripts\python.exe")
+)
+if ($env:OPERATOR_PYTHON) {
+    $PythonCandidates += $env:OPERATOR_PYTHON
+}
+$PyExe = $PythonCandidates | Where-Object { Test-Path $_ } | Select-Object -First 1
+if ($PyExe) {
+    Write-Ok "Python runtime $PyExe"
 } else {
-    Write-Fail "Missing repo .venv at $VenvPy"
-    $PyExe = $null
+    $PythonCommand = Get-Command python -ErrorAction SilentlyContinue
+    if ($PythonCommand) {
+        $PyExe = $PythonCommand.Source
+        Write-Ok "Python runtime $PyExe"
+    } else {
+        Write-Fail "Missing Python runtime in shell .venv, repo .venv, or PATH"
+    }
 }
 
-$CortexPath = if ($env:NOVA_CORTEX_PATH) { $env:NOVA_CORTEX_PATH } else { Join-Path $RepoRoot "nova" }
-$VossPath = if ($env:NOVA_VOSS_RUNTIME_PATH) { $env:NOVA_VOSS_RUNTIME_PATH } else { Join-Path $RepoRoot "nova" }
-$RslPath = if ($env:NOVA_RSL_PATH) { $env:NOVA_RSL_PATH } else { Join-Path $RepoRoot "governance" }
+$CortexPath = if ($env:NOVA_CORTEX_PATH) { $env:NOVA_CORTEX_PATH } else { Join-Path $ShellRoot "nova" }
+$VossPath = if ($env:NOVA_VOSS_RUNTIME_PATH) { $env:NOVA_VOSS_RUNTIME_PATH } else { Join-Path $ShellRoot "nova" }
+$RslPath = if ($env:NOVA_RSL_PATH) { $env:NOVA_RSL_PATH } else { Join-Path $ShellRoot "nova\governance" }
 
 if (Test-Path $CortexPath) { Write-Ok "Cortex path $CortexPath" } else { Write-Fail "Missing cortex path $CortexPath" }
 if (Test-Path $VossPath) { Write-Ok "Voss path $VossPath" } else { Write-Fail "Missing voss path $VossPath" }
@@ -48,7 +59,7 @@ try {
 }
 
 if ($PyExe) {
-    $env:PYTHONPATH = $RepoRoot
+    $env:PYTHONPATH = "$ShellRoot;$RepoRoot"
     $health = & $PyExe -m nova.cli health --json 2>&1
     if ($LASTEXITCODE -eq 0) {
         Write-Ok "Direct LawfulLLM in-process"

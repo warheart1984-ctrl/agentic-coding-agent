@@ -7,29 +7,46 @@ import urllib.request
 
 DEFAULT_OLLAMA_URL = "http://localhost:11434/api/generate"
 DEFAULT_VLLM_URL = "http://localhost:8000/v1/completions"
+DEFAULT_MODEL = "qwen2.5-coder:3b"
 
 
-def generate(prompt: str, *, model: str | None = "phi3", temperature: float = 0.2, max_tokens: int = 2048) -> str:
-    active_model = model or "phi3"
+def generate(
+    prompt: str,
+    *,
+    model: str | None = DEFAULT_MODEL,
+    temperature: float = 0.2,
+    max_tokens: int = 2048,
+) -> str:
+    active_model = model or DEFAULT_MODEL
     try:
-        return _ollama_generate(prompt, active_model, temperature)
+        return _ollama_generate(prompt, active_model, temperature, max_tokens)
     except Exception:
-        return _vllm_generate(prompt, active_model, temperature)
+        return _vllm_generate(prompt, active_model, temperature, max_tokens)
 
 
-def _ollama_generate(prompt: str, model: str, temperature: float) -> str:
+def _ollama_generate(prompt: str, model: str, temperature: float, max_tokens: int) -> str:
     data = _post_json(
         _ollama_url(),
-        {"model": model, "prompt": prompt, "temperature": temperature},
+        {
+            "model": model,
+            "prompt": prompt,
+            "stream": False,
+            "options": {"temperature": temperature, "num_predict": max_tokens},
+        },
         _timeout(),
     )
     return str(data.get("response", ""))
 
 
-def _vllm_generate(prompt: str, model: str, temperature: float) -> str:
+def _vllm_generate(prompt: str, model: str, temperature: float, max_tokens: int) -> str:
     data = _post_json(
         _vllm_url(),
-        {"model": model, "prompt": prompt, "temperature": temperature},
+        {
+            "model": model,
+            "prompt": prompt,
+            "temperature": temperature,
+            "max_tokens": max_tokens,
+        },
         _timeout(),
     )
     return str(data["choices"][0]["text"])

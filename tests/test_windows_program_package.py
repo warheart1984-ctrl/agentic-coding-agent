@@ -18,6 +18,18 @@ def test_windows_program_quickstart_documents_desktop_and_node_backend() -> None
     assert "python -m nova.api" in guide
 
 
+def test_windows_wrappers_execute_the_shell_source_with_flexible_python_discovery() -> None:
+    verify = (ROOT / "setup" / "verify.ps1").read_text(encoding="utf-8")
+    wrapper = (ROOT / "bin" / "nova.ps1").read_text(encoding="utf-8")
+
+    assert '$env:PYTHONPATH = "$ShellRoot;$RepoRoot"' in verify
+    assert 'Join-Path $ShellRoot ".venv\\Scripts\\python.exe"' in verify
+    assert 'Join-Path $RepoRoot ".venv\\Scripts\\python.exe"' in verify
+    assert '$env:PYTHONPATH = "$ShellRoot;$RepoRoot"' in wrapper
+    assert 'Join-Path $ShellRoot ".venv\\Scripts\\python.exe"' in wrapper
+    assert 'Join-Path $RepoRoot ".venv\\Scripts\\python.exe"' in wrapper
+
+
 def test_windows_program_zip_includes_desktop_and_governed_node_backend(tmp_path) -> None:
     from scripts.package_windows_program import create_windows_program_zip
 

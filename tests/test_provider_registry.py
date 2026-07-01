@@ -3,6 +3,16 @@ from __future__ import annotations
 import json
 
 
+def test_ollama_defaults_to_installed_qwen_3b(monkeypatch) -> None:
+    from nova.config import load_nova_config
+    from nova.providers.provider_ollama import OllamaProvider
+
+    monkeypatch.delenv("NOVA_OLLAMA_MODEL", raising=False)
+
+    assert load_nova_config()["ollama_model"] == "qwen2.5-coder:3b"
+    assert OllamaProvider().model == "qwen2.5-coder:3b"
+
+
 def test_provider_registry_builds_local_ollama_and_external() -> None:
     from nova.providers import build_provider
     from nova.providers.provider_external import ExternalProvider

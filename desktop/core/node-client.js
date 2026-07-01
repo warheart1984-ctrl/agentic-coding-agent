@@ -1,6 +1,6 @@
 let config = {
   nodeUrl: "http://localhost:8000",
-  model: "phi3",
+  model: "qwen2.5-coder:3b",
 };
 
 let transport = globalThis.fetch;

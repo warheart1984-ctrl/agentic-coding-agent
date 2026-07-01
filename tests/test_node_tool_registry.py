@@ -29,6 +29,7 @@ def test_coder_tool_returns_updated_code_diff_and_receipt(monkeypatch) -> None:
     assert "+++ src/app.py (updated)" in result["diff"]
     assert "-def old():" in result["diff"]
     assert "+def health():" in result["diff"]
+    assert captured["model"] == "qwen2.5-coder:3b"
     assert captured["temperature"] == 0.15
     assert result["receipts"] == ["coder_tool"]
 
@@ -66,6 +67,34 @@ def test_tool_registry_invokes_ring2_tools(monkeypatch) -> None:
     assert "wire" in registry.TOOLS
 
 
+def test_local_model_uses_non_streaming_ollama_payload_and_qwen_default(monkeypatch) -> None:
+    from nova.node.tools import local_model
+
+    calls = []
+
+    def fake_post_json(url, payload, timeout):
+        calls.append((url, payload, timeout))
+        return {"response": "from ollama"}
+
+    monkeypatch.setattr(local_model, "_post_json", fake_post_json)
+
+    result = local_model.generate("hello")
+
+    assert result == "from ollama"
+    assert calls == [
+        (
+            "http://localhost:11434/api/generate",
+            {
+                "model": "qwen2.5-coder:3b",
+                "prompt": "hello",
+                "stream": False,
+                "options": {"temperature": 0.2, "num_predict": 2048},
+            },
+            60.0,
+        )
+    ]
+
+
 def test_local_model_falls_back_from_ollama_to_vllm(monkeypatch) -> None:
     from nova.node.tools import local_model
 
@@ -81,13 +110,23 @@ def test_local_model_falls_back_from_ollama_to_vllm(monkeypatch) -> None:
     monkeypatch.setenv("NOVA_NODE_VLLM_URL", "http://127.0.0.1:8000/v1/completions")
     monkeypatch.setattr(local_model, "_post_json", fake_post_json)
 
-    result = local_model.generate("hello", model="phi3", temperature=0.1)
+    result = local_model.generate("hello", model="qwen2.5-coder:7b", temperature=0.1, max_tokens=128)
 
     assert result == "from vllm"
     assert calls[0][0] == "http://127.0.0.1:11434/api/generate"
-    assert calls[0][1] == {"model": "phi3", "prompt": "hello", "temperature": 0.1}
+    assert calls[0][1] == {
+        "model": "qwen2.5-coder:7b",
+        "prompt": "hello",
+        "stream": False,
+        "options": {"temperature": 0.1, "num_predict": 128},
+    }
     assert calls[1][0] == "http://127.0.0.1:8000/v1/completions"
-    assert calls[1][1] == {"model": "phi3", "prompt": "hello", "temperature": 0.1}
+    assert calls[1][1] == {
+        "model": "qwen2.5-coder:7b",
+        "prompt": "hello",
+        "temperature": 0.1,
+        "max_tokens": 128,
+    }
 
 
 def test_coding_receipts_are_replayable(tmp_path, monkeypatch) -> None:

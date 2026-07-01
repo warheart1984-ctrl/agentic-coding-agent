@@ -77,7 +77,7 @@ FEATURE_MANIFEST: dict[str, Any] = {
         {
             "name": "ModelSelector",
             "component": "model_dropdown",
-            "models": ["phi3", "mistral", "llama3", "deepseek-coder"],
+            "models": ["qwen2.5-coder:3b", "qwen2.5-coder:7b"],
         },
     ],
     "governance": {
