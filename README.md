@@ -16,6 +16,68 @@ Cross-platform shell and CLI for the **Local Lawful Nova** slice in [project-inf
 
 Nova Cortex here is the governed **Python runtime** under `nova/` — not a separate `nova.exe` binary. The shell wraps `python -m nova.cli` and starts the HTTP surfaces operators expect.
 
+## Governed local LLM shell
+
+Lawful Nova is a governed coding shell with local LLM support through Ollama.
+Its Python and Electron model routes follow the same validated model contract as
+the [`@aaes-os/architect-agent`](https://github.com/warheart1984-ctrl/Project-Infinity1/tree/main/packages/architect-agent)
+package in Project Infinity.
+
+### Local model routing
+
+- Default model: `qwen2.5-coder:3b`
+- Optional installed model: `qwen2.5-coder:7b`
+- Override with `NOVA_OLLAMA_MODEL`
+- Non-streaming generation for coding tools
+- Bounded output through Ollama `num_predict`
+- OpenAI-compatible chat and model endpoints
+
+### Governed coding workflow
+
+- Node policy checks before tool invocation
+- Stateless coding and wiring tools
+- Evidence receipts and trace verification
+- Replayable coding actions
+- Monaco editor and unified diff viewer
+- Explicit patch preview and apply workflow
+
+### Run locally
+
+Start Ollama:
+
+```powershell
+ollama run qwen2.5-coder:3b
+```
+
+Start the governed backend:
+
+```powershell
+.\.venv\Scripts\python.exe -m nova.api
+```
+
+Start Nova Desktop in another terminal:
+
+```powershell
+cd desktop
+npm start
+```
+
+### Verified release
+
+Release [`v0.1.0-nova-governed-shell`](https://github.com/warheart1984-ctrl/agentic-coding-agent/releases/tag/v0.1.0-nova-governed-shell)
+was verified with:
+
+- 64 Python tests
+- 9 desktop tests
+- Windows verification
+- Secret and whitespace scans
+- Live `qwen2.5-coder:3b` generation
+
+Ollama is required for live model execution. NTFS is required when this shell is
+developed alongside the linked Project Infinity pnpm workspace because that
+workspace uses filesystem links; the standalone Python shell does not use the
+pnpm workspace.
+
 ## Release v1 — what ships
 
 | Component | Path | Platforms |
@@ -166,8 +228,10 @@ Expect `local_lawful_slice_ready: true` when Python runtime and in-process Lawfu
 
 ## Tests
 
-```bash
-pytest tests/test_nova_productization.py -q
+```powershell
+.\.venv\Scripts\python.exe -m pytest -q
+cd desktop
+npm test
 ```
 
 ## Related docs
