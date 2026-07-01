@@ -1,207 +1,250 @@
-# Agentic Coding Agent — Nova Mission #002
+# Lawful Nova LLM Shell v1
 
-**Repository:** [warheart1984-ctrl/agentic-coding-agent](https://github.com/warheart1984-ctrl/agentic-coding-agent)
+## GitHub 10-minute start
 
-Founder-independent reproduction bundle for **Nova × CRK-2** constitutional agentic coding. Mission #002 proves that an external observer can build, run, and verify a governed coding agent — with receipts, invariant enforcement, continuity snapshots, multi-agent orchestration, and a live cockpit — using only this repository.
+For a fresh GitHub clone or **Download ZIP**, start here:
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+- [GITHUB-10-MINUTE-START.md](GITHUB-10-MINUTE-START.md)
+- Windows: `powershell -NoProfile -ExecutionPolicy Bypass -File .\quickstart.ps1`
+- macOS / Linux: `chmod +x quickstart.sh bin/nova setup/*.sh && ./quickstart.sh`
 
----
+The quickstart scripts install the governed `nova/node` backend, install the
+Electron desktop dependencies, verify the local Node, start `python -m nova.api`,
+and launch Nova Desktop.
 
-## What Mission #002 Proves
+Cross-platform shell and CLI for the **Local Lawful Nova** slice in [project-infi](https://github.com/warheart1984-ctrl/project-infi).
 
-| Component | Role |
-|-----------|------|
-| **CRK-2** | Constitutional Runtime Kernel v2 — dLAP constraints, PIT engine, MACC clustering, hash-chained ledger |
-| **Agent SDK** (`agent/`) | `AgentRuntime` — validate → execute → receipt → `ledger.append` for every action |
-| **Control Tower** | Multi-agent orchestration, consensus, drift detection, cluster replay |
-| **Backend** | Unified service layer + WebSocket events gateway for the cockpit |
-| **Cockpit** | React flight deck — plans, receipts, invariants, continuity matrix, drift map |
-| **Observer bundle** | Frozen reproduction artifact with independent verification protocol |
+Nova Cortex here is the governed **Python runtime** under `nova/` — not a separate `nova.exe` binary. The shell wraps `python -m nova.cli` and starts the HTTP surfaces operators expect.
 
-An observer clones this repo, runs `npm install && npm run build`, executes the reproduction protocol, and signs off — no founder guidance required.
+## Governed local LLM shell
 
----
+Lawful Nova is a governed coding shell with local LLM support through Ollama.
+Its Python and Electron model routes follow the same validated model contract as
+the [`@aaes-os/architect-agent`](https://github.com/warheart1984-ctrl/Project-Infinity1/tree/main/packages/architect-agent)
+package in Project Infinity.
 
-## Repository Layout
+### Local model routing
 
-```
-agentic-coding-agent/
-├── README.md                    # This file
-├── MISSION-002.md               # Mission brief + reproduction protocol
-├── RELEASE.md                   # Release notes + observer bundle attestation
-├── observer-bundle-mission-002.zip
-│
-├── agent/                       # Nova Agent SDK (AgentRuntime + governance)
-│   ├── runtime/agent-runtime.ts # Primary API entry point
-│   ├── governance/              # validate, receipt, ledger, invariants
-│   ├── core/                    # Planner, executor, code generation
-│   ├── continuity/              # Snapshots, substrate, replay
-│   └── cli.ts                   # `nova` CLI
-│
-├── crk2/                        # CRK-2 constitutional kernel
-│   ├── kernel/                  # dLAP, PIT, panic handler
-│   ├── invariants/              # Invariant engine
-│   ├── continuity/              # CRP, substrate, replay
-│   ├── ledger/                  # Ledger v2
-│   └── cluster/                 # MACC multi-agent continuity
-│
-├── control-tower/               # Orchestration layer
-│   ├── orchestrator/            # Cluster manager, consensus, drift detector
-│   ├── replay/                  # Cluster replay
-│   └── drift/                   # Drift simulation
-│
-├── backend/                     # Service adapters
-│   ├── crk2-service.ts
-│   ├── control-tower-service.ts
-│   ├── nova-adapter.ts
-│   └── events-gateway.ts
-│
-├── cockpit/                     # React UI (NovaShell + Flight Deck)
-│
-├── observer/                    # Independent verification
-│   ├── REPRO_PROTOCOL.md
-│   ├── CHECKLIST.md
-│   └── EXPECTED_OUTPUT.md
-│
-├── config/                      # Mission invariants (nova.config.ts)
-├── docs/                        # Specs, operator certification, integrity suites
-├── examples/                    # Governed project templates
-├── tools/fuzz/                  # Kernel fuzz harness
-├── web/                         # Marketing site
-│
-└── shell/                       # Lawful Nova dev shell (bootstrap, separate concern)
-    ├── setup/                   # bootstrap.sh / bootstrap.ps1
-    ├── config/                  # .zshrc, profile.ps1, novarc templates
-    ├── skills/
-    └── AGENTS.md
+- Default model: `qwen2.5-coder:3b`
+- Optional installed model: `qwen2.5-coder:7b`
+- Override with `NOVA_OLLAMA_MODEL`
+- Non-streaming generation for coding tools
+- Bounded output through Ollama `num_predict`
+- OpenAI-compatible chat and model endpoints
+
+### Governed coding workflow
+
+- Node policy checks before tool invocation
+- Stateless coding and wiring tools
+- Evidence receipts and trace verification
+- Replayable coding actions
+- Monaco editor and unified diff viewer
+- Explicit patch preview and apply workflow
+
+### Run locally
+
+Start Ollama:
+
+```powershell
+ollama run qwen2.5-coder:3b
 ```
 
-> **Note:** `shell/` is the self-bootstrapping Nova dev environment (macOS/Linux/Windows). It is intentionally separate from Mission #002 runtime code. See [`shell/README.md`](shell/README.md).
+Start the governed backend:
 
----
+```powershell
+.\.venv\Scripts\python.exe -m nova.api
+```
 
-## Quick Start
+Start Nova Desktop in another terminal:
 
-### Prerequisites
+```powershell
+cd desktop
+npm start
+```
 
-- Node.js 18+
-- Git
+### Verified release
 
-### Install & Build
+Release [`v0.1.0-nova-governed-shell`](https://github.com/warheart1984-ctrl/agentic-coding-agent/releases/tag/v0.1.0-nova-governed-shell)
+was verified with:
+
+- 64 Python tests
+- 9 desktop tests
+- Windows verification
+- Secret and whitespace scans
+- Live `qwen2.5-coder:3b` generation
+
+Ollama is required for live model execution. NTFS is required when this shell is
+developed alongside the linked Project Infinity pnpm workspace because that
+workspace uses filesystem links; the standalone Python shell does not use the
+pnpm workspace.
+
+## Release v1 — what ships
+
+| Component | Path | Platforms |
+|-----------|------|-----------|
+| CLI wrapper | `bin/nova` | Linux, macOS |
+| CLI wrapper | `bin/nova.ps1` / `bin/nova.cmd` | Windows |
+| Shell helpers | `setup/novrc.sh` | Linux, macOS |
+| OS bootstrap | `setup/bootstrap.sh` | Linux, macOS |
+| OS install | `setup/install_linux.sh` | Linux |
+| OS install | `setup/install_macos.sh` | macOS |
+| OS install | `setup/install_windows.ps1` | Windows |
+| Stack installer | `setup/install_nova.sh` | Linux, macOS |
+| Environment verify | `setup/verify.sh` | Linux, macOS |
+| Environment verify | `setup/verify.ps1` | Windows |
+| Stack config | `config/nova/nova-stack.json` | All |
+| Shared bash library | `setup/lib/common.sh` | Linux, macOS |
+| Standalone Python package | `pyproject.toml`, `nova/` | All |
+| Parent-repo stack start | `../scripts/start-nova-stack.sh` | Linux, macOS (when embedded in project-infi) |
+| Parent-repo stack start | `../scripts/start-nova-stack.ps1` | Windows (when embedded in project-infi) |
+
+## Services and ports
+
+| Service | Port | Health URL |
+|---------|------|------------|
+| Nova local API | 8080 | http://127.0.0.1:8080/health |
+| Lawful brain | 8791 | http://127.0.0.1:8791/health |
+| Operator kernel | 8790 | http://127.0.0.1:8790/health |
+| AAIS (optional) | 8000 | http://127.0.0.1:8000/health |
+
+## Prerequisites
+
+From repo root:
 
 ```bash
-git clone https://github.com/warheart1984-ctrl/agentic-coding-agent.git
-cd agentic-coding-agent
-npm install
-npm run build
+python3 -m venv .venv
+.venv/bin/pip install -e ".[dev]"    # Linux/macOS
+# .venv\Scripts\pip install -e ".[dev]"   # Windows
 ```
 
-### 30-Second Agent Example
+Requires **Python 3.10+**.
 
-```typescript
-import { AgentRuntime, governance } from "./agent";
-import { invariants } from "./config/nova.config";
-
-// Register constitutional invariants
-for (const inv of invariants) {
-  await governance.requireInvariant(inv);
-}
-
-const runtime = new AgentRuntime();
-
-// Governed code generation — validate → receipt → ledger.append
-const result = await runtime.generateCode({
-  prompt: "Write a TypeScript function to compute Fibonacci numbers.",
-});
-
-console.log(result.code);
-console.log(result.receipts[0].ledgerHash);
-```
-
-### CLI
+### Standalone install (this directory)
 
 ```bash
-npx nova generate "Write a factorial function in TypeScript."
-npx nova plan "Refactor the data access layer"
-npx nova continuity
-npx nova receipts
+cd lawful-nova-shell
+python3 -m venv .venv
+.venv/bin/pip install -e ".[dev]"
+
+# OS tooling (pick one)
+./setup/install_linux.sh    # Debian/Fedora/Alpine
+./setup/install_macos.sh    # macOS + Homebrew
+
+# Wire ~/.novarc and validate stack
+./setup/bootstrap.sh
+./setup/install_nova.sh
+./setup/verify.sh
 ```
 
-### Cockpit (Flight Deck UI)
+### Embedded in project-infi
+
+### Linux / macOS (shared bash)
 
 ```bash
-npm run cockpit
+cd /path/to/project-infi
+chmod +x lawful-nova-shell/bin/nova scripts/start-nova-stack.sh scripts/run_operator_kernel.sh
+
+# Load shell helpers (nova-chat, novr, novstack, …)
+source lawful-nova-shell/setup/novrc.sh
+
+# Verify environment
+./lawful-nova-shell/setup/verify.sh
+
+# Health (in-process LawfulLLM + HTTP probes)
+./lawful-nova-shell/bin/nova health --json
+
+# Start Nova API + operator stack
+./scripts/start-nova-stack.sh
+
+# API only
+./scripts/start-nova-stack.sh --api-only
 ```
 
-Opens the React cockpit at `http://localhost:5173` with kernel status, receipts, continuity matrix, and drift visualization.
+### Windows (PowerShell)
 
----
+```powershell
+cd E:\project-infi
 
-## Observer Bundle
+# Verify
+powershell -NoProfile -ExecutionPolicy Bypass -File .\lawful-nova-shell\setup\verify.ps1
 
-Mission #002 ships a frozen observer bundle for independent verification:
+# Health
+.\lawful-nova-shell\bin\nova.ps1 health --json
 
-| Property | Value |
-|----------|-------|
-| File | [`observer-bundle-mission-002.zip`](observer-bundle-mission-002.zip) |
-| SHA-256 | `5FFDF5B95095E9FA2C4331EE71739850C335D3F0FF7EBBC3F0E3C1BAB020BD82` |
-| Size | 151,078 bytes |
+# Start stack
+.\scripts\start-nova-stack.ps1
 
-Verify:
+# API only
+.\scripts\start-nova-stack.ps1 -ApiOnly
+```
+
+## Shell helpers (Linux / macOS)
+
+After `source lawful-nova-shell/setup/novrc.sh`:
+
+| Command | Action |
+|---------|--------|
+| `nova-chat [prompt]` | Local governed chat turn |
+| `novr <prompt>` | One-shot run |
+| `novtest` | Run verify + productization gate |
+| `novpr` | Productization gate only |
+| `novdoc` | Open productization status doc |
+| `novsec` | JSON health snapshot |
+| `novstack` | Start full Nova stack |
+
+## Environment variables
+
+| Variable | Default | Purpose |
+|----------|---------|---------|
+| `LAWFUL_NOVA_REPO_ROOT` | auto-detected | Repo root |
+| `NOVA_PORT` | `8080` | Nova API port |
+| `NOVA_API_URL` | `http://127.0.0.1:8080` | API base URL |
+| `NOVA_CORTEX_PATH` | `$REPO/nova` | Cortex runtime path |
+| `NOVA_VOSS_RUNTIME_PATH` | `$REPO/nova` | Voss runtime path |
+| `NOVA_RSL_PATH` | `$REPO/governance` | RSL / governance path |
+| `NOVA_CLI` | `lawful-nova-shell/bin/nova` | CLI entrypoint |
+
+## Productization gate
 
 ```bash
-# macOS / Linux
-shasum -a 256 observer-bundle-mission-002.zip
-
-# Windows PowerShell
-Get-FileHash -Algorithm SHA256 observer-bundle-mission-002.zip
+./.venv/bin/python scripts/nova_productization_gate.py
 ```
 
-Follow [`observer/REPRO_PROTOCOL.md`](observer/REPRO_PROTOCOL.md) and sign off with [`observer/CHECKLIST.md`](observer/CHECKLIST.md).
+Expect `local_lawful_slice_ready: true` when Python runtime and in-process LawfulLLM pass. `local_services_ready: true` additionally requires operator services on 8790/8791 (and Nova API if you start the full stack).
 
----
+## Stack config
 
-## SDK API Surface
+[`config/nova/nova-stack.json`](config/nova/nova-stack.json) records ports and path templates. Paths use `${LAWFUL_NOVA_REPO_ROOT}` — no hard-coded drive letters. **Do not** point at vendor `nova.exe`; this repo uses the Python package at `nova/`.
 
-**Primary:** `AgentRuntime`
+## Troubleshooting
 
-```typescript
-const runtime = new AgentRuntime();
+**Port 8080 in use** — CockroachDB Docker compose also binds 8080. Stop the container or set `NOVA_PORT=8081`.
 
-await runtime.validate(action);           // Pre-flight invariant check
-await runtime.receipt(action, invIds);    // Record + hash-chain
-runtime.ledger.append(receipt);           // Direct ledger access
-runtime.ledger.tailHash();                // Chain tip
+**`Get-Process *nova*` finds nothing** — Expected. The API runs as `python -m nova.api`, not `nova.exe`.
+
+**Health fails but CLI works** — In-process LawfulLLM may be fine; start the HTTP API with `start-nova-stack.sh --api-only`.
+
+**Missing `.venv`** — Run `pip install -e ".[dev]"` from repo root.
+
+## Tests
+
+```powershell
+.\.venv\Scripts\python.exe -m pytest -q
+cd desktop
+npm test
 ```
 
-**Governance namespace:**
+## Related docs
 
-```typescript
-import { governance } from "./agent";
+- [docs/runtime/NOVA_LAWFUL_PRODUCTIZATION.md](../docs/runtime/NOVA_LAWFUL_PRODUCTIZATION.md)
+- [docs/runtime/NOVA_CORTEX.md](../docs/runtime/NOVA_CORTEX.md)
+- [AGENTS.md](AGENTS.md) — agent behavior rules for Nova sessions
 
-await governance.validate(action);
-await governance.receipt(action, ["no-dangerous-shell"]);
-governance.ledger.append(receipt);
-```
+## Tag
 
-Legacy `nova.*` and `runtime.*` namespaces remain exported for backward compatibility but are deprecated.
+**`lawful-nova-shell-v1`** — first cross-platform LLM shell release:
 
----
-
-## Documentation
-
-| Doc | Purpose |
-|-----|---------|
-| [MISSION-002.md](MISSION-002.md) | Mission brief + reproduction protocol |
-| [RELEASE.md](RELEASE.md) | Release notes + bundle attestation |
-| [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | System architecture |
-| [docs/CRK-2-SPEC.md](docs/CRK-2-SPEC.md) | CRK-2 constitutional kernel spec |
-| [docs/NOVA-CONTROL-TOWER.md](docs/NOVA-CONTROL-TOWER.md) | Control Tower orchestration |
-| [observer/REPRO_PROTOCOL.md](observer/REPRO_PROTOCOL.md) | Observer reproduction steps |
-
----
-
-## License
-
-MIT © 2026
+- Linux + macOS share one bash toolchain (`bin/nova`, `novrc.sh`, `verify.sh`, `common.sh`)
+- Windows PowerShell parity (`nova.ps1`, `verify.ps1`, `bootstrap.ps1`)
+- Standalone package (`pyproject.toml`) or embedded in [project-infi](https://github.com/warheart1984-ctrl/project-infi)
+- Branch: `llm-nova-shell`
