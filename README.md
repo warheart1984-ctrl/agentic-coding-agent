@@ -1,94 +1,160 @@
-# Agentic Coding Agent — Nova Mission #002
+# Nova: The Constitutional Agentic Coding System
 
 **Repository:** [warheart1984-ctrl/agentic-coding-agent](https://github.com/warheart1984-ctrl/agentic-coding-agent)
 
-Founder-independent reproduction bundle for **Nova × CRK-2** constitutional agentic coding. Mission #002 proves that an external observer can build, run, and verify a governed coding agent — with receipts, invariant enforcement, continuity snapshots, multi-agent orchestration, and a live cockpit — using only this repository.
-
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+[![Mission](https://img.shields.io/badge/Mission-%23002-blue.svg)](MISSION-002.md)
+[![CRK-2](https://img.shields.io/badge/Kernel-CRK--2-8B4513.svg)](docs/CRK-2-SPEC.md)
+
+Nova is a **governed agentic coding system** built on the **Constitutional Runtime Kernel (CRK-2)** — a lawful substrate for autonomous reasoning, execution, and verification.
+
+Every action is lawful.
+Every change is accountable.
+Every outcome serves the Constitution.
 
 ---
 
-## What Mission #002 Proves
+## Overview
+
+Nova wraps agentic coding in a constitutional loop: plans and executions pass through **dLAP** legality checks, **invariant** enforcement, **continuity** preservation, and an immutable **ledger** before they touch your codebase.
+
+| Layer | What it does |
+|-------|----------------|
+| **CRK-2** | Kernel — legality, invariants, continuity, ledger |
+| **Nova SDK** (`agent/`) | `AgentRuntime` — plan, validate, execute, receipt |
+| **Control Tower** | Multi-agent orchestration, consensus, drift detection |
+| **Cockpit** | Operator flight deck — receipts, invariants, continuity matrix |
+
+Mission **#002** ships a founder-independent reproduction bundle so any observer can rebuild, run, and verify the runtime without privileged access.
+
+### Constitutional layers
+
+Nova separates **law**, **execution**, **oversight**, and **verification** so governance cannot be bypassed by accident or convenience.
+
+| Layer | Path | Role |
+|-------|------|------|
+| **Law** | `crk2/` | Invariants, constraints, receipts, continuity substrate, ledger — defines what is lawful |
+| **Execution** | `agent/` | `AgentRuntime` — plans and executes under CRK-2; applies governance, never defines it |
+| **Oversight** | `control-tower/` | Multi-agent orchestration, consensus, drift detection |
+| **Judicial** | `observer/` | Founder-independent reproduction and drift-free verification |
+
+This mirrors the constitutional stack: **Reality → Evidence → Judgment → Stewardship → Continuity**. See [`docs/WHAT-MY-AGENTIC-CODING-AGENT-DOES.md`](docs/WHAT-MY-AGENTIC-CODING-AGENT-DOES.md) for the full layered diagram.
+
+```mermaid
+flowchart TB
+  subgraph law [LawLayer]
+    crk2[crk2_dLAP_Invariants_Ledger]
+  end
+  subgraph exec [ExecutionLayer]
+    sdk[agent_AgentRuntime]
+  end
+  subgraph oversight [OversightLayer]
+    tower[control_tower]
+    cockpit[cockpit_UI]
+  end
+  subgraph judicial [JudicialLayer]
+    observer[observer_Mission002]
+  end
+  crk2 --> sdk
+  sdk --> tower
+  tower --> cockpit
+  observer --> crk2
+  observer --> sdk
+```
+
+> **Roadmap:** `packages/` (crk2, nova-sdk, control-tower, types), `apps/` (cockpit, shell, backend), and `missions/mission-002/` will formalize this layout as the monorepo grows. Today, paths above are at repository root for Mission #002.
+
+---
+
+## The Constitutional Runtime (CRK-2)
+
+CRK-2 is the **lawful substrate** that governs all agentic behavior in this repository.
 
 | Component | Role |
 |-----------|------|
-| **CRK-2** | Constitutional Runtime Kernel v2 — dLAP constraints, PIT engine, MACC clustering, hash-chained ledger |
-| **Agent SDK** (`agent/`) | `AgentRuntime` — validate → execute → receipt → `ledger.append` for every action |
-| **Control Tower** | Multi-agent orchestration, consensus, drift detection, cluster replay |
-| **Backend** | Unified service layer + WebSocket events gateway for the cockpit |
-| **Cockpit** | React flight deck — plans, receipts, invariants, continuity matrix, drift map |
-| **Observer bundle** | Frozen reproduction artifact with independent verification protocol |
+| **Lawful Action Predicate (dLAP)** | Determines legality of actions before execution |
+| **Invariant Engine** | Maintains constitutional invariants at runtime |
+| **Constraint Engine** | Enforces boundaries on plans and tool use |
+| **Continuity Substrate v2** | Preserves identity, state, and replayable snapshots |
+| **Ledger v2** | Hash-chained immutable audit trail |
+| **Constitutional Amendments v2 (CA-2)** | Lawful evolution of the rule set |
 
-An observer clones this repo, runs `npm install && npm run build`, executes the reproduction protocol, and signs off — no founder guidance required.
+CRK-2 is the kernel of **truth**, **continuity**, and **accountability**.
+
+→ Full spec: [`docs/CRK-2-SPEC.md`](docs/CRK-2-SPEC.md)
 
 ---
 
-## Repository Layout
+## The Agentic SDK
 
-```
-agentic-coding-agent/
-├── README.md                    # This file
-├── MISSION-002.md               # Mission brief + reproduction protocol
-├── RELEASE.md                   # Release notes + observer bundle attestation
-├── observer-bundle-mission-002.zip
-│
-├── agent/                       # Nova Agent SDK (AgentRuntime + governance)
-│   ├── runtime/agent-runtime.ts # Primary API entry point
-│   ├── governance/              # validate, receipt, ledger, invariants
-│   ├── core/                    # Planner, executor, code generation
-│   ├── continuity/              # Snapshots, substrate, replay
-│   └── cli.ts                   # `nova` CLI
-│
-├── crk2/                        # CRK-2 constitutional kernel
-│   ├── kernel/                  # dLAP, PIT, panic handler
-│   ├── invariants/              # Invariant engine
-│   ├── continuity/              # CRP, substrate, replay
-│   ├── ledger/                  # Ledger v2
-│   └── cluster/                 # MACC multi-agent continuity
-│
-├── control-tower/               # Orchestration layer
-│   ├── orchestrator/            # Cluster manager, consensus, drift detector
-│   ├── replay/                  # Cluster replay
-│   └── drift/                   # Drift simulation
-│
-├── backend/                     # Service adapters
-│   ├── crk2-service.ts
-│   ├── control-tower-service.ts
-│   ├── nova-adapter.ts
-│   └── events-gateway.ts
-│
-├── cockpit/                     # React UI (NovaShell + Flight Deck)
-│
-├── observer/                    # Independent verification
-│   ├── REPRO_PROTOCOL.md
-│   ├── CHECKLIST.md
-│   └── EXPECTED_OUTPUT.md
-│
-├── config/                      # Mission invariants (nova.config.ts)
-├── docs/                        # Specs, operator certification, integrity suites
-├── examples/                    # Governed project templates
-├── tools/fuzz/                  # Kernel fuzz harness
-├── web/                         # Marketing site
-│
-└── shell/                       # Lawful Nova dev shell (bootstrap, separate concern)
-    ├── setup/                   # bootstrap.sh / bootstrap.ps1
-    ├── config/                  # .zshrc, profile.ps1, novarc templates
-    ├── skills/
-    └── AGENTS.md
+The **Nova SDK** (`agent/`) exposes constitutional primitives for building governed agents.
+
+```typescript
+import { AgentRuntime, governance } from "./agent";
+import { invariants } from "./config/nova.config";
+
+for (const inv of invariants) {
+  await governance.requireInvariant(inv);
+}
+
+const runtime = new AgentRuntime();
+
+// Governed execution — validate → receipt → ledger.append
+const result = await runtime.generateCode({
+  prompt: "Add pagination to the API",
+});
+
+console.log(result.code);
+console.log(result.receipts[0].ledgerHash);
 ```
 
-> **Note:** `shell/` is the self-bootstrapping Nova dev environment (macOS/Linux/Windows). It is intentionally separate from Mission #002 runtime code. See [`shell/README.md`](shell/README.md).
+Agents operate under CRK-2 governance — every plan, execution, and output is **verifiable**.
+
+```bash
+npx nova plan "Refactor the data access layer"
+npx nova generate "Write a factorial function in TypeScript."
+npx nova receipts
+npx nova continuity
+```
+
+---
+
+## Mission #002: Founder-Independent Reproduction
+
+Mission #002 proves that Nova's governed runtime can be **reproduced and verified independently**.
+
+| Goal | Rebuild the system from the observer bundle and confirm drift-free behavior |
+|------|-------------------------------------------------------------------------------|
+
+**Includes**
+
+| Path | Contents |
+|------|----------|
+| [`observer/`](observer/) | Verification tools, checklist, expected output |
+| [`docs/`](docs/) | Architecture, CRK-2 spec, operator certification |
+| [`observer-bundle-mission-002.zip`](observer-bundle-mission-002.zip) | Immutable reference bundle |
+
+**Verification steps**
+
+1. Prepare a clean machine (Node.js 18+, Git)
+2. Clone, `npm install`, `npm run build`
+3. Rebuild CRK-2 and Nova SDK artifacts
+4. Run the agent (`npx nova …` or `AgentRuntime`)
+5. Verify receipts, ledger entries, and PIT transitions
+6. Sign off via [`observer/CHECKLIST.md`](observer/CHECKLIST.md)
+
+→ Protocol: [`observer/REPRO_PROTOCOL.md`](observer/REPRO_PROTOCOL.md) · Brief: [`MISSION-002.md`](MISSION-002.md)
+
+**Bundle attestation**
+
+| Property | Value |
+|----------|-------|
+| File | `observer-bundle-mission-002.zip` |
+| SHA-256 | `5FFDF5B95095E9FA2C4331EE71739850C335D3F0FF7EBBC3F0E3C1BAB020BD82` |
 
 ---
 
 ## Quick Start
-
-### Prerequisites
-
-- Node.js 18+
-- Git
-
-### Install & Build
 
 ```bash
 git clone https://github.com/warheart1984-ctrl/agentic-coding-agent.git
@@ -97,95 +163,83 @@ npm install
 npm run build
 ```
 
-### 30-Second Agent Example
-
-```typescript
-import { AgentRuntime, governance } from "./agent";
-import { invariants } from "./config/nova.config";
-
-// Register constitutional invariants
-for (const inv of invariants) {
-  await governance.requireInvariant(inv);
-}
-
-const runtime = new AgentRuntime();
-
-// Governed code generation — validate → receipt → ledger.append
-const result = await runtime.generateCode({
-  prompt: "Write a TypeScript function to compute Fibonacci numbers.",
-});
-
-console.log(result.code);
-console.log(result.receipts[0].ledgerHash);
-```
-
-### CLI
-
-```bash
-npx nova generate "Write a factorial function in TypeScript."
-npx nova plan "Refactor the data access layer"
-npx nova continuity
-npx nova receipts
-```
-
-### Cockpit (Flight Deck UI)
+**Cockpit (operator UI)**
 
 ```bash
 npm run cockpit
 ```
 
-Opens the React cockpit at `http://localhost:5173` with kernel status, receipts, continuity matrix, and drift visualization.
+Opens the React flight deck at `http://localhost:5173`.
 
 ---
 
-## Observer Bundle
+## Project Structure
 
-Mission #002 ships a frozen observer bundle for independent verification:
-
-| Property | Value |
-|----------|-------|
-| File | [`observer-bundle-mission-002.zip`](observer-bundle-mission-002.zip) |
-| SHA-256 | `5FFDF5B95095E9FA2C4331EE71739850C335D3F0FF7EBBC3F0E3C1BAB020BD82` |
-| Size | 151,078 bytes |
-
-Verify:
-
-```bash
-# macOS / Linux
-shasum -a 256 observer-bundle-mission-002.zip
-
-# Windows PowerShell
-Get-FileHash -Algorithm SHA256 observer-bundle-mission-002.zip
+```
+agentic-coding-agent/
+├── agent/                 # Nova Agent SDK (AgentRuntime + governance)
+├── crk2/                  # Constitutional Runtime Kernel v2
+├── control-tower/         # Multi-agent orchestration
+├── backend/               # Service layer + WebSocket events gateway
+├── cockpit/               # Operator UI (NovaShell + Flight Deck)
+├── observer/              # Mission #002 verification protocol
+├── config/                # Mission invariants (nova.config.ts)
+├── docs/                  # Architecture & specs
+├── examples/              # Governed project templates
+├── tools/fuzz/            # Kernel fuzz harness
+└── shell/                 # Lawful Nova dev shell (bootstrap; separate concern)
 ```
 
-Follow [`observer/REPRO_PROTOCOL.md`](observer/REPRO_PROTOCOL.md) and sign off with [`observer/CHECKLIST.md`](observer/CHECKLIST.md).
+> `shell/` is the self-bootstrapping Nova dev environment (macOS / Linux / Windows). It is intentionally separate from Mission #002 runtime code. See [`shell/README.md`](shell/README.md).
 
 ---
 
-## SDK API Surface
+## For Developers
 
-**Primary:** `AgentRuntime`
+Build governed agents using the Nova SDK and CRK-2 kernel primitives.
+
+| Resource | Link |
+|----------|------|
+| Architecture | [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) |
+| CRK-2 spec | [`docs/CRK-2-SPEC.md`](docs/CRK-2-SPEC.md) |
+| Control Tower | [`docs/NOVA-CONTROL-TOWER.md`](docs/NOVA-CONTROL-TOWER.md) |
+| SDK entry | [`agent/runtime/agent-runtime.ts`](agent/runtime/agent-runtime.ts) |
+
+**Primary API**
 
 ```typescript
 const runtime = new AgentRuntime();
 
-await runtime.validate(action);           // Pre-flight invariant check
-await runtime.receipt(action, invIds);    // Record + hash-chain
-runtime.ledger.append(receipt);           // Direct ledger access
-runtime.ledger.tailHash();                // Chain tip
+await runtime.validate(action);
+await runtime.receipt(action, invIds);
+runtime.ledger.append(receipt);
+runtime.ledger.tailHash();
 ```
 
-**Governance namespace:**
+---
 
-```typescript
-import { governance } from "./agent";
+## For Verifiers
 
-await governance.validate(action);
-await governance.receipt(action, ["no-dangerous-shell"]);
-governance.ledger.append(receipt);
-```
+Use Mission #002 to independently reproduce and validate the runtime.
 
-Legacy `nova.*` and `runtime.*` namespaces remain exported for backward compatibility but are deprecated.
+1. Verify bundle hash (see table above)
+2. Follow [`observer/REPRO_PROTOCOL.md`](observer/REPRO_PROTOCOL.md)
+3. Compare output to [`observer/EXPECTED_OUTPUT.md`](observer/EXPECTED_OUTPUT.md)
+4. Complete [`observer/CHECKLIST.md`](observer/CHECKLIST.md)
+
+Release notes and attestation: [`RELEASE.md`](RELEASE.md)
+
+---
+
+## Architecture overview
+
+| Concern | Document |
+|---------|----------|
+| System layers and data flow | [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) |
+| CRK-2 dual-stack (CRK-1 → CRK-2) | [`docs/CRK-2-SPEC.md`](docs/CRK-2-SPEC.md) · [`docs/CRK-1-TO-CRK-2-MIGRATION-PLAN.md`](docs/CRK-1-TO-CRK-2-MIGRATION-PLAN.md) |
+| Figma-ready layer diagram | [`docs/WHAT-MY-AGENTIC-CODING-AGENT-DOES.md`](docs/WHAT-MY-AGENTIC-CODING-AGENT-DOES.md) |
+| SDK and governance API | [`docs/api/governance.md`](docs/api/governance.md) · [`docs/api/nova.md`](docs/api/nova.md) |
+| Mission #002 reproduction | [`MISSION-002.md`](MISSION-002.md) · [`observer/REPRO_PROTOCOL.md`](observer/REPRO_PROTOCOL.md) |
 
 ---
 
@@ -194,11 +248,18 @@ Legacy `nova.*` and `runtime.*` namespaces remain exported for backward compatib
 | Doc | Purpose |
 |-----|---------|
 | [MISSION-002.md](MISSION-002.md) | Mission brief + reproduction protocol |
-| [RELEASE.md](RELEASE.md) | Release notes + bundle attestation |
-| [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | System architecture |
-| [docs/CRK-2-SPEC.md](docs/CRK-2-SPEC.md) | CRK-2 constitutional kernel spec |
-| [docs/NOVA-CONTROL-TOWER.md](docs/NOVA-CONTROL-TOWER.md) | Control Tower orchestration |
-| [observer/REPRO_PROTOCOL.md](observer/REPRO_PROTOCOL.md) | Observer reproduction steps |
+| [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | Constitutional runtime architecture |
+| [docs/CRK-2-SPEC.md](docs/CRK-2-SPEC.md) | CRK-2 kernel specification |
+| [docs/NOVA-CONTROL-TOWER.md](docs/NOVA-CONTROL-TOWER.md) | Multi-agent orchestration |
+| [docs/index.md](docs/index.md) | Documentation hub |
+
+---
+
+## Core Principle
+
+**Lawfulness. Accountability. Continuity.**
+
+Nova transforms ideas into infrastructure — one invariant at a time.
 
 ---
 

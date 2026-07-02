@@ -6,7 +6,7 @@ export default defineConfig({
   plugins: [react()],
   resolve: {
     alias: {
-      "nova-sdk": path.resolve(__dirname, "../agent/index.ts"),
+      "nova-sdk": path.resolve(__dirname, "src/bridge/nova-sdk-browser.ts"),
     },
   },
   optimizeDeps: {
