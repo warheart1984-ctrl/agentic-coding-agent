@@ -12,7 +12,10 @@
     "start": "ts-node agent/index.ts",
     "cli": "ts-node agent/cli.ts",
     "agent": "ts-node examples/basic-project/src/agent-loop.ts",
-    "cockpit": "npm run build && cd cockpit && npm run dev"
+    "cockpit": "npm run build && cd cockpit && npm run dev",
+    "run:local-governed": "ts-node bin/run_local_governed.ts",
+    "test:local-governed": "node --require ts-node/register/transpile-only --test tests/local_governed_smoke.test.ts",
+    "test": "npm run test:local-governed"
   },
   "keywords": ["nova", "crk-2", "governance", "agentic", "constitutional", "mission-002"],
   "license": "MIT",
