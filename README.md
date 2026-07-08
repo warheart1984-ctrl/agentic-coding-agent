@@ -266,3 +266,143 @@ Nova transforms ideas into infrastructure — one invariant at a time.
 ## License
 
 MIT © 2026
+
+## Canonical Scorecard Addendum
+
+### Repository Purpose
+
+Governed agentic coding system built on CRK-2, with control tower, cockpit, and observer surfaces.
+
+### Current Maturity
+
+Prototype
+
+### Build Status
+
+Observed: fresh `npm run build` passed in this pass. Hypothesized: the full stack is stable. Unknown: replay verification and broader operator-path hardening are still incomplete.
+
+### Test Status
+
+Observed: fresh `npm test` passed in this pass. Hypothesized: the current suites cover the runtime slice. Unknown: replay verification and broader operator-path hardening are still incomplete.
+
+### Smoke Test Status
+
+Observed: fresh `npm run cockpit` served HTTP 200 on `http://localhost:5173` in this pass. Hypothesized: cockpit and observer remain aligned. Unknown: replay verification and broader operator-path hardening are still incomplete.
+
+### Documentation Status
+
+Observed: architecture, Mission #002, operator, and scorecard docs exist. Hypothesized: the docs are sufficient for a new reviewer. Unknown: whether all links are current across all future revisions.
+
+### Evidence Status Taxonomy
+
+- Observed - verified by implementation, testing, or operational evidence
+- Hypothesized - expected based on architecture but not yet verified
+- Unknown - not yet evaluated
+
+### Proof Surface
+
+- Identity: `agentic-coding-agent` governed agentic coding proof surface
+- Purpose: expose the evidence layer for CRK-2, control tower, cockpit, and observer claims
+- Claim: the repo proves governed agentic coding with a reproduction bundle
+- Evidence: observer bundle, receipts, ledger entries, docs, and build/test output where available
+- Verification: build, test, cockpit smoke, observer reproduction, and docs review
+- Replay: observer bundle, receipts, ledger, and control tower traces
+- Operational Status: Prototype; build, test, and cockpit smoke are now verified in this pass
+- Truth Boundary: proves the governed runtime and reproduction bundle, not universal production readiness
+- Constitutional Profile: authority, evidence, verification, compliance, scope, and limits are documented above
+- Blindspots: replay verification, complete packaging, and broader production hardening
+- Adversarial Claims: the breadth of docs and bundle attestation can be mistaken for current runtime health
+- Battle Scars: some surfaces have been documented before they were uniformly verified
+- Color-Team Readiness: Red/Blue/Purple/Green/Yellow/White readiness is partially established
+- Commercial Readiness: Builder to Professional transition path with governed agentic tooling
+- Next Evidence Required: fresh replay verification and broader operator-path hardening
+- Constitutional Proof Level: P1-P2 mix; build/test/cockpit smoke are verified, replay remains pending
+- Evidence Ladder: P0 Concept, P1 Implemented, P2 Verified, P3 Operational, P4 Independently Verified, P5 Mission-Critical
+- Commercial State Tags: Implemented, Verified, Operational, Commercially Available
+
+### Constitutional Profile
+
+- Purpose: governed agentic coding and verification
+- Authority: CRK-2 law kernel, observer bundle, and control tower governance
+- Evidence Model: receipts, ledger entries, observer bundle, and docs
+- Verification Process: build, test, cockpit smoke, observer reproduction, and docs review
+- Compliance Requirements: lawful actions, accountable execution, and traceable output
+- Truth Boundary: proves the governed runtime and reproduction bundle, not a universal production guarantee
+- Replay/Audit Path: observer bundle, receipts, ledger, and control tower traces
+- Failure / Degradation Path: unlawful actions are blocked and reproduction claims are held back
+- Current Constitutional Maturity: Prototype
+- Constitutional Scope: lawful agentic coding, control tower coordination, cockpit visibility, and observer verification
+- Constitutional Limits: does not guarantee every possible production deployment or enterprise workflow
+- Dependencies: CRK-2 packages, observer bundle, cockpit UI, and control tower orchestration
+- Stewardship / Maintainers: Mission #002 maintainers and constitutional runtime stewards
+
+### Evidence Hierarchy
+
+- Constitutional Governance: CRK-2, dLAP, invariants, continuity, ledger
+- Software Architecture: agent, control tower, cockpit, observer, docs
+- Implementation: runtime, UI, orchestration, and verification code
+- Verification Evidence: observer bundle, checklist, build output, and receipts
+- Operational Evidence: cockpit launch paths and local runtime output
+- Adoption Evidence: README docs, mission brief, and observer protocol
+
+### Maturity Progression
+
+Scaffold -> Prototype -> Verified Prototype -> Reference Implementation -> Production Candidate -> Production
+
+### Community and Commercialization
+
+- Who benefits from this? Developers, startup teams, and governance-conscious operators
+- Who should contribute? People improving agent governance, reproducibility, or cockpit usability
+- What customer problem does it solve? It makes agentic coding auditable and reproducible
+- What free capability does it provide? A governed agentic coding system with observer verification
+- What commercial capability could eventually be built on top of it? Productized agentic coding, operator tooling, and advisory services
+
+### Blindspots
+
+- Known architectural blindspots: the repo is large and some paths are still evolving
+- Known governance blindspots: some claims are stronger than the fresh evidence in this pass
+- Known replay/audit blindspots: fresh verification still needs to be repeated across the full surface
+- Known operational blindspots: not every launcher path has been refreshed in this pass
+- Known adoption blindspots: the repo can overwhelm a new contributor without a scorecard
+
+### Adversarial Claims
+
+- Could claim every surface is already verified
+- Could exploit the size of the repo to hide stale paths
+- Could misinterpret the observer bundle as proof of all current behavior
+- Could falsify readiness by skipping the fresh build or smoke path
+- Could bypass governance by treating one UI surface as the full system
+
+### Battle Scars
+
+- Past failures: Mission #002 and the repo have repeatedly needed explicit verification boundaries
+- Past regressions: docs can outrun fresh runtime evidence
+- Past outages: not recorded here
+- Past misconfigurations: path confusion between runtime and docs surfaces
+- Past governance violations: overclaiming readiness without fresh proof
+- Past replay failures: replay fidelity remains central
+- Past test failures: broad suites need careful selection
+- Past architectural mistakes: too many surfaces can blur the canonical path
+
+### Color-Team Readiness
+
+| Team | Readiness |
+|------|-----------|
+| Red Team | Partial: there are many possible attack surfaces because the repo is large |
+| Blue Team | Partial: receipts and traces exist, but not every route is fresh |
+| Purple Team | Emerging: attack/defense reconciliation is possible through observer checks |
+| Green Team | Partial: build and tests exist, but the canonical smoke path still needs proof |
+| Yellow Team | Partial: operator clarity is improving, but the repo is still complex |
+| White Team | Strongest layer: CRK-2 authority and reproduction framing |
+
+### Future Validation
+
+- Open research questions
+- Planned verification work
+- Planned red-team exercises
+- Planned interoperability tests
+- Planned performance benchmarks
+
+### Governing Claim Rule
+
+No repository should claim more than its evidence supports.
