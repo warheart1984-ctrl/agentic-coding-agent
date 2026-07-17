@@ -66,6 +66,18 @@ flowchart TB
 
 ---
 
+## Finish Line
+
+This repo is finished when a clean checkout can do all of the following:
+
+- `npm run build`
+- `npm test`
+- `npm run cockpit`
+- keep the Mission #002 claims in sync across `README.md`, `MISSION-002.md`, `observer/REPRO_PROTOCOL.md`, and `observer/CHECKLIST.md`
+- label any remaining CRK-2, backend, or shell gap as backlog instead of implying it is already shipped
+
+---
+
 ## The Constitutional Runtime (CRK-2)
 
 CRK-2 is the **lawful substrate** that governs all agentic behavior in this repository.

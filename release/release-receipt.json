@@ -1,0 +1,15 @@
+{
+  "schemaVersion": "1.0",
+  "repository": "agentic-coding-agent",
+  "version": "0.2.0-mission-002",
+  "generatedAt": "2026-07-14T16:30:00Z",
+  "maturity": "Verified Prototype",
+  "build": { "status": "pass", "command": "npm run build" },
+  "tests": { "status": "pass", "command": "npm test", "passed": 2, "failed": 0, "skipped": 0 },
+  "coverage": { "status": "not-measured" },
+  "security": { "status": "baseline-only", "verifiedControl": "invariant-violating input is refused" },
+  "performance": { "status": "baseline-only", "testDurationSeconds": 0.53 },
+  "deployment": { "status": "local-only" },
+  "independentVerification": { "status": "pending" },
+  "truthBoundary": "This receipt proves the TypeScript build and governed local smoke slice only; it does not prove production deployment or independent certification."
+}
