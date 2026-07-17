@@ -1,0 +1,48 @@
+{
+  "name": "agentic-coding-agent",
+  "version": "0.2.0-mission-002",
+  "description": "Nova Mission #002 — CRK-2 constitutional agentic coding with governed SDK, Control Tower, and Cockpit",
+  "platforms": {
+    "windows": {
+      "name": "nova-windows",
+      "format": "zip",
+      "executable": "nova.exe",
+      "installer": "install-windows.bat",
+      "uninstaller": "uninstall-windows.bat"
+    },
+    "linux": {
+      "name": "nova-linux",
+      "format": "tar.gz",
+      "executable": "nova",
+      "installer": "install-linux.sh",
+      "uninstaller": "uninstall-linux.sh"
+    },
+    "macos": {
+      "name": "nova-macos",
+      "format": "tar.gz",
+      "executable": "nova",
+      "installer": "install-macos.sh",
+      "uninstaller": "uninstall-macos.sh"
+    }
+  },
+  "files": [
+    "dist/**/*",
+    "cockpit/dist/**/*",
+    "cockpit/package.json",
+    "cockpit/package-lock.json",
+    "node_modules/**/*",
+    "package.json",
+    "README.md",
+    "LICENSE",
+    "MISSION-002.md",
+    "observer-bundle-mission-002.zip",
+    "docs/**/*",
+    "config/**/*"
+  ],
+  "binaries": {
+    "cli": "dist/agent/cli.js"
+  },
+  "dependencies": {
+    "node": ">=18"
+  }
+}
