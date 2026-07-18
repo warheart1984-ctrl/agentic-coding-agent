@@ -1,0 +1,23 @@
+.grid {
+  padding: 16px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.card {
+  min-width: 120px;
+  padding: 16px;
+  border-radius: 8px;
+  border: 1px solid var(--color-border-soft);
+  transition: border-color 0.2s, background 0.2s, transform 0.12s;
+  cursor: default;
+}
+.card:hover { transform: translateY(-2px); }
+.name { display: block; font-size: var(--font-size-sm); margin-bottom: 4px; }
+.sub { font-size: var(--font-size-xs); opacity: 0.8; }
+.ok { background: rgba(39, 174, 96, 0.1); border-color: var(--color-status-ok); }
+.ok:hover { background: rgba(39, 174, 96, 0.18); }
+.drift { background: rgba(242, 201, 76, 0.15); border-color: var(--color-status-warn); }
+.drift:hover { background: rgba(242, 201, 76, 0.25); }
+.error { background: rgba(235, 87, 87, 0.15); border-color: var(--color-status-error); }
+.error:hover { background: rgba(235, 87, 87, 0.25); }

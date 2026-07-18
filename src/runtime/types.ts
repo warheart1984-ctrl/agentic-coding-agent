@@ -8,6 +8,12 @@ export interface GovernedContext {
   mode: GovernedMode;
   invariant_set_version: string;
   model_path?: string;
+  /** File contents from the project that are relevant to this prediction. */
+  files?: Array<{ path: string; content: string }>;
+  /** Programming language hint (e.g. "typescript", "python", "rust"). */
+  language?: string;
+  /** Full project file listing (paths only). */
+  projectFiles?: string[];
 }
 
 export interface CE1Record {

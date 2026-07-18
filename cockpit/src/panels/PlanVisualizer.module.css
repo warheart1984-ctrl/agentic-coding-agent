@@ -1,35 +1,31 @@
-.graph {
-  display: flex;
-  align-items: center;
-  gap: var(--space-md);
-  overflow-x: auto;
-  padding: var(--space-lg) 0;
-}
-
+.empty { text-align: center; padding: 32px 16px; color: var(--color-text-muted); }
+.emptyIcon { font-size: 32px; margin-bottom: 8px; }
+.emptyHint { font-size: var(--font-size-xs); margin-top: 4px; }
+.graph { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+.arrow { color: var(--color-text-muted); font-size: 18px; }
 .step {
-  min-width: 160px;
-  padding: var(--space-md);
-  border-radius: var(--radius-panel);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 6px;
   border: 1px solid var(--color-border-soft);
   background: var(--color-bg-panel-alt);
   font-size: var(--font-size-sm);
+  transition: border-color 0.2s, background 0.2s;
 }
+.pending { border-color: var(--color-border-soft); }
+.running { border-color: var(--color-accent-nova); background: rgba(58, 123, 255, 0.08); }
+.done { border-color: var(--color-status-ok); background: rgba(39, 174, 96, 0.08); }
+.failed { border-color: var(--color-status-error); background: rgba(235, 87, 87, 0.08); }
+.statusDot { font-size: 10px; }
+.statusDot[data-status="running"] { color: var(--color-accent-nova); animation: pulse 1s infinite; }
+.statusDot[data-status="done"] { color: var(--color-status-ok); }
+.statusDot[data-status="failed"] { color: var(--color-status-error); }
+.statusDot[data-status="pending"] { color: var(--color-text-muted); }
 
-.stepActive {
-  border-color: var(--color-accent-nova);
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
 }
-
-.arrow {
-  color: var(--color-text-muted);
-  flex-shrink: 0;
-}
-
-.empty {
-  color: var(--color-text-muted);
-}
-
-.justification {
-  margin-top: var(--space-lg);
-  font-size: var(--font-size-sm);
-  color: var(--color-text-secondary);
-}
+.justification { font-size: var(--font-size-xs); color: var(--color-text-secondary); border-top: 1px solid var(--color-border-soft); padding-top: 8px; }

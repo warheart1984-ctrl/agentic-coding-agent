@@ -4,11 +4,20 @@
     <meta charset="UTF-8" />
     <title>Nova – Constitutional Coding Agent</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='30' fill='%230A1E3F' stroke='%233BE8FF' stroke-width='2'/%3E%3Cpolygon points='32,12 45,26 40,42 24,42 19,26' fill='none' stroke='%23D4A857' stroke-width='2'/%3E%3Ctext x='32' y='29' text-anchor='middle' font-size='8' fill='%233BE8FF' font-weight='bold'%3EN%3C/text%3E%3C/svg%3E" />
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
     <header class="site-header">
-      <div class="logo">Nova</div>
+      <div class="logo">
+        <svg class="logo-svg" viewBox="0 0 48 48" width="28" height="28">
+          <circle cx="24" cy="24" r="22" fill="#0A1E3F" stroke="#3BE8FF" stroke-width="1.5"/>
+          <polygon points="24,8 38,20 34,36 14,36 10,20" fill="none" stroke="#D4A857" stroke-width="1.5"/>
+          <circle cx="24" cy="24" r="8" fill="none" stroke="#3BE8FF" stroke-width="1" opacity="0.6"/>
+          <text x="24" y="22" text-anchor="middle" font-size="7" fill="#3BE8FF" font-weight="bold">N</text>
+        </svg>
+        Nova
+      </div>
       <nav>
         <a href="#hero">Home</a>
         <a href="#why">Why Nova</a>
@@ -16,10 +25,23 @@
         <a href="#developers">For Developers</a>
         <a href="#docs">Docs</a>
       </nav>
+      <button class="theme-toggle" onclick="document.body.classList.toggle('light')" aria-label="Toggle theme">◐</button>
     </header>
 
     <main>
       <section id="hero" class="hero">
+        <div class="hero-crest">
+          <svg viewBox="0 0 120 120" width="80" height="80">
+            <circle cx="60" cy="60" r="56" fill="#0A1E3F" stroke="#3BE8FF" stroke-width="2"/>
+            <circle cx="60" cy="60" r="44" fill="none" stroke="#D4A857" stroke-width="1.5" opacity="0.5"/>
+            <polygon points="60,20 82,38 76,62 44,62 38,38" fill="none" stroke="#D4A857" stroke-width="2"/>
+            <polygon points="60,30 76,44 72,60 48,60 44,44" fill="none" stroke="#3BE8FF" stroke-width="1" opacity="0.4"/>
+            <circle cx="60" cy="60" r="12" fill="none" stroke="#3BE8FF" stroke-width="1.5"/>
+            <text x="60" y="56" text-anchor="middle" font-size="14" fill="#3BE8FF" font-weight="bold">N</text>
+            <line x1="60" y1="16" x2="60" y2="30" stroke="#3BE8FF" stroke-width="1" opacity="0.3"/>
+            <line x1="60" y1="90" x2="60" y2="104" stroke="#3BE8FF" stroke-width="1" opacity="0.3"/>
+          </svg>
+        </div>
         <h1>Nova – Constitutional Coding Agent</h1>
         <p>Lawful, traceable, reproducible agentic coding on CRK‑1.</p>
         <a href="#getting-started" class="cta">Get Started</a>
@@ -27,11 +49,11 @@
 
       <section id="why" class="section">
         <h2>Why Nova</h2>
-        <ul>
-          <li>Writes code with governance receipts</li>
-          <li>Plans with invariants</li>
-          <li>Refactors with continuity</li>
-          <li>Never acts silently</li>
+        <ul class="feature-list">
+          <li><span class="feature-icon">⚖</span> Writes code with governance receipts</li>
+          <li><span class="feature-icon">📋</span> Plans with invariants</li>
+          <li><span class="feature-icon">🔄</span> Refactors with continuity</li>
+          <li><span class="feature-icon">🔇</span> Never acts silently</li>
         </ul>
       </section>
 
@@ -57,20 +79,20 @@
 
       <section id="docs" class="section">
         <h2>Documentation</h2>
-        <ul>
-          <li><a href="../docs/getting-started/installation.md">Installation</a></li>
-          <li><a href="../docs/concepts/governance.md">Governance</a></li>
-          <li><a href="../docs/api/nova.md">Nova API</a></li>
-          <li><a href="../docs/examples/simple-agent.md">Examples</a></li>
+        <ul class="doc-list">
+          <li><a href="../docs/getting-started/installation.md">📦 Installation</a></li>
+          <li><a href="../docs/concepts/governance.md">⚖ Governance</a></li>
+          <li><a href="../docs/api/nova.md">📚 Nova API</a></li>
+          <li><a href="../docs/examples/simple-agent.md">💡 Examples</a></li>
         </ul>
       </section>
 
       <section id="getting-started" class="section">
         <h2>Getting Started</h2>
-        <ol>
-          <li>Install Nova SDK</li>
-          <li>Configure invariants in <code>config/nova.config.ts</code></li>
-          <li>Run your first governed agent loop</li>
+        <ol class="steps-list">
+          <li><span class="step-num">1</span> Install Nova SDK</li>
+          <li><span class="step-num">2</span> Configure invariants in <code>config/nova.config.ts</code></li>
+          <li><span class="step-num">3</span> Run your first governed agent loop</li>
         </ol>
       </section>
     </main>

@@ -19,10 +19,13 @@ export function RightRail() {
                 key={v.id}
                 className={`${styles.violationItem} ${
                   v.id === lastViolationId ? styles.flashViolation : ""
-                }`}
+                } ${v.severity === "error" ? styles.violationError : styles.violationWarn}`}
               >
                 <span className={styles.violationId}>{v.invariantId}</span>
                 <span className={styles.violationMsg}>{v.message}</span>
+                <span className={v.severity === "error" ? styles.severityError : styles.severityWarn}>
+                  {v.severity === "error" ? "ERR" : "WARN"}
+                </span>
               </li>
             ))}
           </ul>

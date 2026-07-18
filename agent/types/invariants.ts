@@ -1,13 +1,12 @@
 import type { AgentAction } from "./actions";
 
-export type InvariantSeverity = "error" | "warn";
+export type InvariantSeverity = "error" | "warning" | "critical";
 
 export interface InvariantState {
   action: AgentAction;
   diff?: string;
   code?: string;
   prompt?: string;
-  runTests?: () => Promise<{ failures: number }>;
 }
 
 export interface Invariant {
@@ -15,6 +14,10 @@ export interface Invariant {
   description: string;
   severity: InvariantSeverity;
   check: (state: InvariantState) => boolean | Promise<boolean>;
+  /** INAS: reference to INAS assurance invariant ID (e.g. "INAS-E001"). */
+  inasId?: string;
+  /** INAS: constitutional category. */
+  category?: "evidence" | "execution" | "validation" | "replay" | "lineage";
 }
 
 export interface InvariantViolation {
@@ -24,4 +27,6 @@ export interface InvariantViolation {
   message: string;
   severity: InvariantSeverity;
   action: AgentAction;
+  /** INAS: reference to violated INAS invariant. */
+  inasInvariantId?: string;
 }

@@ -13,7 +13,8 @@ export type CenterMode =
   | "flight-deck"
   | "ledger-compare"
   | "continuity-matrix"
-  | "drift";
+  | "drift"
+  | "terminal";
 
 export interface AgentLogEntry {
   id: string;
@@ -35,6 +36,7 @@ export interface DiffMetadata {
   invariantsChecked: string[];
   continuityHash: string;
   receiptId?: string;
+  beforeContent?: string;
 }
 
 export interface SelectedDiff {
@@ -46,6 +48,15 @@ export interface UiSignals {
   lastViolationId?: string;
   lastReceiptId?: string;
   lastPlanId?: string;
+}
+
+export type StepStatus = "pending" | "running" | "done" | "failed";
+
+export interface PlanStepWithStatus {
+  id: string;
+  description: string;
+  action: { type: string; payload?: unknown };
+  status: StepStatus;
 }
 
 export type { Plan, GovernanceReceipt, Invariant, InvariantViolation, KernelStatus };

@@ -77,3 +77,16 @@ button {
   font-family: inherit;
   cursor: pointer;
 }
+
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--color-border-soft); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--color-border-strong); }
+
+@media (max-width: 1100px) {
+  .shell [class*="rightRail"] { display: none; }
+  .shell [class*="leftRail"] { width: 180px; }
+}
+@media (max-width: 800px) {
+  .shell [class*="leftRail"] { display: none; }
+}

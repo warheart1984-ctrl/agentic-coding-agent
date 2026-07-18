@@ -1,7 +1,10 @@
 import { continuity, events, governance } from "nova-sdk";
+// Cross-package import: coupling cockpit to root config.
+// If cockpit is published standalone, copy invariants inline.
 import { invariants as defaultInvariants } from "../../../config/nova.config";
 import { useKernelStore } from "./kernelStore";
 import { useCockpitState } from "./store";
+import { useToastStore } from "./toastStore";
 
 let initialized = false;
 let heartbeatTimer: ReturnType<typeof setInterval> | null = null;
@@ -11,6 +14,7 @@ export async function initializeNovaEventBridge(): Promise<void> {
   initialized = true;
 
   const actions = useCockpitState.getState().actions;
+  const toast = useToastStore.getState();
 
   for (const inv of defaultInvariants) {
     await governance.requireInvariant(inv);
@@ -58,18 +62,25 @@ export async function initializeNovaEventBridge(): Promise<void> {
       timestamp: Date.now(),
       message: `Invariant violated: ${violation.invariantId}`,
     });
+    toast.add(`Invariant violated: ${violation.invariantId}`, "error");
     setTimeout(() => actions.clearSignal("lastViolationId"), 600);
   });
 
   events.onKernelHeartbeat((hb) => {
     actions.updateKernelStatus(hb);
+    actions.setLastHeartbeat(Date.now());
     useKernelStore.getState().actions.updateStatus(hb);
   });
 
   const poll = async () => {
-    const status = await governance.kernelStatus();
-    actions.updateKernelStatus(status);
-    await governance.emitKernelHeartbeat();
+    try {
+      const status = await governance.kernelStatus();
+      actions.updateKernelStatus(status);
+      actions.setLastHeartbeat(Date.now());
+      await governance.emitKernelHeartbeat();
+    } catch {
+      toast.add("Kernel heartbeat failed", "warn");
+    }
   };
 
   await poll();

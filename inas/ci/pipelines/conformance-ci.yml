@@ -1,0 +1,70 @@
+# INAS Conformance CI/CD Pipeline
+
+## Stages
+
+### 1. Spec Integrity Check
+
+Validate markdown structure, headings, and cross-references.
+
+```
+inputs: specification/**/*.md, charter/**/*.md
+check:
+  - all headings have consistent style
+  - all internal cross-references resolve
+  - no broken anchor links
+```
+
+### 2. Schema Validation
+
+Validate CSR, CSE, ISL, CIC, CCC, ACP schemas against TypeScript type definitions.
+
+```
+inputs: spec/**/*.ts
+check:
+  - TypeScript compilation (tsc --noEmit)
+  - all exported types match specification documents
+```
+
+### 3. Conformance Test Generation
+
+Build conformance test artifacts from the canonical spec.
+
+```
+inputs: specification/**/*.md
+outputs: ci/conformance-tests/*.json
+process:
+  - parse normative statements
+  - generate test cases per statement
+  - emit machine-readable test suite
+```
+
+### 4. External Runtime Conformance (Optional)
+
+For registered runtimes, run the conformance suite and emit a report.
+
+```
+inputs:
+  - ci/conformance-tests/*.json
+  - runtime endpoint (registered)
+outputs: conformance-report.json
+tests:
+  - evidence tests
+  - assurance tests
+  - interoperability tests
+  - lineage tests
+report:
+  runtime: string
+  version: string
+  passed: boolean
+  assuranceLevel: A0 | A1 | A2 | A3
+  evidence: ConformanceTestResult[]
+```
+
+### 5. Publication
+
+On successful pipeline, tag release `INAS-vX.Y.Z` and publish:
+
+- Specification PDFs (generated from markdown)
+- Machine-readable schemas (TypeScript types)
+- Conformance test suite
+- Changelog

@@ -1,6 +1,8 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { nova, runtime } from "nova-sdk";
 import { useCockpitState } from "../state/store";
+import { useToastStore } from "../state/toastStore";
+import { Spinner } from "../components/Spinner";
 import styles from "./AgentConsole.module.css";
 
 export function AgentConsole() {
@@ -9,10 +11,21 @@ export function AgentConsole() {
   const log = useCockpitState((s) => s.agent.log);
   const setGoal = useCockpitState((s) => s.actions.setGoal);
   const setCenterMode = useCockpitState((s) => s.actions.setCenterMode);
+  const setStepStatus = useCockpitState((s) => s.actions.setStepStatus);
+  const toast = useToastStore((s) => s.add);
   const [busy, setBusy] = useState(false);
+  const [inputValue, setInputValue] = useState("");
+  const [codePrompt, setCodePrompt] = useState("");
+  const logRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (logRef.current) {
+      logRef.current.scrollTop = logRef.current.scrollHeight;
+    }
+  }, [log]);
 
   async function handleGeneratePlan() {
-    const input = prompt("Enter goal:", goal ?? "");
+    const input = inputValue.trim() || goal;
     if (!input) return;
     setGoal(input);
     setBusy(true);
@@ -20,19 +33,20 @@ export function AgentConsole() {
       const context = await runtime.getContext();
       await nova.plan({ goal: input, context });
       setCenterMode("plan");
+      toast("Plan generated successfully", "success");
     } catch (err) {
-      console.error(err);
+      const msg = err instanceof Error ? err.message : String(err);
+      toast(`Plan failed: ${msg}`, "error");
     } finally {
       setBusy(false);
     }
   }
 
   async function handleGenerateCode() {
-    const promptText = prompt("Generate code for:", goal ?? "utility function");
-    if (!promptText) return;
+    const text = codePrompt.trim() || goal || "utility function";
     setBusy(true);
     try {
-      const result = await nova.generateCode({ prompt: promptText });
+      const result = await nova.generateCode({ prompt: text });
       useCockpitState.getState().actions.selectDiff({
         text: result.code,
         metadata: {
@@ -42,10 +56,18 @@ export function AgentConsole() {
           receiptId: result.receipts[0]?.id,
         },
       });
+      toast("Code generated", "success");
     } catch (err) {
-      console.error(err);
+      const msg = err instanceof Error ? err.message : String(err);
+      toast(`Generation failed: ${msg}`, "error");
     } finally {
       setBusy(false);
+    }
+  }
+
+  function handleKeyDown(e: React.KeyboardEvent) {
+    if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) {
+      handleGeneratePlan();
     }
   }
 
@@ -55,12 +77,29 @@ export function AgentConsole() {
         <h2 className={styles.title}>Agent Console</h2>
         <div className={styles.goal}>{goal ?? "No active goal"}</div>
       </header>
+      <div className={styles.inputGroup}>
+        <input
+          className={styles.textInput}
+          placeholder="Enter a goal..."
+          value={inputValue}
+          onChange={(e) => setInputValue(e.target.value)}
+          onKeyDown={handleKeyDown}
+        />
+        <input
+          className={styles.textInput}
+          placeholder="Code prompt (optional)"
+          value={codePrompt}
+          onChange={(e) => setCodePrompt(e.target.value)}
+        />
+      </div>
       <div className={styles.actions}>
         <button type="button" className={styles.btn} disabled={busy} onClick={handleGeneratePlan}>
-          Generate Plan
+          {busy ? <Spinner size="small" /> : null}
+          {busy ? " Planning..." : "Generate Plan"}
         </button>
         <button type="button" className={styles.btn} disabled={busy} onClick={handleGenerateCode}>
-          Generate Code
+          {busy ? <Spinner size="small" /> : null}
+          {busy ? " Generating..." : "Generate Code"}
         </button>
       </div>
       {plan ? (
@@ -70,7 +109,7 @@ export function AgentConsole() {
           ))}
         </ul>
       ) : null}
-      <div className={styles.log}>
+      <div className={styles.log} ref={logRef}>
         {log.map((e) => (
           <div
             key={e.id}

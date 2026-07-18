@@ -1,84 +1,48 @@
 .rightRail {
+  width: 240px;
+  display: flex;
+  flex-direction: column;
   background: var(--color-bg-rail);
   border-left: 1px solid var(--color-border-soft);
   overflow-y: auto;
-  padding: var(--space-md);
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-lg);
+  padding: 12px;
+  gap: 16px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-border-soft) transparent;
 }
-
-.sectionTitle {
-  margin: 0 0 var(--space-sm);
-  font-size: var(--font-size-sm);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: var(--color-text-muted);
-}
-
-.empty {
-  font-size: var(--font-size-sm);
-  color: var(--color-text-muted);
-}
-
-.list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-sm);
-}
-
+.sectionTitle { margin: 0 0 8px; font-size: var(--font-size-xs); color: var(--color-text-muted); text-transform: uppercase; letter-spacing: 0.8px; }
+.empty { font-size: var(--font-size-xs); color: var(--color-text-muted); }
+.list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
 .violationItem {
-  padding: var(--space-sm);
-  border-radius: 6px;
-  border: 1px solid var(--color-border-soft);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 6px 8px;
+  border-radius: 4px;
   background: var(--color-bg-panel);
-}
-
-.flashViolation {
-  animation: flash-red 600ms ease-out;
-}
-
-.violationId {
-  display: block;
-  font-family: var(--font-mono);
+  border-left: 3px solid var(--color-border-soft);
   font-size: var(--font-size-xs);
-  color: var(--color-status-error);
 }
-
-.violationMsg {
-  display: block;
-  font-size: var(--font-size-sm);
-  color: var(--color-text-secondary);
-  margin-top: 4px;
-}
-
-.kernelGrid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: var(--space-sm);
-}
-
-.statusCard {
-  padding: var(--space-sm) var(--space-md);
-  border-radius: 6px;
-  border: 1px solid var(--color-border-soft);
-  background: var(--color-bg-panel);
-}
-
-.statusLabel {
-  font-size: var(--font-size-xs);
-  color: var(--color-text-muted);
-}
-
-.statusValue {
-  font-size: var(--font-size-sm);
+.violationError { border-left-color: var(--color-status-error); }
+.violationWarn { border-left-color: var(--color-status-warn); }
+.flashViolation { animation: flash-bg 0.6s ease-out; }
+@keyframes flash-bg { 0% { background: rgba(235, 87, 87, 0.2); } 100% { background: transparent; } }
+.violationId { font-weight: 500; color: var(--color-text-primary); display: flex; align-items: center; gap: 6px; }
+.violationMsg { color: var(--color-text-secondary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.severityError, .severityWarn {
+  font-size: 10px;
   font-weight: 600;
-  font-family: var(--font-mono);
+  border-radius: 3px;
+  padding: 1px 4px;
+  display: inline-block;
+  width: fit-content;
 }
-
-.statusOk { color: var(--color-status-ok); }
-.statusWarn { color: var(--color-status-warn); }
-.statusError { color: var(--color-status-error); }
+.severityError { background: rgba(235, 87, 87, 0.15); color: var(--color-status-error); }
+.severityWarn { background: rgba(242, 201, 76, 0.15); color: var(--color-status-warn); }
+.kernelGrid { display: flex; flex-direction: column; gap: 6px; }
+.statusCard { display: flex; justify-content: space-between; align-items: center; padding: 6px 8px; border-radius: 4px; background: var(--color-bg-panel); border: 1px solid var(--color-border-soft); }
+.statusLabel { font-size: var(--font-size-xs); color: var(--color-text-secondary); }
+.statusValue { font-size: var(--font-size-xs); font-weight: 600; padding: 2px 6px; border-radius: 3px; }
+.statusOk { color: var(--color-status-ok); background: rgba(39, 174, 96, 0.1); }
+.statusWarn { color: var(--color-status-warn); background: rgba(242, 201, 76, 0.1); }
+.statusError { color: var(--color-status-error); background: rgba(235, 87, 87, 0.1); }

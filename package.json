@@ -1,29 +1,54 @@
 {
-  "name": "agentic-coding-agent",
-  "version": "0.2.0-mission-002",
-  "description": "Nova Mission #002 — CRK-2 constitutional agentic coding with governed SDK, Control Tower, and Cockpit",
+  "name": "nova",
+  "version": "0.4.0-mission-004",
+  "description": "Nova — constitutional agentic coding system with governed planning, execution, debugging, and git-native workflow",
   "main": "dist/agent/index.js",
   "types": "dist/agent/index.d.ts",
   "bin": {
-    "nova": "dist/agent/cli.js"
+    "nova": "dist/src/cli/nova.js",
+    "nova-legacy": "dist/agent/cli.js"
   },
   "scripts": {
     "build": "tsc",
-    "start": "ts-node agent/index.ts",
+    "build:exe": "powershell -ExecutionPolicy Bypass -File scripts/build-exe.ps1",
+    "install:win": "powershell -ExecutionPolicy Bypass -File scripts/install-nova.ps1",
+    "start": "ts-node src/cli/nova.ts",
+    "nova": "ts-node src/cli/nova.ts",
     "cli": "ts-node agent/cli.ts",
     "agent": "ts-node examples/basic-project/src/agent-loop.ts",
     "cockpit": "npm run build && cd cockpit && npm run dev",
     "run:local-governed": "ts-node bin/run_local_governed.ts",
-    "test:local-governed": "node --require ts-node/register/transpile-only --test tests/local_governed_smoke.test.ts",
-    "test": "npm run test:local-governed"
+    "test": "tsc --noEmit && node --require ts-node/register/transpile-only --test tests/local_governed_smoke.test.ts tests/agent_llm_test.ts",
+    "test:full": "tsc --noEmit && node --require ts-node/register/transpile-only --test tests/local_governed_smoke.test.ts tests/integration_llm.test.ts tests/agent_llm_test.ts tests/planner.test.ts tests/inas_conformance.test.ts tests/cmas.test.ts",
+    "test:planner": "node --require ts-node/register/transpile-only --test tests/planner.test.ts",
+    "test:cmas": "node --require ts-node/register/transpile-only --test tests/cmas.test.ts",
+    "build:linux": "bash scripts/package-linux.sh",
+    "build:macos": "bash scripts/package-macos.sh",
+    "build:win": "powershell -ExecutionPolicy Bypass -File scripts/build-exe.ps1",
+    "install:linux": "bash scripts/install-linux.sh",
+    "install:macos": "bash scripts/install-macos.sh",
+    "install:win": "powershell -ExecutionPolicy Bypass -File scripts/install-nova.ps1",
+    "dist:cockpit": "cd cockpit && npm run dist",
+    "dist:cockpit:win": "cd cockpit && npm run dist:win",
+    "dist:cockpit:mac": "cd cockpit && npm run dist:mac",
+    "dist:cockpit:linux": "cd cockpit && npm run dist:linux"
   },
-  "keywords": ["nova", "crk-2", "governance", "agentic", "constitutional", "mission-002"],
+  "keywords": [
+    "nova",
+    "crk-2",
+    "governance",
+    "agentic",
+    "constitutional",
+    "ncae"
+  ],
   "license": "MIT",
   "dependencies": {
     "commander": "^12.1.0"
   },
   "devDependencies": {
     "@types/node": "^20.14.0",
+    "@yao-pkg/pkg": "^6.21.0",
+    "postject": "^1.0.0-alpha.6",
     "ts-node": "^10.9.2",
     "typescript": "^5.5.0"
   },

@@ -1,0 +1,39 @@
+appId: ai.nova.cockpit
+productName: Nova Cockpit
+copyright: Copyright © 2025 Nova
+
+directories:
+  output: release
+  buildResources: build
+
+files:
+  - electron/**/*
+  - dist/**/*
+  - package.json
+
+win:
+  target:
+    - target: nsis
+      arch: [x64, arm64]
+  artifactName: Nova-Cockpit-Setup-${version}-${arch}.${ext}
+
+mac:
+  target:
+    - target: dmg
+      arch: [x64, arm64]
+  artifactName: Nova-Cockpit-${version}-${arch}.${ext}
+  category: public.app-category.developer-tools
+
+linux:
+  target:
+    - target: AppImage
+      arch: [x64, arm64]
+    - target: deb
+      arch: [x64, arm64]
+  artifactName: Nova-Cockpit-${version}-${arch}.${ext}
+  category: Development
+
+nsis:
+  oneClick: false
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut: true

@@ -1,36 +1,41 @@
-.table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: var(--font-size-sm);
-}
-
-.table th {
-  text-align: left;
-  padding: var(--space-sm);
-  border-bottom: 1px solid var(--color-border-strong);
-  color: var(--color-text-muted);
-  font-weight: 500;
-}
-
-.table td {
-  padding: var(--space-sm);
-  border-bottom: 1px solid var(--color-border-soft);
-  font-family: var(--font-mono);
-  font-size: var(--font-size-xs);
-  cursor: pointer;
-}
-
-.rowSelected {
-  background: rgba(58, 123, 255, 0.12);
-}
-
-.detail {
-  margin-top: var(--space-lg);
-  padding: var(--space-md);
+.toolbar { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.searchInput {
+  flex: 1;
+  padding: 6px 10px;
   border: 1px solid var(--color-border-soft);
-  border-radius: var(--radius-panel);
-  background: var(--color-bg-panel);
+  border-radius: 4px;
+  background: var(--color-bg-panel-alt);
+  color: var(--color-text-primary);
+  font-size: var(--font-size-xs);
+  font-family: var(--font-ui);
+  outline: none;
+  transition: border-color 0.15s;
+}
+.searchInput:focus { border-color: var(--color-accent-nova); }
+.searchInput::placeholder { color: var(--color-text-muted); }
+.count { font-size: var(--font-size-xs); color: var(--color-text-muted); white-space: nowrap; }
+.table { width: 100%; border-collapse: collapse; font-size: var(--font-size-xs); }
+.table th { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--color-border-soft); color: var(--color-text-muted); font-weight: 500; }
+.table td { padding: 5px 8px; border-bottom: 1px solid var(--color-border-soft); cursor: pointer; }
+.rowSelected { background: rgba(58, 123, 255, 0.08); }
+.detail { margin-top: 12px; }
+.detailTitle { font-size: var(--font-size-xs); color: var(--color-text-muted); margin-bottom: 4px; }
+.jsonBlock {
+  margin: 0;
+  padding: 10px;
+  border-radius: 4px;
+  background: var(--color-bg-panel-alt);
+  border: 1px solid var(--color-border-soft);
   font-family: var(--font-mono);
   font-size: var(--font-size-xs);
-  white-space: pre-wrap;
+  line-height: 1.5;
+  max-height: 300px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-border-soft) transparent;
 }
+.jsonKey { color: var(--color-accent-continuity); }
+.jsonString { color: var(--color-status-ok); }
+.jsonBool { color: var(--color-accent-governance); }
+.jsonNum { color: var(--color-accent-nova); }
+.jsonNull { color: var(--color-text-muted); }

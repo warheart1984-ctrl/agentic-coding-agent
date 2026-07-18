@@ -35,6 +35,6 @@ export function dLAP(
 function checkClusterInvariants(
   _action: { type: string },
   _clusterState: ReturnType<typeof clusterView>
-): { ok: boolean } {
+): { ok: boolean; reason?: string } {
   return { ok: true };
 }

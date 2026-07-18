@@ -42,6 +42,7 @@ function runCLG1(lineageParent: string | null, callId: string): CLG1Record {
 
 /**
  * Single governed adapter for all local inference. Operator-facing code must use this.
+ * Now forwards file/language/project context to the underlying model for richer generation.
  */
 export async function governedPredict(
   input: string,
@@ -78,7 +79,11 @@ export async function governedPredict(
   }
 
   const modelPath = context.model_path ?? DEFAULT_MODEL_PATH;
-  const output = await localPredict(input, { model_path: modelPath });
+  const output = await localPredict(input, { model_path: modelPath }, {
+    files: context.files,
+    language: context.language,
+    projectFiles: context.projectFiles,
+  });
 
   const postViolations = runPostCallInvariants(checkCtx, output);
   const invariantsPassed = postViolations.length === 0;

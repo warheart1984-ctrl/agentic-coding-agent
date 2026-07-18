@@ -3,6 +3,20 @@ import { useCockpitState } from "../state/store";
 import { AgentConsole } from "../panels/AgentConsole";
 import type { CenterMode } from "../types";
 
+const NAV_ICONS: Record<string, string> = {
+  plan: "📋",
+  diff: "📝",
+  receipts: "🧾",
+  continuity: "🕸",
+  invariants: "⚖",
+  kernel: "⚙",
+  "flight-deck": "🛸",
+  terminal: "💻",
+  "ledger-compare": "📊",
+  "continuity-matrix": "🔲",
+  drift: "🌊",
+};
+
 const modes: { id: CenterMode; label: string }[] = [
   { id: "plan", label: "Plan" },
   { id: "diff", label: "Diff" },
@@ -11,6 +25,7 @@ const modes: { id: CenterMode; label: string }[] = [
   { id: "invariants", label: "Invariants" },
   { id: "kernel", label: "Kernel" },
   { id: "flight-deck", label: "Flight Deck" },
+  { id: "terminal", label: "Terminal" },
   { id: "ledger-compare", label: "Ledger Compare" },
   { id: "continuity-matrix", label: "Continuity Matrix" },
   { id: "drift", label: "Drift Map" },
@@ -29,8 +44,10 @@ export function LeftRail() {
             type="button"
             className={centerMode === m.id ? styles.navItemActive : styles.navItem}
             onClick={() => setCenterMode(m.id)}
+            title={`Go to ${m.label} (key: ${m.id[0]})`}
           >
-            {m.label}
+            <span className={styles.navIcon}>{NAV_ICONS[m.id] ?? "•"}</span>
+            <span>{m.label}</span>
           </button>
         ))}
       </nav>

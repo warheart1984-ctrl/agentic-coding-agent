@@ -12,12 +12,16 @@ nova-checkpoints/
 .DS_Store
 Thumbs.db
 desktop.ini
+*.swp
+*.swo
+*~
 
 # Node
 node_modules/
 dist/
 build/
 *.log
+npm-debug.log*
 
 # Python
 __pycache__/
@@ -25,10 +29,14 @@ __pycache__/
 venv/
 *.pyc
 .pytest_cache/
+*.egg-info/
 
 # Editor
 .idea/
+.vscode/
 *.swp
+*.swo
+*~
 
 # Nova runtime artifacts
 .nova/sessions/
@@ -37,3 +45,15 @@ agent.db
 
 # Backup files from sed/bootstrap
 *.bak
+
+# Build artifacts
+*.exe
+*.dmg
+*.AppImage
+*.deb
+*.rpm
+release/
+
+# OS generated files
+ehthumbs.db
+*.lnk
