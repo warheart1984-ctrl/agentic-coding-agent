@@ -23,11 +23,19 @@ function promptUser(question: string): Promise<string> {
 async function main() {
   const args = process.argv.slice(2);
   const interactive = args.includes("--interactive") || args.includes("-i");
+  const showModels = args.includes("--show-models") || args.includes("--models") || args.some((a) => ["models", "model-list"].includes(a));
   const task = args.filter((a) => !a.startsWith("-")).join(" ");
+
+  if (showModels) {
+    const { formatTaskTable } = await import("../model/router");
+    console.log(formatTaskTable());
+    return;
+  }
 
   if (!task && !interactive) {
     console.error("Usage: nova <task description>");
     console.error("       nova --interactive");
+    console.error("       nova --show-models");
     process.exit(1);
   }
 

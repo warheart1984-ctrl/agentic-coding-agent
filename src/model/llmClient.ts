@@ -1,5 +1,5 @@
 export interface LLMConfig {
-  provider: "openai" | "ollama" | "custom" | "gemini" | "groq" | "deepseek" | "huggingface" | "openrouter" | "mistral";
+  provider: "openai" | "ollama" | "custom" | "gemini" | "groq" | "deepseek" | "huggingface" | "openrouter" | "mistral" | "nvidia";
   endpoint: string;
   model: string;
   apiKey?: string;
@@ -285,6 +285,7 @@ const PROVIDER_API_KEY_ENV: Record<string, string> = {
   huggingface: "HF_API_KEY",
   openrouter: "OPENROUTER_API_KEY",
   mistral: "MISTRAL_API_KEY",
+  nvidia: "NVIDIA_API_KEY",
 };
 
 /** Provider-specific default endpoints. */
@@ -297,6 +298,7 @@ const PROVIDER_ENDPOINTS: Record<string, string> = {
   huggingface: "https://api-inference.huggingface.co",
   openrouter: "https://openrouter.ai/api/v1",
   mistral: "https://api.mistral.ai/v1",
+  nvidia: "https://integrate.api.nvidia.com/v1",
 };
 
 /** Provider-specific default models. */
@@ -310,6 +312,7 @@ const PROVIDER_DEFAULT_MODELS: Record<string, string> = {
   openrouter: "meta-llama/llama-3.1-70b-instruct:free",
   mistral: "mistral-small-latest",
   custom: "custom-model",
+  nvidia: "meta/llama-3.1-8b-instruct",
 };
 
 const VALID_PROVIDERS = new Set(Object.keys(PROVIDER_DEFAULT_MODELS));

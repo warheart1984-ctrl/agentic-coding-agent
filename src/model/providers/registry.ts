@@ -5,6 +5,7 @@ import { deepseekProvider } from "./deepseek";
 import { huggingfaceProvider } from "./huggingface";
 import { openrouterProvider } from "./openrouter";
 import { mistralProvider } from "./mistral";
+import { nvidiaNimProvider } from "./nvidia";
 
 const registry = new Map<string, Provider>();
 
@@ -18,6 +19,7 @@ register(deepseekProvider);
 register(huggingfaceProvider);
 register(openrouterProvider);
 register(mistralProvider);
+register(nvidiaNimProvider);
 
 export function getProvider(key: string): Provider | undefined {
   return registry.get(key);
@@ -47,6 +49,7 @@ function getDescription(key: string): string {
     huggingface: "Hugging Face Inference API — free tier, many open models.",
     openrouter: "OpenRouter — unified API for 200+ models, some free.",
     mistral: "Mistral AI — free tier. French LLM startup, good multilingual.",
+    nvidia: "NVIDIA NIM — free tier via build.nvidia.com. Llama/Mistron/DeepSeek on GPU.",
   };
   return descs[key] ?? "";
 }
