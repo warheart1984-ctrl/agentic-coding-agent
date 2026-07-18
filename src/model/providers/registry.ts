@@ -6,6 +6,8 @@ import { huggingfaceProvider } from "./huggingface";
 import { openrouterProvider } from "./openrouter";
 import { mistralProvider } from "./mistral";
 import { nvidiaNimProvider } from "./nvidia";
+import { togetherProvider } from "./together";
+import { githubModelsProvider } from "./github";
 
 const registry = new Map<string, Provider>();
 
@@ -20,6 +22,8 @@ register(huggingfaceProvider);
 register(openrouterProvider);
 register(mistralProvider);
 register(nvidiaNimProvider);
+register(togetherProvider);
+register(githubModelsProvider);
 
 export function getProvider(key: string): Provider | undefined {
   return registry.get(key);
@@ -50,6 +54,8 @@ function getDescription(key: string): string {
     openrouter: "OpenRouter — unified API for 200+ models, some free.",
     mistral: "Mistral AI — free tier. French LLM startup, good multilingual.",
     nvidia: "NVIDIA NIM — free tier via build.nvidia.com. Llama/Mistron/DeepSeek on GPU.",
+    together: "Together AI — $1 free credit. Hosts LLaMA 3.3 70B, DeepSeek R1, Qwen 2.5, Mixtral.",
+    github: "GitHub Models — free tier via GitHub token. GPT-4o-mini, LLaMA 3.1, Phi-3, Mistral.",
   };
   return descs[key] ?? "";
 }

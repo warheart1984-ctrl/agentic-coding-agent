@@ -46,6 +46,8 @@ const TASK_PROFILES: Record<TaskType, TaskProfile> = {
     preferFree: true,
     fallbacks: [
       { provider: "groq", model: "mixtral-8x7b-32768" },
+      { provider: "together", model: "meta-llama/Llama-3.3-70B-Instruct-Turbo" },
+      { provider: "github", model: "gpt-4o-mini" },
       { provider: "nvidia", model: "meta/llama-3.1-8b-instruct" },
       { provider: "gemini", model: "gemini-2.0-flash" },
       { provider: "openrouter", model: "meta-llama/llama-3.1-70b-instruct:free" },
@@ -62,6 +64,7 @@ const TASK_PROFILES: Record<TaskType, TaskProfile> = {
     fallbacks: [
       { provider: "deepseek", model: "deepseek-chat" },
       { provider: "openrouter", model: "meta-llama/llama-3.1-70b-instruct:free" },
+      { provider: "together", model: "Qwen/Qwen2.5-72B-Instruct-Turbo" },
       { provider: "groq", model: "mixtral-8x7b-32768" },
     ],
   },
@@ -76,6 +79,7 @@ const TASK_PROFILES: Record<TaskType, TaskProfile> = {
     fallbacks: [
       { provider: "gemini", model: "gemini-2.0-flash" },
       { provider: "groq", model: "llama3-70b-8192" },
+      { provider: "together", model: "meta-llama/Llama-3.3-70B-Instruct-Turbo" },
       { provider: "nvidia", model: "nvidia/llama-3.1-nemotron-70b-instruct" },
     ],
   },
@@ -89,6 +93,7 @@ const TASK_PROFILES: Record<TaskType, TaskProfile> = {
     preferFree: true,
     fallbacks: [
       { provider: "deepseek", model: "deepseek-chat" },
+      { provider: "together", model: "meta-llama/Llama-3.3-70B-Instruct-Turbo" },
       { provider: "groq", model: "llama3-70b-8192" },
     ],
   },
@@ -103,6 +108,8 @@ const TASK_PROFILES: Record<TaskType, TaskProfile> = {
     fallbacks: [
       { provider: "groq", model: "mixtral-8x7b-32768" },
       { provider: "deepseek", model: "deepseek-chat" },
+      { provider: "github", model: "gpt-4o-mini" },
+      { provider: "together", model: "meta-llama/Llama-3.3-70B-Instruct-Turbo" },
       { provider: "nvidia", model: "mistralai/mistral-nemo-12b-instruct" },
     ],
   },
@@ -116,6 +123,7 @@ const TASK_PROFILES: Record<TaskType, TaskProfile> = {
     preferFree: true,
     fallbacks: [
       { provider: "gemini", model: "gemini-2.0-flash" },
+      { provider: "together", model: "Qwen/Qwen2.5-72B-Instruct-Turbo" },
       { provider: "groq", model: "llama3-70b-8192" },
     ],
   },
@@ -129,6 +137,7 @@ const TASK_PROFILES: Record<TaskType, TaskProfile> = {
     preferFree: true,
     fallbacks: [
       { provider: "groq", model: "mixtral-8x7b-32768" },
+      { provider: "together", model: "meta-llama/Llama-3.3-70B-Instruct-Turbo" },
       { provider: "gemini", model: "gemini-2.0-flash" },
       { provider: "nvidia", model: "meta/llama-3.1-8b-instruct" },
     ],
@@ -153,7 +162,9 @@ const TASK_PROFILES: Record<TaskType, TaskProfile> = {
     preferFree: true,
     fallbacks: [
       { provider: "gemini", model: "gemini-2.0-flash" },
+      { provider: "together", model: "meta-llama/Llama-3.3-70B-Instruct-Turbo" },
       { provider: "groq", model: "mixtral-8x7b-32768" },
+      { provider: "github", model: "gpt-4o-mini" },
       { provider: "nvidia", model: "mistralai/mistral-nemo-12b-instruct" },
     ],
   },
@@ -167,7 +178,9 @@ const TASK_PROFILES: Record<TaskType, TaskProfile> = {
     preferFree: true,
     fallbacks: [
       { provider: "gemini", model: "gemini-2.0-flash" },
+      { provider: "together", model: "Qwen/Qwen2.5-72B-Instruct-Turbo" },
       { provider: "groq", model: "mixtral-8x7b-32768" },
+      { provider: "github", model: "gpt-4o-mini" },
     ],
   },
   explain: {
@@ -180,6 +193,8 @@ const TASK_PROFILES: Record<TaskType, TaskProfile> = {
     preferFree: true,
     fallbacks: [
       { provider: "deepseek", model: "deepseek-chat" },
+      { provider: "together", model: "meta-llama/Llama-3.3-70B-Instruct-Turbo" },
+      { provider: "github", model: "gpt-4o-mini" },
       { provider: "groq", model: "llama3-70b-8192" },
     ],
   },
@@ -193,6 +208,8 @@ const TASK_PROFILES: Record<TaskType, TaskProfile> = {
     preferFree: true,
     fallbacks: [
       { provider: "deepseek", model: "deepseek-chat" },
+      { provider: "together", model: "meta-llama/Llama-3.3-70B-Instruct-Turbo" },
+      { provider: "github", model: "gpt-4o-mini" },
       { provider: "groq", model: "llama3-70b-8192" },
     ],
   },
@@ -221,6 +238,8 @@ function hasApiKeyFor(provider: LLMConfig["provider"]): boolean {
     openrouter: "OPENROUTER_API_KEY",
     mistral: "MISTRAL_API_KEY",
     nvidia: "NVIDIA_API_KEY",
+    together: "TOGETHER_API_KEY",
+    github: "GITHUB_TOKEN",
   };
   const envKey = envMap[provider];
   return envKey ? !!process.env[envKey] : false;

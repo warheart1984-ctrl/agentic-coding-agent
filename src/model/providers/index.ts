@@ -7,3 +7,5 @@ export { huggingfaceProvider } from "./huggingface";
 export { openrouterProvider } from "./openrouter";
 export { mistralProvider } from "./mistral";
 export { nvidiaNimProvider } from "./nvidia";
+export { togetherProvider } from "./together";
+export { githubModelsProvider } from "./github";

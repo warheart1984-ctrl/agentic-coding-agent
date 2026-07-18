@@ -164,3 +164,51 @@ describe("NVIDIA NIM Provider", () => {
     assert.strictEqual(p.parseResponse({ choices: [] }), "");
   });
 });
+
+describe("Together AI Provider", () => {
+  let togetherProvider: { togetherProvider: import("../src/model/providers/types").Provider };
+
+  it("loads the Together AI provider module", async () => {
+    togetherProvider = await import("../src/model/providers/together");
+    assert.ok(togetherProvider.togetherProvider);
+  });
+
+  it("has correct provider metadata", () => {
+    const p = togetherProvider.togetherProvider;
+    assert.strictEqual(p.key, "together");
+    assert.strictEqual(p.freeTier, true);
+    assert.strictEqual(p.apiKeyEnv, "TOGETHER_API_KEY");
+    assert.ok(p.defaultEndpoint.includes("together.xyz"));
+    assert.ok(p.defaultModel.includes("Llama-3.3"));
+  });
+
+  it("builds headers correctly", () => {
+    const p = togetherProvider.togetherProvider;
+    const headers = p.buildHeaders("tk-abc");
+    assert.ok(headers.Authorization?.includes("tk-abc"));
+  });
+});
+
+describe("GitHub Models Provider", () => {
+  let githubProvider: { githubModelsProvider: import("../src/model/providers/types").Provider };
+
+  it("loads the GitHub Models provider module", async () => {
+    githubProvider = await import("../src/model/providers/github");
+    assert.ok(githubProvider.githubModelsProvider);
+  });
+
+  it("has correct provider metadata", () => {
+    const p = githubProvider.githubModelsProvider;
+    assert.strictEqual(p.key, "github");
+    assert.strictEqual(p.freeTier, true);
+    assert.strictEqual(p.apiKeyEnv, "GITHUB_TOKEN");
+    assert.ok(p.defaultEndpoint.includes("azure.com"));
+    assert.strictEqual(p.defaultModel, "gpt-4o-mini");
+  });
+
+  it("builds headers correctly", () => {
+    const p = githubProvider.githubModelsProvider;
+    const headers = p.buildHeaders("ghp_test123");
+    assert.ok(headers.Authorization?.includes("ghp_test123"));
+  });
+});
