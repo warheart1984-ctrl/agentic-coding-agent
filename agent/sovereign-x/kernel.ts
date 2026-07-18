@@ -15,6 +15,7 @@ import type {
 import { appendWal, replayWal, truncateWal } from "./storage";
 import { initializeSigner, signPayload, getPublicKeyFingerprint, verifySignature } from "./signer";
 import { createBudget, getAgentBudget, consumeResource } from "./accounting";
+import { apidMiddleware, APIDReport } from "./apid";
 
 const CSR_LEDGER: ConstitutionalStateRecord[] = [];
 const INTENT_REGISTRY: Map<string, IntentLifecycle> = new Map();
@@ -414,8 +415,14 @@ export function getConstitutionalStatus(): {
 
 export async function kernelGovernAction(
   agentId: string, agentRole: string, action: AgentAction, intentId: string | null,
-): Promise<{ approved: boolean; receipt?: GovernanceReceipt; reason?: string }> {
+): Promise<{ approved: boolean; receipt?: GovernanceReceipt; reason?: string; apidReport?: APIDReport }> {
   if (!seeded) await seedKernel();
+  const apidResult = apidMiddleware(agentId, action);
+  if (!apidResult.allowed) {
+    const receipt = emitToLedger(agentId, action, true, apidResult.reason);
+    recordCSR("action-blocked-apid", "governance", { agentId, agentRole, actionType: action.type, apidDisposition: apidResult.report.disposition, threatClass: apidResult.report.threatClass }, intentId as UUID | null, agentId);
+    return { approved: false, receipt, reason: apidResult.reason, apidReport: apidResult.report };
+  }
   const boundaryCheck = checkActionAgainstBoundary(agentRole, action.type);
   if (!boundaryCheck.allowed) {
     const receipt = emitToLedger(agentId, action, true, boundaryCheck.reason);
@@ -456,5 +463,5 @@ export async function kernelGovernAction(
   }
   const receipt = emitToLedger(agentId, action, false);
   recordCSR("action-approved", "governance", { agentId, agentRole, actionType: action.type, intentId: computedIntentId, signed: signPayload(computedIntentId ?? receipt.id) }, computedIntentId as UUID | null, agentId);
-  return { approved: true, receipt };
+  return { approved: true, receipt, apidReport: apidResult.report };
 }
