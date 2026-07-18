@@ -8,6 +8,7 @@ export {
   authorizeCompute, getComputeAuth,
   getCsrLedger, verifyCsrIntegrity,
   detectConstitutionalDrift,
+  reconcileCsrFork,
   issueLineageCertificate,
   getConstitutionalStatus,
   kernelGovernAction,
@@ -46,6 +47,44 @@ export {
 } from "./worlds";
 export type { AgentWorld, FederatedAction, WorldStatus, WorldLineage } from "./worlds";
 
+export {
+  appendWal, replayWal, truncateWal,
+  getWalPath, walFileSize,
+} from "./storage";
+
+export {
+  initializeSigner, getPublicKeyPem, getPublicKeyFingerprint,
+  signPayload, verifySignature, isSignerInitialized,
+} from "./signer";
+
+export {
+  createBudget, getBudget, getAgentBudget,
+  consumeResource, resetBudget, getBudgetUsage,
+  listConsumptions, getAccountingStatus, resetAccounting,
+} from "./accounting";
+export type { ResourceBudget, ResourceConsumption, ResourceUnit } from "./accounting";
+
+export {
+  executeInSandbox,
+} from "./sandbox";
+export type { SandboxResult } from "./sandbox";
+
+export {
+  createTreatyBlob, countersignTreatyBlob, verifyTreatyBlob,
+  getSignedTreaty, listSignedTreaties,
+  exportTreatyForTransfer, importTreatyFromTransfer,
+  resetTreatyProtocol,
+} from "./treatyProtocol";
+export type { SignedTreatyBlob } from "./treatyProtocol";
+
+export {
+  registerPredicate, getPredicates,
+  verifyPredicate, verifyAllPredicates,
+  generateModelStates,
+  getModelCheckerStatus,
+} from "./modelChecker";
+export type { StatePredicate, ModelState, VerificationResult, PredicateResult } from "./modelChecker";
+
 export type {
   IntentLifecycle, IntentStatus,
   ConstitutionalStateRecord, EvidencePortal,
@@ -63,12 +102,16 @@ import {
   arbitrate, resolveArbitration, listOpenArbitrations,
   authorizeCompute, getComputeAuth,
   getCsrLedger, verifyCsrIntegrity,
-  detectConstitutionalDrift,
+  detectConstitutionalDrift, reconcileCsrFork,
   issueLineageCertificate,
 } from "./kernel";
+import { getPublicKeyFingerprint, getPublicKeyPem, signPayload, verifySignature } from "./signer";
+import { getWalPath, walFileSize } from "./storage";
 import { resetRuntime } from "./runtime";
 import { resetFabric } from "./fabric";
 import { resetWorlds } from "./worlds";
+import { resetAccounting } from "./accounting";
+import { resetTreatyProtocol } from "./treatyProtocol";
 
 let initialized = false;
 
@@ -87,6 +130,8 @@ export function resetSovereignX(): void {
   resetRuntime();
   resetFabric();
   resetWorlds();
+  resetAccounting();
+  resetTreatyProtocol();
   initialized = false;
 }
 
@@ -105,7 +150,9 @@ export const SovereignX = {
     arbitrate: { open: arbitrate, resolve: resolveArbitration, list: listOpenArbitrations },
     compute: { authorize: authorizeCompute, get: getComputeAuth },
     csr: { get: getCsrLedger, verify: verifyCsrIntegrity },
-    drift: detectConstitutionalDrift,
+    drift: { detect: detectConstitutionalDrift, reconcile: reconcileCsrFork },
     lineage: issueLineageCertificate,
+    signing: { fingerprint: getPublicKeyFingerprint, publicKey: getPublicKeyPem, sign: signPayload, verify: verifySignature },
+    storage: { walPath: getWalPath, walSize: walFileSize },
   },
 };

@@ -57,3 +57,7 @@ release/
 # OS generated files
 ehthumbs.db
 *.lnk
+
+# Sovereign X Kernel write-ahead log
+.sxk-wal/
+.sxk-wal-*/
