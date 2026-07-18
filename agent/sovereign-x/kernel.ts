@@ -12,6 +12,9 @@ import type {
   ArbitrationRecord, GovernanceBoundary, ComputeAuthorization, DriftReport,
   LineageCertificate,
 } from "./types";
+import { appendWal, replayWal, truncateWal } from "./storage";
+import { initializeSigner, signPayload, getPublicKeyFingerprint, verifySignature } from "./signer";
+import { createBudget, getAgentBudget, consumeResource } from "./accounting";
 
 const CSR_LEDGER: ConstitutionalStateRecord[] = [];
 const INTENT_REGISTRY: Map<string, IntentLifecycle> = new Map();
@@ -19,6 +22,8 @@ const EVIDENCE_REGISTRY: Map<string, EvidencePortal> = new Map();
 const ARBITRATION_DOCKET: ArbitrationRecord[] = [];
 const BOUNDARIES: Map<string, GovernanceBoundary> = new Map();
 const COMPUTE_AUTHORIZATIONS: ComputeAuthorization[] = [];
+
+const ILC_ORDER: IntentStatus[] = ["proposed", "evidenced", "authorized", "executing", "validating", "completed", "rejected", "reverted"];
 
 function csrHash(record: Omit<ConstitutionalStateRecord, "hash">): Hash {
   return sha256Sync(JSON.stringify(record)) as Hash;
@@ -40,6 +45,7 @@ export function recordCSR(
   };
   const record: ConstitutionalStateRecord = { ...partial, hash: csrHash(partial) };
   CSR_LEDGER.push(record);
+  appendWal(record);
   return record;
 }
 
@@ -90,10 +96,37 @@ export const SOVEREIGN_X_INVARIANTS: Invariant[] = [
 let seeded = false;
 export async function seedKernel(): Promise<void> {
   if (seeded) return;
+  initializeSigner();
+  const walRecords = replayWal();
+  if (walRecords.length > 0) {
+    CSR_LEDGER.push(...walRecords);
+    for (const r of walRecords) {
+      if (r.transition.startsWith("intent-")) {
+        const intentId = r.payload?.intentId as string | undefined;
+        if (intentId && !INTENT_REGISTRY.has(intentId)) {
+          const match = r.transition.match(/^intent-(.+)-\>(.+)$/);
+          const goal = (r.payload?.goal as string) ?? "recovered";
+          if (match) {
+            const intent: IntentLifecycle = {
+              intentId: intentId as UUID, goal,
+              status: match[2] as IntentStatus,
+              evidenceIds: [], authorityId: null, executionId: null,
+              validationId: null, timestamp: r.timestamp,
+              completedAt: match[2] === "completed" || match[2] === "rejected" || match[2] === "reverted" ? r.timestamp : null,
+              revertible: true,
+            };
+            INTENT_REGISTRY.set(intentId, intent);
+          }
+        }
+      }
+    }
+  }
   for (const inv of SOVEREIGN_X_INVARIANTS) {
     await requireInvariant(inv);
   }
-  recordCSR("kernel-seed", "constitution", { invariantCount: SOVEREIGN_X_INVARIANTS.length }, null, "sovereign-x-kernel");
+  if (walRecords.length === 0) {
+    recordCSR("kernel-seed", "constitution", { invariantCount: SOVEREIGN_X_INVARIANTS.length, keyFingerprint: getPublicKeyFingerprint() }, null, "sovereign-x-kernel");
+  }
   seeded = true;
 }
 
@@ -109,6 +142,7 @@ export function resetKernel(): void {
   BOUNDARIES.clear();
   COMPUTE_AUTHORIZATIONS.length = 0;
   seeded = false;
+  truncateWal();
 }
 
 export function createIntent(goal: string): IntentLifecycle {
@@ -134,6 +168,11 @@ export function listIntents(): IntentLifecycle[] {
 export function transitionIntent(intentId: string, newStatus: IntentStatus): { ok: boolean; error?: string } {
   const intent = INTENT_REGISTRY.get(intentId);
   if (!intent) return { ok: false, error: `Intent ${intentId} not found` };
+  const prevIdx = ILC_ORDER.indexOf(intent.status);
+  const nextIdx = ILC_ORDER.indexOf(newStatus);
+  if (nextIdx < prevIdx && newStatus !== "reverted" && newStatus !== "rejected") {
+    return { ok: false, error: `Cannot regress intent from ${intent.status} to ${newStatus}` };
+  }
   const prev = intent.status;
   intent.status = newStatus;
   if (newStatus === "completed" || newStatus === "rejected" || newStatus === "reverted") {
@@ -160,7 +199,7 @@ export function verifyEvidence(evidenceId: string): { ok: boolean; error?: strin
   const portal = EVIDENCE_REGISTRY.get(evidenceId);
   if (!portal) return { ok: false, error: `Evidence ${evidenceId} not found` };
   portal.verified = true;
-  recordCSR("evidence-verified", "evidence", { evidenceId, intentId: portal.intentId }, portal.intentId, "sovereign-x-kernel");
+  recordCSR("evidence-verified", "evidence", { evidenceId, intentId: portal.intentId, signature: signPayload(portal.evidenceId) }, portal.intentId, "sovereign-x-kernel");
   return { ok: true };
 }
 
@@ -253,7 +292,7 @@ export async function authorizeCompute(
     timestamp: new Date().toISOString(),
   };
   COMPUTE_AUTHORIZATIONS.push(auth);
-  recordCSR("compute-authorized", "compute", { taskId, nodeId, workloadClass, authorized: auth.authorized, route: auth.routedVia }, null, "sovereign-x-kernel");
+  recordCSR("compute-authorized", "compute", { taskId, nodeId, workloadClass, authorized: auth.authorized, route: auth.routedVia, signed: signPayload(auth.authId) }, null, "sovereign-x-kernel");
   return auth;
 }
 
@@ -295,7 +334,43 @@ export function detectConstitutionalDrift(): DriftReport[] {
       correctable: true,
     });
   }
+  const signedRecords = CSR_LEDGER.filter((r) => r.payload?.signature);
+  for (const record of signedRecords) {
+    const sig = record.payload?.signature as string | undefined;
+    const pubKey = record.payload?.publicKey as string | undefined;
+    if (sig && pubKey) {
+      const content = JSON.stringify({ recordId: record.recordId, transition: record.transition, domain: record.domain, hash: record.hash });
+      if (!verifySignature(content, sig, pubKey)) {
+        reports.push({
+          driftId: uuid() as UUID, worldId: null,
+          expectedHash: record.hash, actualHash: "tampered" as Hash,
+          driftMagnitude: 1, affectedDomains: ["cryptographic"],
+          timestamp: new Date().toISOString(), correctable: false,
+        });
+      }
+    }
+  }
   return reports;
+}
+
+export function reconcileCsrFork(forkRecords: ConstitutionalStateRecord[]): { ok: boolean; merged: number; error?: string } {
+  if (forkRecords.length === 0) return { ok: true, merged: 0 };
+  const forkStart = forkRecords[0];
+  const commonIndex = CSR_LEDGER.findIndex((r) => r.hash === forkStart.previousHash);
+  if (commonIndex === -1) {
+    return { ok: false, merged: 0, error: "No common ancestor found for fork reconciliation" };
+  }
+  let merged = 0;
+  for (const record of forkRecords) {
+    const duplicate = CSR_LEDGER.some((r) => r.hash === record.hash);
+    if (!duplicate) {
+      CSR_LEDGER.push(record);
+      appendWal(record);
+      merged++;
+    }
+  }
+  recordCSR("csr-fork-reconciled", "constitution", { forkLength: forkRecords.length, merged }, null, "sovereign-x-kernel");
+  return { ok: true, merged };
 }
 
 export function issueLineageCertificate(): LineageCertificate {
@@ -322,6 +397,7 @@ export function getConstitutionalStatus(): {
   computeAuths: number;
   boundaries: number;
   csrIntegrity: boolean;
+  keyFingerprint: string;
 } {
   return {
     seeded,
@@ -332,6 +408,7 @@ export function getConstitutionalStatus(): {
     computeAuths: COMPUTE_AUTHORIZATIONS.length,
     boundaries: BOUNDARIES.size,
     csrIntegrity: verifyCsrIntegrity().valid,
+    keyFingerprint: getPublicKeyFingerprint(),
   };
 }
 
@@ -345,22 +422,39 @@ export async function kernelGovernAction(
     recordCSR("action-blocked-boundary", "governance", { agentId, agentRole, actionType: action.type, reason: boundaryCheck.reason }, intentId as UUID | null, agentId);
     return { approved: false, receipt, reason: boundaryCheck.reason };
   }
-  if (intentId) {
-    const intent = getIntent(intentId);
-    if (!intent) return { approved: false, reason: `Intent ${intentId} not found` };
+  let computedIntentId = intentId;
+  if (computedIntentId) {
+    const intent = getIntent(computedIntentId);
+    if (!intent) return { approved: false, reason: `Intent ${computedIntentId} not found` };
     if (!["authorized", "executing", "validating"].includes(intent.status)) {
-      const receipt = emitToLedger(agentId, action, true, `Intent ${intentId} not in executable state: ${intent.status}`);
-      recordCSR("action-blocked-intent-state", "governance", { intentId, intentStatus: intent.status }, intentId as UUID, agentId);
-      return { approved: false, receipt, reason: `Intent ${intentId} not in executable state: ${intent.status}` };
+      if (intent.status === "evidenced") {
+        enforceILC(computedIntentId);
+      }
+      if (intent.status === "authorized" && (action.type === "edit" || action.type === "create")) {
+        enforceILC(computedIntentId);
+      }
+      const retryIntent = getIntent(computedIntentId);
+      if (!retryIntent || !["authorized", "executing", "validating"].includes(retryIntent.status)) {
+        const receipt = emitToLedger(agentId, action, true, `Intent ${computedIntentId} not in executable state: ${retryIntent?.status ?? intent.status}`);
+        recordCSR("action-blocked-intent-state", "governance", { intentId: computedIntentId, intentStatus: retryIntent?.status ?? intent.status }, computedIntentId as UUID, agentId);
+        return { approved: false, receipt, reason: `Intent ${computedIntentId} not in executable state: ${retryIntent?.status ?? intent.status}` };
+      }
+    }
+    const budget = getAgentBudget(agentId) ?? createBudget(agentId, computedIntentId);
+    const resourceCheck = consumeResource(budget.budgetId, "calls", 1, action.type);
+    if (!resourceCheck.ok) {
+      const receipt = emitToLedger(agentId, action, true, resourceCheck.error);
+      recordCSR("action-blocked-budget", "accounting", { agentId, reason: resourceCheck.error }, computedIntentId as UUID, agentId);
+      return { approved: false, receipt, reason: resourceCheck.error };
     }
   }
   const validation = await validateAction(action);
   if (!validation.ok) {
     const receipt = emitToLedger(agentId, action, true, validation.reason);
-    recordCSR("action-blocked-validation", "governance", { reason: validation.reason, violation: validation.violation?.id }, intentId as UUID | null, agentId);
+    recordCSR("action-blocked-validation", "governance", { reason: validation.reason, violation: validation.violation?.id }, computedIntentId as UUID | null, agentId);
     return { approved: false, receipt, reason: validation.reason };
   }
   const receipt = emitToLedger(agentId, action, false);
-  recordCSR("action-approved", "governance", { agentId, agentRole, actionType: action.type, intentId }, intentId as UUID | null, agentId);
+  recordCSR("action-approved", "governance", { agentId, agentRole, actionType: action.type, intentId: computedIntentId, signed: signPayload(computedIntentId ?? receipt.id) }, computedIntentId as UUID | null, agentId);
   return { approved: true, receipt };
 }
