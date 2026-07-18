@@ -1,5 +1,5 @@
 export interface LLMConfig {
-  provider: "openai" | "ollama" | "custom" | "gemini" | "groq" | "deepseek" | "huggingface" | "openrouter" | "mistral" | "nvidia";
+  provider: "openai" | "ollama" | "custom" | "gemini" | "groq" | "deepseek" | "huggingface" | "openrouter" | "mistral" | "nvidia" | "together" | "github";
   endpoint: string;
   model: string;
   apiKey?: string;
@@ -286,6 +286,8 @@ const PROVIDER_API_KEY_ENV: Record<string, string> = {
   openrouter: "OPENROUTER_API_KEY",
   mistral: "MISTRAL_API_KEY",
   nvidia: "NVIDIA_API_KEY",
+  together: "TOGETHER_API_KEY",
+  github: "GITHUB_TOKEN",
 };
 
 /** Provider-specific default endpoints. */
@@ -299,6 +301,8 @@ const PROVIDER_ENDPOINTS: Record<string, string> = {
   openrouter: "https://openrouter.ai/api/v1",
   mistral: "https://api.mistral.ai/v1",
   nvidia: "https://integrate.api.nvidia.com/v1",
+  together: "https://api.together.xyz/v1",
+  github: "https://models.inference.ai.azure.com",
 };
 
 /** Provider-specific default models. */
@@ -313,6 +317,8 @@ const PROVIDER_DEFAULT_MODELS: Record<string, string> = {
   mistral: "mistral-small-latest",
   custom: "custom-model",
   nvidia: "meta/llama-3.1-8b-instruct",
+  together: "meta-llama/Llama-3.3-70B-Instruct-Turbo",
+  github: "gpt-4o-mini",
 };
 
 const VALID_PROVIDERS = new Set(Object.keys(PROVIDER_DEFAULT_MODELS));
