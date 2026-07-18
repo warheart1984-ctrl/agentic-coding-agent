@@ -15,7 +15,7 @@ export async function getDb(): Promise<Database> {
   const SQL = await initSqlJs({ locateFile: () => wasmPath });
 
   try {
-    const response = await fetch(env.DATABASE_PATH);
+    const response = await fetch(env.DATABASE_URL);
     if (response.ok) {
       const buffer = await response.arrayBuffer();
       dbInstance = new SQL.Database(new Uint8Array(buffer));

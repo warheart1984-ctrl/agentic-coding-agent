@@ -61,3 +61,4 @@ ehthumbs.db
 # Sovereign X Kernel write-ahead log
 .sxk-wal/
 .sxk-wal-*/
+/src/generated/prisma
