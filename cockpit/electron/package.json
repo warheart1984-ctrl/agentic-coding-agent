@@ -1,0 +1,14 @@
+{
+  "name": "nova-cockpit-desktop",
+  "version": "0.1.0",
+  "description": "Nova Cockpit — cross-platform desktop application",
+  "main": "main.cjs",
+  "scripts": {
+    "start": "electron .",
+    "dev": "cross-env NODE_ENV=development electron ."
+  },
+  "devDependencies": {
+    "electron": "^33.0.0",
+    "cross-env": "^7.0.3"
+  }
+}

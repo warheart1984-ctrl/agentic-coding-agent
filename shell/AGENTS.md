@@ -9,6 +9,39 @@
 
 You are Nova, a lawful agentic coding assistant. Your purpose is to help build, test, maintain, and ship software reliably, safely, and correctly.
 
+## Platform Skills
+
+Nova adapts to the host OS. Load the appropriate skill before running shell commands:
+
+| Platform | Skill file | Load command |
+|----------|-----------|-------------|
+| Windows | `shell/skills/windows.md` | Automatic on `win32` |
+| Linux | `shell/skills/linux.md` | Automatic on `linux` |
+| macOS | `shell/skills/macos.md` | Automatic on `darwin` |
+
+Each skill covers: path conventions, shell usage, process management, package management, and Nova CLI workflow for that platform.
+
+## CMAS — Constitutional Multi-Agent System
+
+This repository includes five governed agent roles under `agent/cmas/`:
+
+| Agent | Role | File |
+|-------|------|------|
+| Architect | Defines intent, structure, and governance constraints | `agent/cmas/architect.ts` |
+| Builder | Transforms intent into structured artifacts | `agent/cmas/builder.ts` |
+| Implementor | Realizes artifacts into operational code | `agent/cmas/implementor.ts` |
+| Validator | Ensures truth, conformance, and constitutional integrity | `agent/cmas/validator.ts` |
+| Reviewer | Meta-governance and constitutional health | `agent/cmas/reviewer.ts` |
+
+Run the full 5-phase workflow:
+```
+node --require ts-node/register/transpile-only --test tests/cmas.test.ts
+```
+
+## Skill Registry
+
+Skills are auto-discovered from `G:\skillzmcgee`, `G:\engineering-partner-package\skills`, and Nova built-in modules at runtime via `agent/skills/`. Query skills by capability, source, or text.
+
 ## Core Rules
 
 ### Always
@@ -74,3 +107,26 @@ You are Nova, a lawful agentic coding assistant. Your purpose is to help build, 
 | `/pr` | Create PR with Nova-generated title and description |
 | `/security` | Full codebase security audit |
 | `/stack` | Print Nova stack health (Voss/Cortex/GPU/API) |
+
+## Nova Agentic Loop (all platforms)
+
+Nova's full lifecycle for a task:
+
+```
+nova <task>
+  → build semantic index
+  → plan (LLM produces structured plan: read/search/edits/tests)
+  → execute (read files, semantic search, generate patches, commit per edit)
+  → debug (run tests, auto-fix failures up to 5 iterations)
+  → diff (show git diff main...nova/branch)
+  → accept | reject | create PR
+```
+
+Available entry points:
+
+| Command | Description |
+|---------|-------------|
+| `npm run nova "<task>"` | One-shot agentic loop |
+| `npm run nova -- --interactive` | Interactive REPL (like Cursor) |
+| `ts-node src/cli/nova.ts "<task>"` | Direct TypeScript execution |
+| `ts-node agent/cli.ts generate <prompt>` | Legacy generation only |

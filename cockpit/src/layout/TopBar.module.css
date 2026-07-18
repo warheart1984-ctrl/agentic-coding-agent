@@ -1,62 +1,31 @@
 .topBar {
-  height: 56px;
+  height: 44px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 var(--space-lg);
-  background: var(--color-bg-shell);
+  padding: 0 16px;
+  background: var(--color-bg-panel);
   border-bottom: 1px solid var(--color-border-soft);
+  flex-shrink: 0;
 }
-
-.left {
-  display: flex;
-  align-items: baseline;
-  gap: var(--space-sm);
-}
-
-.brand {
-  font-weight: 600;
-  font-size: var(--font-size-xl);
-  color: var(--color-accent-nova);
-}
-
-.sub {
-  font-size: var(--font-size-sm);
-  color: var(--color-text-muted);
-}
-
-.center {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 2px;
-}
-
-.kernelLabel {
-  font-size: var(--font-size-xs);
-  color: var(--color-text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-}
-
-.kernelStatusOk {
-  font-size: var(--font-size-sm);
-  color: var(--color-status-ok);
-}
-
-.kernelStatusWarn {
-  font-size: var(--font-size-sm);
-  color: var(--color-status-warn);
-}
-
-.right {
-  font-size: var(--font-size-sm);
-  color: var(--color-text-secondary);
-}
-
-.invariantsCount {
-  padding: 4px 10px;
-  border-radius: var(--radius-panel);
+.left { display: flex; align-items: center; gap: 10px; }
+.brand { font-weight: 700; font-size: var(--font-size-md); color: var(--color-accent-nova); }
+.sub { font-size: var(--font-size-xs); color: var(--color-text-muted); }
+.center { display: flex; align-items: center; gap: 12px; }
+.kernelLabel { font-size: var(--font-size-xs); color: var(--color-text-muted); font-family: var(--font-mono); }
+.kernelStatusOk { font-size: var(--font-size-xs); color: var(--color-status-ok); }
+.kernelStatusWarn { font-size: var(--font-size-xs); color: var(--color-status-warn); }
+.heartbeat { font-size: 10px; color: var(--color-text-muted); font-family: var(--font-mono); }
+.right { display: flex; align-items: center; gap: 10px; }
+.invariantsCount { font-size: var(--font-size-xs); color: var(--color-text-muted); }
+.themeToggle {
+  background: transparent;
   border: 1px solid var(--color-border-soft);
-  background: var(--color-bg-rail);
+  border-radius: 4px;
+  color: var(--color-text-secondary);
+  font-size: 16px;
+  padding: 2px 6px;
+  cursor: pointer;
+  transition: background 0.15s;
 }
+.themeToggle:hover { background: var(--color-border-soft); }

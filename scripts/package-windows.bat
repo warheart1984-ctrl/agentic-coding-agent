@@ -7,7 +7,7 @@ echo Nova Windows Package Builder
 echo ========================================
 echo.
 
-set VERSION=0.2.0-mission-002
+set VERSION=0.4.0-mission-004
 set PACKAGE_NAME=nova-windows-%VERSION%
 set BUILD_DIR=build\windows
 set OUTPUT_DIR=dist\packages
@@ -43,13 +43,17 @@ xcopy cockpit\dist %BUILD_DIR%\cockpit\dist\ /E /I /Y
 xcopy cockpit\package.json %BUILD_DIR%\cockpit\ /Y
 xcopy cockpit\package-lock.json %BUILD_DIR%\cockpit\ /Y
 xcopy node_modules %BUILD_DIR%\node_modules\ /E /I /Y
-xcopy package.json %BUILD_DIR%\ /Y
-xcopy README.md %BUILD_DIR%\ /Y
-xcopy LICENSE %BUILD_DIR%\ /Y
-xcopy MISSION-002.md %BUILD_DIR%\ /Y
-xcopy observer-bundle-mission-002.zip %BUILD_DIR%\ /Y
+xcopy inas %BUILD_DIR%\inas\ /E /I /Y
+xcopy agent %BUILD_DIR%\agent\ /E /I /Y
+xcopy backend %BUILD_DIR%\backend\ /E /I /Y
+xcopy shell %BUILD_DIR%\shell\ /E /I /Y
+xcopy scripts %BUILD_DIR%\scripts\ /E /I /Y
 xcopy docs %BUILD_DIR%\docs\ /E /I /Y
 xcopy config %BUILD_DIR%\config\ /E /I /Y
+xcopy package.json %BUILD_DIR%\ /Y
+xcopy package-lock.json %BUILD_DIR%\ /Y
+xcopy README.md %BUILD_DIR%\ /Y
+xcopy LICENSE %BUILD_DIR%\ /Y
 xcopy scripts\install-windows.bat %BUILD_DIR%\ /Y
 xcopy scripts\uninstall-windows.bat %BUILD_DIR%\ /Y
 

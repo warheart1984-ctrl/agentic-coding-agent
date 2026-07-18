@@ -26,6 +26,7 @@ export function BottomBand() {
             type="button"
             className={styles.chip}
             onClick={() => selectReceipt(r.id)}
+            title={`${r.action.type} @ ${new Date(typeof r.timestamp === "number" ? r.timestamp : new Date(r.timestamp).getTime()).toLocaleTimeString()}`}
           >
             {r.id.slice(0, 8)}
           </button>

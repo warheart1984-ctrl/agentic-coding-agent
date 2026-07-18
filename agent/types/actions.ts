@@ -1,3 +1,6 @@
+import type { GovernanceReceipt } from "./receipts";
+import type { InvariantViolation } from "./invariants";
+
 export type ActionType = "edit" | "create" | "delete" | "run" | "plan" | "generate" | "refactor";
 
 export interface AgentAction {
@@ -41,7 +44,7 @@ export interface TestResult {
 export interface RefactorResult {
   file: string;
   diff: string;
-  receipts: import("./receipts").GovernanceReceipt[];
+  receipts: GovernanceReceipt[];
 }
 
 export interface VerificationResult {
@@ -53,7 +56,7 @@ export interface VerificationResult {
 export interface ValidationResult {
   ok: boolean;
   reason?: string;
-  violation?: import("./invariants").InvariantViolation;
+  violation?: InvariantViolation;
 }
 
 export interface GenerateCodeInput {
@@ -64,7 +67,7 @@ export interface GenerateCodeInput {
 
 export interface GenerateCodeResult {
   code: string;
-  receipts: import("./receipts").GovernanceReceipt[];
+  receipts: GovernanceReceipt[];
 }
 
 export interface PlanInput {
@@ -88,5 +91,5 @@ export interface ApplyPatchInput {
 
 export interface ApplyPatchResult {
   success: boolean;
-  receipts: import("./receipts").GovernanceReceipt[];
+  receipts: GovernanceReceipt[];
 }

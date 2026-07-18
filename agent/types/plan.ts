@@ -1,4 +1,5 @@
 import type { GovernanceReceipt } from "./receipts";
+import type { Intent, ExecutionContext } from "../../inas/spec/ccr";
 
 export interface PlanStep {
   id: string;
@@ -11,4 +12,8 @@ export interface Plan {
   steps: PlanStep[];
   justification: string;
   receipts: GovernanceReceipt[];
+  /** INAS: CCR intent specification. */
+  intent?: Intent;
+  /** INAS: CCR execution context. */
+  executionContext?: ExecutionContext;
 }

@@ -10,6 +10,8 @@ import type {
   InvariantViolation,
   KernelStatus,
   Invariant,
+  PlanStepWithStatus,
+  StepStatus,
 } from "../types";
 
 interface CockpitState {
@@ -18,6 +20,7 @@ interface CockpitState {
   agent: {
     currentGoal: string | null;
     currentPlan: Plan | null;
+    stepStatuses: PlanStepWithStatus[];
     log: AgentLogEntry[];
   };
   governance: {
@@ -33,16 +36,18 @@ interface CockpitState {
   workspace: {
     selectedDiff: SelectedDiff | null;
   };
-  kernel: { status: KernelStatus };
+  kernel: { status: KernelStatus; lastHeartbeatAt: number | null };
   actions: {
     setCenterMode(mode: CenterMode): void;
     setGoal(goal: string): void;
     setPlan(plan: Plan): void;
+    setStepStatus(stepId: string, status: StepStatus): void;
     setInvariants(invariants: Invariant[]): void;
     appendLog(entry: Omit<AgentLogEntry, "id"> & { id?: string }): void;
     addReceipt(r: GovernanceReceipt): void;
     addViolation(v: InvariantViolation): void;
     updateKernelStatus(status: KernelStatus): void;
+    setLastHeartbeat(ts: number): void;
     updateContinuity(snapshot: { id: string; timestamp: number; stateHash: string }): void;
     selectSnapshot(id: string): void;
     selectReceipt(id: string): void;
@@ -99,16 +104,32 @@ const defaultKernel: KernelStatus = {
 export const useCockpitState = create<CockpitState>((set) => ({
   ui: { centerMode: "plan", selectedAgents: ["agent-alpha", "agent-beta"] },
   uiSignals: {},
-  agent: { currentGoal: null, currentPlan: null, log: [] },
+  agent: { currentGoal: null, currentPlan: null, stepStatuses: [], log: [] },
   governance: { invariants: [], receipts: [], violations: [], selectedReceiptId: null },
   continuity: { timeline: [], selectedSnapshotId: null },
   workspace: { selectedDiff: null },
-  kernel: { status: defaultKernel },
+  kernel: { status: defaultKernel, lastHeartbeatAt: null },
 
   actions: {
     setCenterMode: (mode) => set((s) => ({ ui: { ...s.ui, centerMode: mode } })),
     setGoal: (goal) => set((s) => ({ agent: { ...s.agent, currentGoal: goal } })),
-    setPlan: (plan) => set((s) => ({ agent: { ...s.agent, currentPlan: plan } })),
+    setPlan: (plan) =>
+      set((s) => ({
+        agent: {
+          ...s.agent,
+          currentPlan: plan,
+          stepStatuses: plan.steps.map((st) => ({ id: st.id, description: st.description, action: st.action, status: "pending" as const })),
+        },
+      })),
+    setStepStatus: (stepId, status) =>
+      set((s) => ({
+        agent: {
+          ...s.agent,
+          stepStatuses: s.agent.stepStatuses.map((st) =>
+            st.id === stepId ? { ...st, status } : st
+          ),
+        },
+      })),
     setInvariants: (invariants) =>
       set((s) => ({ governance: { ...s.governance, invariants } })),
     appendLog: (entry) =>
@@ -133,7 +154,7 @@ export const useCockpitState = create<CockpitState>((set) => ({
             ...s.continuity.timeline,
             {
               id: r.id,
-              timestamp: r.timestamp,
+              timestamp: typeof r.timestamp === "number" ? r.timestamp : new Date(r.timestamp).getTime(),
               stateHash: r.continuityHash,
               type: "receipt" as const,
               label: r.action.type,
@@ -161,7 +182,8 @@ export const useCockpitState = create<CockpitState>((set) => ({
           ],
         },
       })),
-    updateKernelStatus: (status) => set({ kernel: { status } }),
+    updateKernelStatus: (status) => set((s) => ({ kernel: { ...s.kernel, status } })),
+    setLastHeartbeat: (ts) => set((s) => ({ kernel: { ...s.kernel, lastHeartbeatAt: ts } })),
     updateContinuity: (snapshot) =>
       set((s) => ({
         continuity: {
@@ -267,6 +289,7 @@ export const useCockpitState = create<CockpitState>((set) => ({
               action: { type: "plan" as const, payload: { stepId: step.id } },
             })),
           },
+          stepStatuses: payload.steps.map((st) => ({ id: st.id, description: st.description, action: { type: "plan" as const, payload: { stepId: st.id } }, status: "pending" as const })),
         },
         uiSignals: { ...s.uiSignals, lastPlanId: payload.planId },
       })),

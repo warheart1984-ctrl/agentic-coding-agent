@@ -26,7 +26,8 @@
     "crk2/**/*",
     "control-tower/**/*",
     "backend/**/*",
-    "tools/**/*"
+    "tools/**/*",
+    "inas/**/*"
   ],
   "exclude": ["node_modules", "dist", "examples", "cockpit"]
 }

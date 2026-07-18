@@ -1,3 +1,4 @@
+import { createHash } from "crypto";
 import type { ClusterState } from "../cluster/macc";
 
 export interface ConstraintCheckResult {
@@ -7,10 +8,16 @@ export interface ConstraintCheckResult {
 
 export const constraintEngine = {
   check(
-    _action: { type: string },
+    action: { type: string; payload?: Record<string, unknown> },
     _context: Record<string, unknown>,
-    _clusterState: ClusterState
+    clusterState: ClusterState
   ): ConstraintCheckResult {
+    if (!action.type) {
+      return { ok: false, constraintId: "missing-action-type" };
+    }
+    if (!clusterState.ledgerPrefixHash || clusterState.ledgerPrefixHash === createHash("sha256").update(JSON.stringify([])).digest("hex")) {
+      return { ok: false, constraintId: "empty-ledger" };
+    }
     return { ok: true };
   },
 };

@@ -7,7 +7,7 @@ echo Nova Windows Installer
 echo ========================================
 echo.
 
-set VERSION=0.2.0-mission-002
+set VERSION=0.4.0-mission-004
 set INSTALL_DIR=%LOCALAPPDATA%\Nova
 set BIN_DIR=%USERPROFILE%\AppData\Local\Programs\nova
 
@@ -22,13 +22,17 @@ echo Copying files to installation directory...
 xcopy /E /I /Y dist "%INSTALL_DIR%\dist"
 xcopy /E /I /Y cockpit "%INSTALL_DIR%\cockpit"
 xcopy /E /I /Y node_modules "%INSTALL_DIR%\node_modules"
-xcopy /Y package.json "%INSTALL_DIR%\"
-xcopy /Y README.md "%INSTALL_DIR%\"
-xcopy /Y LICENSE "%INSTALL_DIR%\"
-xcopy /Y MISSION-002.md "%INSTALL_DIR%\"
-xcopy /Y observer-bundle-mission-002.zip "%INSTALL_DIR%\"
+xcopy /E /I /Y inas "%INSTALL_DIR%\inas"
+xcopy /E /I /Y agent "%INSTALL_DIR%\agent"
+xcopy /E /I /Y backend "%INSTALL_DIR%\backend"
+xcopy /E /I /Y shell "%INSTALL_DIR%\shell"
+xcopy /E /I /Y scripts "%INSTALL_DIR%\scripts"
 xcopy /E /I /Y docs "%INSTALL_DIR%\docs"
 xcopy /E /I /Y config "%INSTALL_DIR%\config"
+xcopy /Y package.json "%INSTALL_DIR%\"
+xcopy /Y package-lock.json "%INSTALL_DIR%\"
+xcopy /Y README.md "%INSTALL_DIR%\"
+xcopy /Y LICENSE "%INSTALL_DIR%\"
 
 echo Creating executable...
 copy dist\agent\cli.js "%BIN_DIR%\nova.js"

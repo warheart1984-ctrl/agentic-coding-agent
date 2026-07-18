@@ -16,6 +16,18 @@ export function ContinuityTimeline() {
     console.log("Replay result:", replay);
   }
 
+  if (timeline.length === 0) {
+    return (
+      <Panel title="Continuity Timeline">
+        <div className={styles.empty}>
+          <div className={styles.emptyIcon}>🕸</div>
+          <p>No timeline events yet.</p>
+          <p className={styles.emptyHint}>Events appear here as you generate plans, receipts, and snapshots.</p>
+        </div>
+      </Panel>
+    );
+  }
+
   return (
     <Panel title="Continuity Timeline">
       <div className={styles.track}>
@@ -24,7 +36,7 @@ export function ContinuityTimeline() {
             {i > 0 ? <span className={styles.connector} /> : null}
             <button
               type="button"
-              title={node.label ?? node.type}
+              title={`${node.type}: ${node.label ?? node.id}`}
               className={`${styles.node} ${
                 node.type === "snapshot"
                   ? styles.nodeSnapshot
@@ -33,7 +45,19 @@ export function ContinuityTimeline() {
                   : styles.nodeViolation
               } ${node.id === selectedId ? styles.nodeSelected : ""}`}
               onClick={() => void handleReplay(node.id)}
-            />
+            >
+              <span className={styles.nodeLabel}>
+                {node.label
+                  ? node.label.length > 10
+                    ? node.label.slice(0, 10) + "…"
+                    : node.label
+                  : node.type === "snapshot"
+                  ? "SNAP"
+                  : node.type === "receipt"
+                  ? "RCPT"
+                  : "VIO"}
+              </span>
+            </button>
           </span>
         ))}
       </div>
@@ -48,7 +72,7 @@ export function ContinuityTimeline() {
           </button>
         </div>
       ) : (
-        <div>Select a timeline node</div>
+        <div className={styles.selectHint}>Select a timeline node to inspect</div>
       )}
     </Panel>
   );

@@ -1,16 +1,18 @@
 import type { Plan, PlanStep } from "../types/plan";
 import type { PlanInput } from "../types/actions";
+import type { GovernanceReceipt } from "../types/receipts";
 import { uuid } from "../lib/uuid";
 import { recordReceipt } from "../governance/receipts";
 import { validateAction } from "../governance/validator";
-import { emitPlan } from "../events/lifecycle";
+import { emitPlan, emitReceipt } from "../events/lifecycle";
 
-export async function plan(input: PlanInput): Promise<{ plan: Plan; receipts: import("../types/receipts").GovernanceReceipt[] }> {
+export async function plan(input: PlanInput): Promise<{ plan: Plan; receipts: GovernanceReceipt[] }> {
   const action = { type: "plan" as const, payload: { goal: input.goal, context: input.context } };
 
   const validation = await validateAction(action);
   if (!validation.ok) {
-    await recordReceipt(action, [], { blocked: true, blockReason: validation.reason });
+    const receipt = await recordReceipt(action, [], { blocked: true, blockReason: validation.reason, assuranceLevel: "A0" });
+    emitReceipt(receipt);
     throw new Error(validation.reason ?? "Plan blocked by invariant");
   }
 
@@ -32,12 +34,23 @@ export async function plan(input: PlanInput): Promise<{ plan: Plan; receipts: im
     },
   ];
 
-  const planReceipt = await recordReceipt(action, validation.ok ? ["plan-validated"] : []);
+  const planReceipt = await recordReceipt(action, ["plan-validated"], { assuranceLevel: "A1" });
+  emitReceipt(planReceipt);
   const planObj: Plan = {
     id: uuid(),
     steps,
     justification: `Governed plan for: ${input.goal}`,
     receipts: [planReceipt],
+    intent: {
+      id: uuid(),
+      goal: input.goal,
+      evidenceRequired: true,
+    },
+    executionContext: {
+      action: "plan",
+      payload: { goal: input.goal },
+      sandbox: true,
+    },
   };
 
   emitPlan(planObj);

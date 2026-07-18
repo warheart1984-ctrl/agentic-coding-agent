@@ -1,8 +1,13 @@
-export function uuid(): string {
+import type { UUID } from "../../inas/spec/core";
+
+export function uuid(): UUID {
+  let id: string;
   if (typeof globalThis.crypto?.randomUUID === "function") {
-    return globalThis.crypto.randomUUID();
+    id = globalThis.crypto.randomUUID();
+  } else {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const { randomUUID } = require("crypto") as typeof import("crypto");
+    id = randomUUID();
   }
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const { randomUUID } = require("crypto") as typeof import("crypto");
-  return randomUUID();
+  return id as UUID;
 }

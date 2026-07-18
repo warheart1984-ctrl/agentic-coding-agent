@@ -14,5 +14,3 @@ export async function requireInvariant(inv: Invariant): Promise<void> {
 export function clearInvariants(): void {
   registered.length = 0;
 }
-
-export { registered as invariants };

@@ -1,35 +1,47 @@
-import { createHash } from "crypto";
 import { existsSync } from "fs";
 import { resolve } from "path";
+import { configFromEnv, llmGenerate, type GenerationContext } from "./llmClient";
+import { fallbackSynthesize } from "./fallback";
 
 export interface LocalModelOptions {
   model_path: string;
 }
 
+/** Context for code generation — files, language, project structure. */
+export interface PredictContext {
+  files?: Array<{ path: string; content: string }>;
+  language?: string;
+  projectFiles?: string[];
+}
+
 /**
- * Local-only inference client. Structured for local weights; uses deterministic
- * on-device generation when weight files are absent (dev/smoke path).
- * No remote HTTP or API calls.
+ * Local inference client. Delegates to remote LLM when env config is present;
+ * falls back to deterministic code synthesis when no LLM is configured (dev/smoke path).
+ * Accepts optional file/language/project context to enrich the prompt.
  */
 export async function localPredict(
   input: string,
-  opts: LocalModelOptions
+  opts: LocalModelOptions,
+  ctx?: PredictContext
 ): Promise<string> {
+  if (process.env.LLM_PROVIDER || process.env.LLM_ENDPOINT) {
+    const config = configFromEnv();
+    const genCtx: GenerationContext | undefined = ctx
+      ? { files: ctx.files, language: ctx.language, projectFiles: ctx.projectFiles }
+      : undefined;
+    const response = await llmGenerate(config, input, genCtx);
+    return response.text;
+  }
+
   const modelDir = resolve(opts.model_path);
   const weightsPresent =
     existsSync(modelDir) ||
     existsSync(resolve(modelDir, "weights.bin")) ||
     existsSync(resolve(modelDir, "model.json"));
 
-  const seed = createHash("sha256")
-    .update(input)
-    .update(weightsPresent ? modelDir : "local-stub-weights")
-    .digest("hex")
-    .slice(0, 16);
+  if (weightsPresent) {
+    return `[local weights loaded from: ${modelDir}]`;
+  }
 
-  // Deterministic local response — simulates loaded weights without network I/O
-  const greeting = input.toLowerCase().includes("hello")
-    ? "Hello"
-    : "Acknowledged";
-  return `${greeting} [local:${seed}]: ${input.trim().slice(0, 120)}`;
+  return fallbackSynthesize(input, ctx);
 }

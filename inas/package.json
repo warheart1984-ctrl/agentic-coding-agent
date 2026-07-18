@@ -1,0 +1,11 @@
+{
+  "name": "@nova/inas",
+  "version": "1.0.0",
+  "description": "Implementation-Neutral Assurance Specification — constitutional computing standard for governed, evidence-based, auditable intelligence systems",
+  "main": "spec/index.js",
+  "types": "spec/index.d.ts",
+  "files": ["spec/**/*"],
+  "license": "MIT",
+  "keywords": ["inas", "constitutional", "governance", "assurance", "evidence", "provenance"],
+  "engines": { "node": ">=18" }
+}
