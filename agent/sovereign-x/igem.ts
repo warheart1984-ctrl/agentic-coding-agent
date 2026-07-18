@@ -80,6 +80,7 @@ export interface TransmissionReceipt {
   destinationNodeHash: string;
   payloadHash: string;
   asilSignature: string;
+  asilPublicKey: string;
   timestamp: string;
 }
 
@@ -89,6 +90,15 @@ const TRAVERSAL_TOKENS: Map<string, TraversalToken> = new Map();
 const TRANSMISSION_LOG: FederatedTransmissionEnvelope[] = [];
 
 const MASTER_KEY_ID = "igem-master-001";
+
+let masterSigningKeyPair: crypto.KeyPairKeyObjectResult | null = null;
+
+function getSigningKeyPair(): crypto.KeyPairKeyObjectResult {
+  if (!masterSigningKeyPair) {
+    masterSigningKeyPair = crypto.generateKeyPairSync("ed25519");
+  }
+  return masterSigningKeyPair;
+}
 
 function deriveKey(keyMaterial: string, salt: string): Buffer {
   return crypto.pbkdf2Sync(keyMaterial, salt, 100000, 32, "sha512");
@@ -295,7 +305,7 @@ export function issueTraversalToken(
     signature: "",
   };
   const signContent = `${token.tokenId}|${token.issuingNode}|${token.targetNode}|${token.graphEpoch}|${token.expiry}`;
-  const sign = crypto.createSign("SHA256").update(signContent).sign({ key: master, format: "pem" }).toString("base64");
+  const sign = crypto.sign(null, Buffer.from(signContent, "utf8"), getSigningKeyPair().privateKey).toString("base64");
   token.signature = sign;
   TRAVERSAL_TOKENS.set(token.tokenId, token);
   return token;
@@ -346,11 +356,12 @@ export function createFederatedTransmission(
     destinationNodeHash: sha256Sync(destinationNode) as string,
     payloadHash,
     asilSignature: "",
+    asilPublicKey: getSigningKeyPair().publicKey.export({ type: "spki", format: "pem" }) as string,
     timestamp: new Date().toISOString(),
   };
 
   const receiptContent = `${receipt.receiptId}|${receipt.sourceNodeHash}|${receipt.destinationNodeHash}|${receipt.payloadHash}|${receipt.timestamp}`;
-  const asilSign = crypto.createSign("SHA256").update(receiptContent).sign({ key: master, format: "pem" }).toString("base64");
+  const asilSign = crypto.sign(null, Buffer.from(receiptContent, "utf8"), getSigningKeyPair().privateKey).toString("base64");
   receipt.asilSignature = asilSign;
 
   const envelope: FederatedTransmissionEnvelope = {
@@ -401,10 +412,8 @@ export function receiveFederatedTransmission(
 
   const receipt = envelope.transmissionReceipt;
   const receiptContent = `${receipt.receiptId}|${receipt.sourceNodeHash}|${receipt.destinationNodeHash}|${receipt.payloadHash}|${receipt.timestamp}`;
-  const verify = crypto.createVerify("SHA256").update(receiptContent).verify(
-    { key: receipt.asilSignature, format: "pem" },
-    Buffer.from(receipt.asilSignature, "base64"),
-  );
+  const publicKey = crypto.createPublicKey({ key: receipt.asilPublicKey, format: "pem" });
+  const verify = crypto.verify(null, Buffer.from(receiptContent, "utf8"), publicKey, Buffer.from(receipt.asilSignature, "base64"));
 
   if (!verify) throw new Error("ASIL transmission receipt signature invalid");
   if (Date.now() - new Date(envelope.timestamp).getTime() > envelope.ttl * 1000) throw new Error("Transmission TTL expired");
