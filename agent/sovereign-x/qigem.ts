@@ -74,7 +74,7 @@ const ROTATION_EPOCH_INTERVAL = 1000;
 const FTSS_TRUST_THRESHOLD = 0.75;
 const MIN_PARTICIPATION_RATIO = 0.75;
 
-function generateKyberKeyPair(): { publicKey: string; privateKey: string } {
+export function generateKyberKeyPair(): { publicKey: string; privateKey: string } {
   const keyPair = crypto.generateKeyPairSync("x25519");
   return {
     publicKey: keyPair.publicKey.export({ type: "spki", format: "pem" }) as string,
@@ -82,7 +82,7 @@ function generateKyberKeyPair(): { publicKey: string; privateKey: string } {
   };
 }
 
-function generateDilithiumKeyPair(): { publicKey: string; privateKey: string } {
+export function generateDilithiumKeyPair(): { publicKey: string; privateKey: string } {
   const keyPair = crypto.generateKeyPairSync("ed25519");
   return {
     publicKey: keyPair.publicKey.export({ type: "spki", format: "pem" }) as string,
@@ -90,7 +90,7 @@ function generateDilithiumKeyPair(): { publicKey: string; privateKey: string } {
   };
 }
 
-function generateClassicalKemKeyPair(): { publicKey: string; privateKey: string } {
+export function generateClassicalKemKeyPair(): { publicKey: string; privateKey: string } {
   const keyPair = crypto.generateKeyPairSync("rsa", { modulusLength: 4096 });
   return {
     publicKey: keyPair.publicKey.export({ type: "spki", format: "pem" }) as string,
@@ -98,7 +98,7 @@ function generateClassicalKemKeyPair(): { publicKey: string; privateKey: string 
   };
 }
 
-function generateClassicalSigKeyPair(): { publicKey: string; privateKey: string } {
+export function generateClassicalSigKeyPair(): { publicKey: string; privateKey: string } {
   const keyPair = crypto.generateKeyPairSync("rsa", { modulusLength: 4096 });
   return {
     publicKey: keyPair.publicKey.export({ type: "spki", format: "pem" }) as string,

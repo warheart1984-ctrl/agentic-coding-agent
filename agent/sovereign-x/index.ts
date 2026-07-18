@@ -108,6 +108,16 @@ export {
 } from "./ftss";
 export type { TrustVector, TrustScoreRecord, TrustEvidence, TrustAppeal, TrustTier, FederationTrustGraph } from "./ftss";
 
+export {
+  initializeQIGEM, generateKeyRecord, getKeyRecord, getCurrentEpoch,
+  advanceEpoch, emitQuantumThreatAlert, countersignQuantumThreatAlert,
+  createHybridSessionKey, dilithiumSign, dilithiumVerify,
+  createQTraversalToken, verifyQTraversalToken,
+  generateKyberKeyPair, generateDilithiumKeyPair, generateClassicalKemKeyPair, generateClassicalSigKeyPair,
+  getQIGEMStatus, resetQIGEM,
+} from "./qigem";
+export type { QIGEMKeyRecord, QuantumThreatAlert, EpochAdvancementEvent, QTraversalToken, EpochDesignation, AlgorithmSuite } from "./qigem";
+
 export type {
   IntentLifecycle, IntentStatus,
   ConstitutionalStateRecord, EvidencePortal,
