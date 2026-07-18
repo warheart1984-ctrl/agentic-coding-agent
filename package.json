@@ -1,59 +1,48 @@
 {
-  "name": "nova",
-  "version": "0.4.0-mission-004",
-  "description": "Nova — constitutional agentic coding system with governed planning, execution, debugging, and git-native workflow",
-  "main": "dist/agent/index.js",
-  "types": "dist/agent/index.d.ts",
-  "bin": {
-    "nova": "dist/src/cli/nova.js",
-    "nova-legacy": "dist/agent/cli.js"
-  },
+  "name": "sovereign-agent",
+  "version": "0.9.1-mission-004",
+  "description": "Constitutional agentic coding system with governed execution",
+  "type": "module",
+  "main": "dist/src/index.js",
+  "types": "dist/src/index.d.ts",
   "scripts": {
     "build": "tsc",
-    "build:exe": "powershell -ExecutionPolicy Bypass -File scripts/build-exe.ps1",
-    "install:win": "powershell -ExecutionPolicy Bypass -File scripts/install-nova.ps1",
-    "start": "ts-node src/cli/nova.ts",
-    "nova": "ts-node src/cli/nova.ts",
-    "cli": "ts-node agent/cli.ts",
-    "agent": "ts-node examples/basic-project/src/agent-loop.ts",
-    "cockpit": "npm run build && cd cockpit && npm run dev",
-    "run:local-governed": "ts-node bin/run_local_governed.ts",
-    "test": "tsc --noEmit && node --require ts-node/register/transpile-only --test tests/local_governed_smoke.test.ts tests/agent_llm_test.ts",
-    "test:full": "tsc --noEmit && node --require ts-node/register/transpile-only --test tests/local_governed_smoke.test.ts tests/integration_llm.test.ts tests/agent_llm_test.ts tests/planner.test.ts tests/inas_conformance.test.ts tests/cmas.test.ts tests/model_router.test.ts",
-    "test:planner": "node --require ts-node/register/transpile-only --test tests/planner.test.ts",
-    "test:cmas": "node --require ts-node/register/transpile-only --test tests/cmas.test.ts",
-    "test:models": "node --require ts-node/register/transpile-only --test tests/model_router.test.ts",
-    "build:linux": "bash scripts/package-linux.sh",
-    "build:macos": "bash scripts/package-macos.sh",
-    "build:win": "powershell -ExecutionPolicy Bypass -File scripts/build-exe.ps1",
-    "install:linux": "bash scripts/install-linux.sh",
-    "install:macos": "bash scripts/install-macos.sh",
-    "install:win": "powershell -ExecutionPolicy Bypass -File scripts/install-nova.ps1",
-    "dist:cockpit": "cd cockpit && npm run dist",
-    "dist:cockpit:win": "cd cockpit && npm run dist:win",
-    "dist:cockpit:mac": "cd cockpit && npm run dist:mac",
-    "dist:cockpit:linux": "cd cockpit && npm run dist:linux"
+    "dev": "tsx watch src/index.ts",
+    "start": "node dist/src/index.js",
+    "test": "tsc --noEmit && node --require tsx --test tests/**/*.test.ts",
+    "test:integration": "tsc --noEmit && node --require tsx --test tests/integration/**/*.test.ts",
+    "db:migrate": "tsx src/persistence/migrate.ts",
+    "lint": "eslint src --ext .ts"
   },
-  "keywords": [
-    "nova",
-    "crk-2",
-    "governance",
-    "agentic",
-    "constitutional",
-    "ncae"
-  ],
-  "license": "MIT",
   "dependencies": {
-    "commander": "^12.1.0"
+    "@anthropic-ai/sdk": "^0.27.3",
+    "@fastify/helmet": "^11.1.1",
+    "@fastify/rate-limit": "^9.1.0",
+    "bcryptjs": "^2.4.3",
+    "fastify": "^4.26.2",
+    "jsonwebtoken": "^9.0.2",
+    "openai": "^4.28.0",
+    "pino": "^9.14.0",
+    "pino-pretty": "^10.3.1",
+    "sql.js": "^1.10.3",
+    "uuid": "^9.0.1",
+    "zod": "^3.22.4"
   },
   "devDependencies": {
-    "@types/node": "^20.14.0",
-    "@yao-pkg/pkg": "^6.21.0",
-    "postject": "^1.0.0-alpha.6",
+    "@types/bcryptjs": "^2.4.6",
+    "@types/fastify-rate-limit": "^2.0.0",
+    "@types/jsonwebtoken": "^9.0.5",
+    "@types/node": "^20.11.24",
+    "@types/sql.js": "^1.4.4",
+    "@types/uuid": "^9.0.8",
+    "@typescript-eslint/eslint-plugin": "^7.1.0",
+    "@typescript-eslint/parser": "^7.1.0",
+    "eslint": "^8.57.0",
     "ts-node": "^10.9.2",
-    "typescript": "^5.5.0"
+    "tsx": "^4.7.1",
+    "typescript": "^5.3.3"
   },
   "engines": {
-    "node": ">=18"
+    "node": ">=20.0.0"
   }
 }
