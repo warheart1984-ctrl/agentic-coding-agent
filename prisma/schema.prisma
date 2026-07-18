@@ -1,0 +1,299 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum UserRole {
+  ADMIN
+  OPERATOR
+  VIEWER
+}
+
+enum ProviderName {
+  OPENAI
+  ANTHROPIC
+  OLLAMA
+  LOCAL
+}
+
+enum IntentType {
+  CODE_GENERATION
+  REFACTOR
+  ANALYSIS
+  TEST_GENERATION
+  DOCUMENTATION
+  DEBUG
+  REVIEW
+}
+
+enum TrustTier {
+  SOVEREIGN
+  VERIFIED
+  PROVISIONAL
+  QUARANTINED
+  EXPELLED
+}
+
+enum FeatureFlagStatus {
+  ENABLED
+  DISABLED
+  GRADUAL_ROLLOUT
+}
+
+model Organization {
+  id              String    @id @default(uuid())
+  name            String
+  slug            String    @unique
+  description     String?
+  settings        Json      @default("{}")
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  users           User[]
+  projects        Project[]
+  apiKeys         ApiKey[]
+  featureFlags    FeatureFlag[]
+  webhooks        Webhook[]
+
+  @@index([slug])
+}
+
+model User {
+  id              String    @id @default(uuid())
+  email           String    @unique
+  passwordHash    String
+  role            UserRole  @default(VIEWER)
+  firstName       String?
+  lastName        String?
+  avatarUrl       String?
+  isActive        Boolean   @default(true)
+  lastLoginAt     DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  organizationId  String
+  organization    Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  apiKeys         ApiKey[]
+  auditLogs       AuditLog[]
+
+  @@index([organizationId])
+  @@index([email])
+}
+
+model Project {
+  id              String    @id @default(uuid())
+  name            String
+  slug            String
+  description     String?
+  settings        Json      @default("{}")
+  isActive        Boolean   @default(true)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  organizationId  String
+  organization    Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@unique([organizationId, slug])
+  @@index([organizationId])
+}
+
+model ApiKey {
+  id              String    @id @default(uuid())
+  name            String
+  keyHash         String    @unique
+  keyPrefix       String    // First 8 chars for identification
+  permissions     String[]  @default(["read", "write"])
+  expiresAt       DateTime?
+  lastUsedAt      DateTime?
+  isActive        Boolean   @default(true)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  organizationId  String
+  organization    Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  createdById     String
+  createdBy       User      @relation(fields: [createdById], references: [id])
+
+  @@index([organizationId])
+  @@index([keyPrefix])
+}
+
+model LedgerEntry {
+  id              String    @id @default(uuid())
+  intent          String
+  intentType      IntentType
+  actor           String
+  evidence        Json      // ConstitutionalEvidenceEnvelope
+  result          Json?     // Completion output
+  trustScore      Float?
+  trustTier       TrustTier?
+  requestId       String    @unique
+  createdAt       DateTime  @default(now())
+
+  organizationId  String
+  projectId       String?
+
+  receipt         Receipt?
+
+  @@index([organizationId])
+  @@index([projectId])
+  @@index([actor])
+  @@index([createdAt])
+  @@index([requestId])
+}
+
+model Receipt {
+  id              String    @id @default(uuid())
+  ledgerEntryId   String    @unique
+  provider        ProviderName
+  model           String
+  tokensIn        Int
+  tokensOut       Int
+  costUsd         Float
+  latencyMs       Int
+  rawResponse     Json?
+  createdAt       DateTime  @default(now())
+
+  ledgerEntry     LedgerEntry @relation(fields: [ledgerEntryId], references: [id], onDelete: Cascade)
+
+  @@index([provider])
+  @@index([createdAt])
+}
+
+model Snapshot {
+  id              String    @id @default(uuid())
+  name            String?
+  state           Json
+  metadata        Json      @default("{}")
+  createdAt       DateTime  @default(now())
+
+  organizationId  String
+  projectId       String?
+
+  @@index([organizationId])
+  @@index([projectId])
+  @@index([createdAt])
+}
+
+model FeatureFlag {
+  id              String    @id @default(uuid())
+  key             String
+  name            String
+  description     String?
+  status          FeatureFlagStatus @default(DISABLED)
+  rolloutPercent  Int       @default(0)
+  conditions      Json      @default("{}") // Targeting rules
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  organizationId  String
+  organization    Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@unique([organizationId, key])
+  @@index([organizationId])
+}
+
+model Webhook {
+  id              String    @id @default(uuid())
+  name            String
+  url             String
+  events          String[]
+  secret          String
+  isActive        Boolean   @default(true)
+  retryPolicy     Json      @default("{\"maxRetries\": 3, \"backoffMs\": 1000}")
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  organizationId  String
+  organization    Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  deliveries      WebhookDelivery[]
+
+  @@index([organizationId])
+  @@index([isActive])
+}
+
+model WebhookDelivery {
+  id              String    @id @default(uuid())
+  webhookId       String
+  event           String
+  payload         Json
+  responseStatus  Int?
+  responseBody    String?
+  error           String?
+  attempt         Int       @default(1)
+  createdAt       DateTime  @default(now())
+  completedAt     DateTime?
+
+  webhook         Webhook   @relation(fields: [webhookId], references: [id], onDelete: Cascade)
+
+  @@index([webhookId])
+  @@index([createdAt])
+}
+
+model AuditLog {
+  id              String    @id @default(uuid())
+  action          String
+  resource        String
+  resourceId      String?
+  oldValues       Json?
+  newValues       Json?
+  metadata        Json      @default("{}")
+  ipAddress       String?
+  userAgent       String?
+  createdAt       DateTime  @default(now())
+
+  organizationId  String
+  userId          String?
+
+  @@index([organizationId])
+  @@index([userId])
+  @@index([action])
+  @@index([resource, resourceId])
+  @@index([createdAt])
+}
+
+model UsageMetric {
+  id              String    @id @default(uuid())
+  period          DateTime  // Start of billing period
+  tokensIn        Int       @default(0)
+  tokensOut       Int       @default(0)
+  totalCostUsd    Float     @default(0)
+  requestCount    Int       @default(0)
+  errorCount      Int       @default(0)
+  avgLatencyMs    Float?
+
+  organizationId  String
+  projectId       String?
+
+  @@unique([organizationId, projectId, period])
+  @@index([organizationId])
+  @@index([period])
+}
+
+model InviteToken {
+  id              String    @id @default(uuid())
+  email           String
+  role            UserRole
+  token           String    @unique
+  expiresAt       DateTime
+  usedAt          DateTime?
+  createdAt       DateTime  @default(now())
+
+  organizationId  String
+  organization    Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  invitedById     String
+  invitedBy       User      @relation(fields: [invitedById], references: [id])
+
+  @@index([organizationId])
+  @@index([token])
+}
