@@ -91,7 +91,7 @@ export function generateDilithiumKeyPair(): { publicKey: string; privateKey: str
 }
 
 export function generateClassicalKemKeyPair(): { publicKey: string; privateKey: string } {
-  const keyPair = crypto.generateKeyPairSync("rsa", { modulusLength: 4096 });
+  const keyPair = crypto.generateKeyPairSync("x25519");
   return {
     publicKey: keyPair.publicKey.export({ type: "spki", format: "pem" }) as string,
     privateKey: keyPair.privateKey.export({ type: "pkcs8", format: "pem" }) as string,
