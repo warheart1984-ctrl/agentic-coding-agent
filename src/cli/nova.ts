@@ -24,7 +24,15 @@ async function main() {
   const args = process.argv.slice(2);
   const interactive = args.includes("--interactive") || args.includes("-i");
   const showModels = args.includes("--show-models") || args.includes("--models") || args.some((a) => ["models", "model-list"].includes(a));
+  const showHardware = args.includes("--hardware") || args.includes("--hw") || args.includes("--probe");
   const task = args.filter((a) => !a.startsWith("-")).join(" ");
+
+  if (showHardware) {
+    const { getHardwareRecommendation } = await import("../model/router");
+    console.log("=== Sovereign X Hardware Router ===");
+    console.log(getHardwareRecommendation());
+    return;
+  }
 
   if (showModels) {
     const { formatTaskTable } = await import("../model/router");
@@ -36,6 +44,7 @@ async function main() {
     console.error("Usage: nova <task description>");
     console.error("       nova --interactive");
     console.error("       nova --show-models");
+    console.error("       nova --hardware");
     process.exit(1);
   }
 

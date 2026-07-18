@@ -1,5 +1,6 @@
 import { configFromEnv } from "./llmClient";
 import type { LLMConfig } from "./llmClient";
+import { probeHardware, suggestLLMBackend } from "../runtime/hardwareRouter";
 
 export type TaskType =
   | "code"         // generating / editing source code
@@ -225,6 +226,22 @@ export interface SelectModelOptions {
 /** Default config — the user's configured provider from env */
 function getDefaultConfig(): LLMConfig {
   return configFromEnv();
+}
+
+/**
+ * Returns a hardware-aware recommendation string appended to model selection.
+ * Probes CPU/GPU and suggests the optimal local backend.
+ */
+export function getHardwareRecommendation(): string {
+  const hw = probeHardware();
+  const lines: string[] = [
+    `Platform: ${hw.platform} (${hw.arch})`,
+    `CPU: ${hw.cpuCores} cores`,
+    `RAM: ${hw.totalMemoryGB}GB total, ${hw.freeMemoryGB}GB free`,
+    hw.hasGPU ? `GPU: ${hw.gpuVendor} (${hw.gpuMemoryGB}GB VRAM)` : "GPU: none detected",
+  ];
+  lines.push(`LLM backend suggestion: ${suggestLLMBackend(hw)}`);
+  return lines.join("\n");
 }
 
 /** Check if an API key is available for a given provider */
