@@ -110,6 +110,15 @@ export function initializeQIGEM(): void {
   recordCSR("qigem-initialized", "identity", { epoch: CURRENT_EPOCH, epochNumber: CURRENT_EPOCH_NUMBER }, null, "qigem");
 }
 
+let asilSigningKeyPair: crypto.KeyPairKeyObjectResult | null = null;
+
+function getAsilSigningKeyPair(): crypto.KeyPairKeyObjectResult {
+  if (!asilSigningKeyPair) {
+    asilSigningKeyPair = crypto.generateKeyPairSync("ed25519");
+  }
+  return asilSigningKeyPair;
+}
+
 export function generateKeyRecord(
   keyId: string,
   suite: AlgorithmSuite = "HYBRID_PQC",
@@ -120,7 +129,7 @@ export function generateKeyRecord(
   let classicalKemPub: string | undefined;
   let classicalSigPub: string | undefined;
 
-  if (suite === "HYBRID_PQC") {
+  if (suite === "HYBRID_PQC" || suite === "LEGACY_CLASSICAL") {
     classicalKemPub = generateClassicalKemKeyPair().publicKey;
     classicalSigPub = generateClassicalSigKeyPair().publicKey;
   }
@@ -200,7 +209,7 @@ export function advanceEpoch(
   };
 
   const signContent = `${event.eventId}|${event.fromEpoch}|${event.toEpoch}|${event.timestamp}`;
-  event.asilCountersignature = crypto.createSign("SHA256").update(signContent).sign({ key: "asil-master", format: "pem" }).toString("base64");
+  event.asilCountersignature = crypto.sign(null, Buffer.from(signContent, "utf8"), getAsilSigningKeyPair().privateKey).toString("base64");
 
   CURRENT_EPOCH = nextEpoch;
   CURRENT_EPOCH_NUMBER = nextEpochNumber;
@@ -265,7 +274,7 @@ export function createHybridSessionKey(
   let classicalSharedSecret: Buffer | undefined;
   if (classicalKemPublicKey) {
     const classicalKey = crypto.createPublicKey({ key: classicalKemPublicKey, format: "pem", type: "spki" });
-    classicalSharedSecret = crypto.diffieHellman({ publicKey: classicalKey, privateKey: crypto.generateKeyPairSync("rsa", { modulusLength: 4096 }).privateKey });
+    classicalSharedSecret = crypto.diffieHellman({ publicKey: classicalKey, privateKey: crypto.generateKeyPairSync("x25519").privateKey });
   }
 
   const combined = classicalSharedSecret ? Buffer.concat([sharedSecret, classicalSharedSecret]) : sharedSecret;
@@ -274,13 +283,16 @@ export function createHybridSessionKey(
 }
 
 export function dilithiumSign(data: string, privateKeyPem: string): string {
-  const sign = crypto.createSign("SHA256").update(data);
-  return sign.sign({ key: privateKeyPem, format: "pem" }).toString("base64");
+  return crypto.sign(null, Buffer.from(data, "utf8"), privateKeyPem).toString("base64");
 }
 
 export function dilithiumVerify(data: string, signature: string, publicKeyPem: string): boolean {
-  const verify = crypto.createVerify("SHA256").update(data);
-  return verify.verify({ key: publicKeyPem, format: "pem" }, Buffer.from(signature, "base64"));
+  try {
+    const verify = crypto.createVerify("SHA256").update(data);
+    return verify.verify({ key: publicKeyPem, format: "pem" }, Buffer.from(signature, "base64"));
+  } catch {
+    return false;
+  }
 }
 
 export function createQTraversalToken(

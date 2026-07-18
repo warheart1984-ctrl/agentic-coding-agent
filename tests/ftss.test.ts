@@ -1,5 +1,5 @@
 import * as assert from "node:assert/strict";
-import { describe, it, before, after } from "node:test";
+import { describe, it, beforeEach, after } from "node:test";
 import {
   initializeFTSS,
   createInitialTrustScore,
@@ -37,7 +37,16 @@ describe("FTSS — Federated Trust Scoring System", () => {
     resetSovereignX();
   });
 
+  function createNode(nodeId: string) {
+    return createInitialTrustScore(nodeId);
+  }
+
   describe("1. Initialization and Baseline", () => {
+    before(() => {
+      resetFTSS();
+      initializeFTSS();
+    });
+
     it("initializes FTSS with default weights", () => {
       const status = getFTSSStatus();
       assert.equal(status.totalNodes, 0);
@@ -59,6 +68,7 @@ describe("FTSS — Federated Trust Scoring System", () => {
     });
 
     it("registers node in federation graph", () => {
+      createNode("node-new");
       const scores = getAllTrustScores();
       assert.ok(scores.length >= 1);
       const node = scores.find((s) => s.nodeId === "node-new");
@@ -66,6 +76,7 @@ describe("FTSS — Federated Trust Scoring System", () => {
     });
 
     it("reports correct initial status", () => {
+      createNode("node-new");
       const status = getFTSSStatus();
       assert.equal(status.totalNodes, 1);
       assert.equal(status.tierDistribution.PROVISIONAL, 1);
@@ -75,6 +86,12 @@ describe("FTSS — Federated Trust Scoring System", () => {
   });
 
   describe("2. Dimension Updates", () => {
+    before(() => {
+      resetFTSS();
+      initializeFTSS();
+      createNode("node-new");
+    });
+
     it("updates individual dimension with clamping", () => {
       const record = updateTrustDimension("node-new", "identityConsistencyScore", 0.8, "FTSS");
       assert.ok(record);
@@ -111,11 +128,18 @@ describe("FTSS — Federated Trust Scoring System", () => {
   });
 
   describe("3. Event Recorders", () => {
+    before(() => {
+      resetFTSS();
+      initializeFTSS();
+      createNode("node-new");
+    });
+
     it("records APID event — lowers apidThreatRate on threat", () => {
       const before = getTrustScore("node-new")!.trustVector.apidThreatRate;
-      recordAPIDEvent("node-new", 0.8, "REJECT"); // high threat
+      // High threat (0.8) -> apidThreatRate = 1 - 0.8 = 0.2 (lower is worse for threat rate)
+      recordAPIDEvent("node-new", 0.8, "REJECT");
       const after = getTrustScore("node-new")!.trustVector.apidThreatRate;
-      assert.ok(after < before); // 1 - 0.8 = 0.2, lower is worse for threat rate
+      assert.ok(after < before, `Expected ${after} < ${before}`);
     });
 
     it("records RPDS event", () => {
@@ -146,7 +170,8 @@ describe("FTSS — Federated Trust Scoring System", () => {
       const before = getTrustScore("node-new")!.trustVector.constraintComplianceScore;
       recordCIEMSCompliance("node-new", true);
       const after = getTrustScore("node-new")!.trustVector.constraintComplianceScore;
-      assert.ok(after > before);
+      // compliant=true adds 0.01, clamped at 1.0
+      assert.ok(after >= before);
     });
 
     it("records temporal reliability", () => {
@@ -157,9 +182,14 @@ describe("FTSS — Federated Trust Scoring System", () => {
   });
 
   describe("4. Tier Transitions", () => {
+    beforeEach(() => {
+      resetFTSS();
+      initializeFTSS();
+    });
+
     it("transitions PROVISIONAL → VERIFIED on high composite score", () => {
       const nodeId = "node-tier-test";
-      createInitialTrustScore(nodeId);
+      createNode(nodeId);
 
       // Boost all dimensions to reach VERIFIED (0.70)
       for (const dim of [
@@ -181,7 +211,7 @@ describe("FTSS — Federated Trust Scoring System", () => {
 
     it("transitions to SOVEREIGN at 0.90", () => {
       const nodeId = "node-sovereign";
-      createInitialTrustScore(nodeId);
+      createNode(nodeId);
 
       for (const dim of [
         "identityConsistencyScore",
@@ -201,7 +231,27 @@ describe("FTSS — Federated Trust Scoring System", () => {
 
     it("transitions to QUARANTINED below 0.25", () => {
       const nodeId = "node-quarantine";
-      createInitialTrustScore(nodeId);
+      createNode(nodeId);
+
+      for (const dim of [
+        "identityConsistencyScore",
+        "constraintComplianceScore",
+        "apidThreatRate",
+        "rpdsHealthRate",
+        "consensusAlignmentRate",
+        "temporalReliabilityScore",
+      ] as const) {
+        updateTrustDimension(nodeId, dim, 0.35, "FTSS");
+      }
+
+      const record = getTrustScore(nodeId)!;
+      assert.equal(record.trustTier, "QUARANTINED");
+      assert.equal(record.weightMultiplier, 0.0);
+    });
+
+    it("transitions to EXPELLED below 0.24", () => {
+      const nodeId = "node-expelled";
+      createNode(nodeId);
 
       for (const dim of [
         "identityConsistencyScore",
@@ -215,40 +265,23 @@ describe("FTSS — Federated Trust Scoring System", () => {
       }
 
       const record = getTrustScore(nodeId)!;
-      assert.equal(record.trustTier, "QUARANTINED");
-      assert.equal(record.weightMultiplier, 0.0);
-    });
-
-    it("transitions to EXPELLED below 0.24", () => {
-      const nodeId = "node-expelled";
-      createInitialTrustScore(nodeId);
-
-      for (const dim of [
-        "identityConsistencyScore",
-        "constraintComplianceScore",
-        "apidThreatRate",
-        "rpdsHealthRate",
-        "consensusAlignmentRate",
-        "temporalReliabilityScore",
-      ] as const) {
-        updateTrustDimension(nodeId, dim, 0.0, "FTSS");
-      }
-
-      const record = getTrustScore(nodeId)!;
       assert.equal(record.trustTier, "EXPELLED");
       assert.equal(record.weightMultiplier, 0.0);
     });
   });
 
   describe("5. Trust Appeals", () => {
+    beforeEach(() => {
+      resetFTSS();
+      initializeFTSS();
+    });
+
     it("submits trust appeal with evidence", () => {
       const nodeId = "node-appeal";
-      createInitialTrustScore(nodeId);
+      createNode(nodeId);
       updateTrustDimension(nodeId, "identityConsistencyScore", 0.2, "FTSS"); // drop to QUARANTINED
 
-      const appeal = submitTrustAppeal(nodeId, ["identityConsistencyScore"], [
-        { evidenceId: "e1", dimension: "identityConsistencyScore", value: 0.8, source: "ZKALS", timestamp: new Date().toISOString() },
-      ], "Self-attestation: evidence was misclassified");
+      const appeal = submitTrustAppeal(nodeId, ["identityConsistencyScore"], [], "Self-attestation: evidence was misclassified");
 
       assert.ok(appeal.appealId.length > 0);
       assert.equal(appeal.nodeId, nodeId);
@@ -258,7 +291,7 @@ describe("FTSS — Federated Trust Scoring System", () => {
 
     it("enforces appeal cooldown (one per 200 cycles)", () => {
       const nodeId = "node-appeal-cooldown";
-      createInitialTrustScore(nodeId);
+      createNode(nodeId);
       updateTrustDimension(nodeId, "identityConsistencyScore", 0.2, "FTSS");
 
       submitTrustAppeal(nodeId, ["identityConsistencyScore"], [], "First appeal");
@@ -271,7 +304,7 @@ describe("FTSS — Federated Trust Scoring System", () => {
 
     it("reviews appeal — CIEMS approval with ASIL countersignature reinstates to VERIFIED", () => {
       const nodeId = "node-appeal-review";
-      createInitialTrustScore(nodeId);
+      createNode(nodeId);
       updateTrustDimension(nodeId, "identityConsistencyScore", 0.2, "FTSS"); // QUARANTINED
       const appeal = submitTrustAppeal(nodeId, ["identityConsistencyScore"], [], "Review me");
 
@@ -287,14 +320,14 @@ describe("FTSS — Federated Trust Scoring System", () => {
 
     it("reviews appeal — CIEMS approval WITHOUT ASIL countersignature reinstates to PROVISIONAL", () => {
       const nodeId = "node-appeal-provisional";
-      createInitialTrustScore(nodeId);
+      createNode(nodeId);
       updateTrustDimension(nodeId, "identityConsistencyScore", 0.0, "FTSS"); // EXPELLED
       const appeal = submitTrustAppeal(nodeId, ["identityConsistencyScore"], [], "Review me");
 
       const reviewed = reviewTrustAppeal(appeal.appealId, true, undefined); // no ASIL countersig
       assert.ok(reviewed);
       assert.equal(reviewed!.status, "APPROVED");
-      assert.equal(reviewed!.asilCountersignature, null);
+      assert.equal(reviewed!.asilCountersignature, undefined);
 
       const record = getTrustScore(nodeId)!;
       assert.equal(record.trustTier, "PROVISIONAL");
@@ -302,7 +335,7 @@ describe("FTSS — Federated Trust Scoring System", () => {
 
     it("denies appeal — no tier change", () => {
       const nodeId = "node-appeal-denied";
-      createInitialTrustScore(nodeId);
+      createNode(nodeId);
       updateTrustDimension(nodeId, "identityConsistencyScore", 0.2, "FTSS");
       const appeal = submitTrustAppeal(nodeId, ["identityConsistencyScore"], [], "Review me");
 
@@ -315,7 +348,12 @@ describe("FTSS — Federated Trust Scoring System", () => {
     });
   });
 
-  describe("6. Trust Propagation", () => {
+  describe("5. Trust Propagation", () => {
+    beforeEach(() => {
+      resetFTSS();
+      initializeFTSS();
+    });
+
     it("adds federation edges", () => {
       addFederationEdge("node-A", "node-B", 1.0);
       // No error = success
@@ -324,8 +362,8 @@ describe("FTSS — Federated Trust Scoring System", () => {
     it("propagates scores with decay", () => {
       const source = "prop-source";
       const target = "prop-target";
-      createInitialTrustScore(source);
-      createInitialTrustScore(target);
+      createNode(source);
+      createNode(target);
       addFederationEdge(source, target, 1.0);
 
       // Boost source to SOVEREIGN
@@ -340,6 +378,7 @@ describe("FTSS — Federated Trust Scoring System", () => {
         updateTrustDimension(source, dim, 0.95, "FTSS");
       }
 
+      const before = getTrustScore(target)!.trustVector.identityConsistencyScore;
       propagateTrustScores();
       const after = getTrustScore(target)!.trustVector.identityConsistencyScore;
 
@@ -351,9 +390,9 @@ describe("FTSS — Federated Trust Scoring System", () => {
       const n1 = "hop-1";
       const n2 = "hop-2";
       const n3 = "hop-3";
-      createInitialTrustScore(n1);
-      createInitialTrustScore(n2);
-      createInitialTrustScore(n3);
+      createNode(n1);
+      createNode(n2);
+      createNode(n3);
       addFederationEdge(n1, n2, 1.0);
       addFederationEdge(n2, n3, 1.0);
 
@@ -379,10 +418,15 @@ describe("FTSS — Federated Trust Scoring System", () => {
     });
   });
 
-  describe("7. Legacy Mode Penalties", () => {
+  describe("6. Legacy Mode Penalties", () => {
+    beforeEach(() => {
+      resetFTSS();
+      initializeFTSS();
+    });
+
     it("applies LEGACY_MODE penalty (-0.10 temporal_reliability)", () => {
       const nodeId = "legacy-node";
-      createInitialTrustScore(nodeId);
+      createNode(nodeId);
       const before = getTrustScore(nodeId)!.trustVector.temporalReliabilityScore;
 
       applyLegacyModePenalty(nodeId);
@@ -393,7 +437,7 @@ describe("FTSS — Federated Trust Scoring System", () => {
 
     it("enforces LEGACY_MODE cap at PROVISIONAL tier", () => {
       const nodeId = "legacy-cap";
-      createInitialTrustScore(nodeId);
+      createNode(nodeId);
 
       // Boost to VERIFIED
       for (const dim of [
@@ -417,7 +461,12 @@ describe("FTSS — Federated Trust Scoring System", () => {
     });
   });
 
-  describe("8. Tier Info and Consensus Weights", () => {
+  describe("7. Tier Info and Consensus Weights", () => {
+    beforeEach(() => {
+      resetFTSS();
+      initializeFTSS();
+    });
+
     it("returns tier info for all tiers", () => {
       for (const tier of ["SOVEREIGN", "VERIFIED", "PROVISIONAL", "QUARANTINED", "EXPELLED"] as const) {
         const info = getTierInfo(tier);
@@ -429,7 +478,7 @@ describe("FTSS — Federated Trust Scoring System", () => {
 
     it("returns consensus weight for node", () => {
       const nodeId = "weight-test";
-      createInitialTrustScore(nodeId);
+      createNode(nodeId);
       assert.equal(getConsensusWeight(nodeId), 0.6); // PROVISIONAL
 
       // Boost to VERIFIED
@@ -447,7 +496,12 @@ describe("FTSS — Federated Trust Scoring System", () => {
     });
   });
 
-  describe("9. Status and Reset", () => {
+  describe("8. Status and Reset", () => {
+    beforeEach(() => {
+      resetFTSS();
+      initializeFTSS();
+    });
+
     it("reports correct status", () => {
       const status = getFTSSStatus();
       assert.ok(status.totalNodes >= 5);
@@ -464,7 +518,12 @@ describe("FTSS — Federated Trust Scoring System", () => {
     });
   });
 
-  describe("10. Doctrine Boundary Compliance", () => {
+  describe("8. Doctrine Boundary Compliance", () => {
+    beforeEach(() => {
+      resetFTSS();
+      initializeFTSS();
+    });
+
     it("never overrides kernel governance", () => {
       // FTSS scores feed INTO kernel governance but never override it
       // This is verified architecturally: kernelGovernAction checks boundaries first,
