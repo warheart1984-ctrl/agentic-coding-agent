@@ -346,6 +346,10 @@ export function clearRPDS(): void {
   PROOF_CHAINS.length = 0;
 }
 
+export function resetRPDS(): void {
+  clearRPDS();
+}
+
 export function getRPDSPublicKey(): string {
   return RPDS_PUBLIC_KEY;
 }

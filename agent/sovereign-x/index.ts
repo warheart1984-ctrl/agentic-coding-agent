@@ -85,6 +85,29 @@ export {
 } from "./modelChecker";
 export type { StatePredicate, ModelState, VerificationResult, PredicateResult } from "./modelChecker";
 
+export {
+  evaluateState, registerBaseline, getBaseline, getHealthReports,
+  getProofChains, getProofChain, activateTriggeredMode, getRPDSStatus, clearRPDS, resetRPDS, getRPDSPublicKey,
+} from "./rpds";
+export type { ExecutionState, StateHealthReport, PoisoningProofChain, PoisoningVector, MonitoringMode, RemediationAction } from "./rpds";
+
+export {
+  initializeIGEM, createNodeKey, createEdgeKey, encryptAuthorNode, decryptAuthorNode,
+  encryptDerivationEdge, createIdentityGraph, addNodeToGraph, addEdgeToGraph,
+  issueTraversalToken, validateTraversalToken, createFederatedTransmission, receiveFederatedTransmission,
+  getIGEMStatus, resetIGEM,
+} from "./igem";
+export type { IGEMKeyRecord, EncryptedAuthorNode, EncryptedDerivationEdge, IdentityGraph, TraversalToken, FederatedTransmissionEnvelope, TransmissionReceipt } from "./igem";
+
+export {
+  initializeFTSS, createInitialTrustScore, getTrustScore, getAllTrustScores,
+  updateTrustDimension, recordAPIDEvent, recordRPDSEvent, recordConsensusAlignment,
+  recordZKALSVerification, recordCIEMSCompliance, recordTemporalReliability,
+  submitTrustAppeal, reviewTrustAppeal, propagateTrustScores, addFederationEdge,
+  applyLegacyModePenalty, getFTSSStatus, resetFTSS, getTierInfo, enforceLegacyModeCap, getConsensusWeight,
+} from "./ftss";
+export type { TrustVector, TrustScoreRecord, TrustEvidence, TrustAppeal, TrustTier, FederationTrustGraph } from "./ftss";
+
 export type {
   IntentLifecycle, IntentStatus,
   ConstitutionalStateRecord, EvidencePortal,
@@ -112,6 +135,10 @@ import { resetFabric } from "./fabric";
 import { resetWorlds } from "./worlds";
 import { resetAccounting } from "./accounting";
 import { resetTreatyProtocol } from "./treatyProtocol";
+import { resetFTSS } from "./ftss";
+import { resetRPDS } from "./rpds";
+import { resetIGEM } from "./igem";
+import { resetQIGEM } from "./qigem";
 
 let initialized = false;
 
@@ -132,6 +159,10 @@ export function resetSovereignX(): void {
   resetWorlds();
   resetAccounting();
   resetTreatyProtocol();
+  resetFTSS();
+  resetRPDS();
+  resetIGEM();
+  resetQIGEM();
   initialized = false;
 }
 
