@@ -1,0 +1,5 @@
+{"cases":[
+{"id":"roots","input":"ma","valid":true},
+{"id":"composite-kala","input":"kala","valid":true},{"id":"composite-mafu","input":"mafu","valid":true},{"id":"composite-ramafa","input":"ramafa","valid":true},
+{"id":"particle-stack","input":"ja la tor","valid":true},{"id":"tense","input":"la na fa tu tor","valid":true},{"id":"case","input":"ja fa tu tor ko","valid":true},{"id":"pronoun","input":"ja fa turum mi","valid":true}
+]}

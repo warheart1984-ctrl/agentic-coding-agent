@@ -1,0 +1,35 @@
+{
+  "suite": "mythar-v0.3-ratified-lexemes",
+  "cases": [
+    {
+      "id": "V03-EMA-ROOT",
+      "input": "ema",
+      "mode": "strict",
+      "expected_ast": {"kind":"Root","registry_ref":"ROOT-EMA"}
+    },
+    {
+      "id": "V03-RAEMA-COMPOSITE",
+      "input": "raema",
+      "mode": "strict",
+      "expected_ast": {"kind":"Composite","registry_ref":"COMP-RAEMA"}
+    },
+    {
+      "id": "V03-FAK-PARTICLE",
+      "input": "ja fak la ma",
+      "mode": "strict",
+      "expected_particle_stack": ["PARTICLE-JA","PARTICLE-FAK","PARTICLE-LA"]
+    },
+    {
+      "id": "V03-TILA-META-OPERATOR",
+      "input": "maia tila",
+      "mode": "strict",
+      "expected_ast": {"kind":"OperatorApplication","operator_ref":"META-TILA","target_ref":"COMP-MAIA"}
+    },
+    {
+      "id": "V03-TILA-MISSING-TARGET",
+      "input": "tila",
+      "mode": "strict",
+      "expected_error_code": "MISSING_TARGET"
+    }
+  ]
+}

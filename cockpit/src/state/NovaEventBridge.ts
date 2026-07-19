@@ -1,7 +1,5 @@
-import { continuity, events, governance } from "nova-sdk";
-// Cross-package import: coupling cockpit to root config.
-// If cockpit is published standalone, copy invariants inline.
-import { invariants as defaultInvariants } from "../../../config/nova.config";
+import { events, governance, continuity } from "agent";
+import { invariants as defaultInvariants } from "config/nova.config.js";
 import { useKernelStore } from "./kernelStore";
 import { useCockpitState } from "./store";
 import { useToastStore } from "./toastStore";

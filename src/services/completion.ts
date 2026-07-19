@@ -4,6 +4,7 @@ import { insertReceipt } from "../persistence/receipts.js";
 import { createEvidenceEnvelope, serializeEvidence } from "../evidence/envelope.js";
 import { logger } from "../logging/logger.js";
 import type { CompletionInput, CompletionOutput } from "../providers/provider-contract.js";
+import type { IntentType, ProviderName } from "@prisma/client";
 
 export interface CompletionRequest {
   providerName: string;
@@ -16,7 +17,7 @@ export interface CompletionRequest {
 }
 
 export interface CompletionResult {
-  ledgerId: number;
+  ledgerId: string;
   output: CompletionOutput;
 }
 
@@ -36,10 +37,12 @@ export async function runCompletion(req: CompletionRequest): Promise<CompletionR
   });
 
   const ledgerId = await insertLedger({
-    timestamp: envelope.timestamp,
-    actor: envelope.actor,
     intent: envelope.intent,
-    evidence: serializeEvidence(envelope),
+    intentType: "CODE_GENERATION" as IntentType,
+    actor: envelope.actor,
+    evidence: envelope as unknown as Record<string, unknown>,
+    requestId: requestId || crypto.randomUUID(),
+    organizationId: "default",
   });
 
   const childLogger = logger.child({ requestId, ledgerId, provider: providerName, actor, intent });
@@ -61,11 +64,13 @@ export async function runCompletion(req: CompletionRequest): Promise<CompletionR
     });
 
     await insertReceipt({
-      ledger_id: ledgerId,
-      provider: output.provider,
-      tokens_in: output.tokens?.input,
-      tokens_out: output.tokens?.output,
-      cost: output.cost,
+      ledgerEntryId: ledgerId,
+      provider: output.provider.toUpperCase() as ProviderName,
+      model: output.model || "unknown",
+      tokensIn: output.tokens?.input || 0,
+      tokensOut: output.tokens?.output || 0,
+      costUsd: output.cost || 0,
+      latencyMs: 0,
     });
 
     return { ledgerId, output };

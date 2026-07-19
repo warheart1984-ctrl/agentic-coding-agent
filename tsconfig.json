@@ -1,11 +1,11 @@
 {
   "compilerOptions": {
     "target": "ES2022",
-    "module": "NodeNext",
-    "moduleResolution": "NodeNext",
+    "module": "preserve",
+    "moduleResolution": "Bundler",
     "lib": ["ES2022"],
     "outDir": "./dist",
-    "rootDir": "./src",
+    "rootDir": ".",
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
@@ -20,11 +20,15 @@
     },
     "typeRoots": ["./node_modules/@types", "./src/types"]
   },
-  "include": ["src/**/*"],
+  "include": ["src/**/*", "config/**/*"],
   "exclude": [
-    "node_modules", 
-    "dist", 
+    "node_modules",
+    "dist",
     "tests",
+    "cockpit",
+    "ulx",
+    "agent",
+    "agent/**/*",
     "src/agent",
     "src/cli",
     "src/code",
@@ -33,6 +37,7 @@
     "src/model",
     "src/runtime",
     "src/tools",
-    "src/prompts"
+    "src/prompts",
+    "agent/**/node_modules"
   ]
 }

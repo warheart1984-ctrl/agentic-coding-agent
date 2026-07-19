@@ -57,6 +57,7 @@ interface CockpitState {
     signalPlan(id: string): void;
     clearSignal(key: keyof UiSignals): void;
     setSelectedAgents(agentIds: string[]): void;
+    setUiSignals(signals: UiSignals): void;
     addViolationFromGateway(v: {
       agentId: string;
       invariantId: string;
@@ -225,6 +226,8 @@ export const useCockpitState = create<CockpitState>((set) => ({
       }),
     setSelectedAgents: (selectedAgents) =>
       set((s) => ({ ui: { ...s.ui, selectedAgents } })),
+    setUiSignals: (signals) =>
+      set(() => ({ uiSignals: signals })),
     addViolationFromGateway: (v) =>
       set((s) => ({
         governance: {
@@ -249,7 +252,7 @@ export const useCockpitState = create<CockpitState>((set) => ({
           receipts: [
             {
               id: r.receiptId,
-              timestamp: Date.now(),
+              timestamp: new Date().toISOString(),
               action: { type: "generate", payload: { actionId: r.actionId, agentId: r.agentId } },
               invariantsChecked: r.invariantsChecked,
               continuityHash: r.continuityHash,

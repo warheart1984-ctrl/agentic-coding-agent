@@ -1,0 +1,20 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "resolveJsonModule": true,
+    "allowSyntheticDefaultImports": true,
+    "rootDir": ".",
+    "outDir": "dist"
+  },
+  "include": ["src/cli/**/*.ts", "src/console/**/*.ts", "src/core/**/*.ts", "src/daemon/**/*.ts", "src/tui/**/*.ts", "src/types/**/*.ts", "tests/node/**/*.ts"],
+  "exclude": [
+    "src/agentic-coding-agent/**",
+    "src/skillzmcgee/**",
+    "src/test-constitutional-node/**"
+  ]
+}

@@ -2,7 +2,7 @@ import { insertSnapshot, getSnapshotById, getLatestSnapshot, type Snapshot } fro
 
 export interface NodeSnapshotState {
   config: Record<string, unknown>;
-  recentLedgerIds: number[];
+  recentLedgerIds: string[];
   providerState: Record<string, unknown>;
   version: string;
   metadata?: {
@@ -11,7 +11,7 @@ export interface NodeSnapshotState {
   };
 }
 
-export async function createNodeSnapshot(state: NodeSnapshotState): Promise<number> {
+export async function createNodeSnapshot(state: NodeSnapshotState): Promise<string> {
   const snapshotData = {
     ...state,
     metadata: {
@@ -22,15 +22,16 @@ export async function createNodeSnapshot(state: NodeSnapshotState): Promise<numb
   };
 
   return insertSnapshot({
-    timestamp: Date.now(),
-    state_json: JSON.stringify(snapshotData),
+    state: snapshotData,
+    metadata: snapshotData.metadata || {},
+    organizationId: "default",
   });
 }
 
-export async function getNodeSnapshotById(id: number): Promise<Snapshot | null> {
+export async function getNodeSnapshotById(id: string): Promise<Snapshot | null> {
   return getSnapshotById(id);
 }
 
 export async function getLatestNodeSnapshot(): Promise<Snapshot | null> {
-  return getLatestSnapshot();
+  return getLatestSnapshot("default");
 }

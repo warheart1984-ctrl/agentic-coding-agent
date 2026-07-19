@@ -1,0 +1,8 @@
+{"cases":[
+{"id":"unknown","input":"ema","valid":false,"errors":["NON_CANONICAL_EXPRESSION"]},
+{"id":"missing-operator-target","input":"ra-","valid":false,"errors":["MISSING_TARGET"]},
+{"id":"unframed-sentence","input":"fa ma","valid":false,"errors":["INVALID_STACK"]},
+{"id":"case-no-host","input":"ja ko fa","valid":false,"errors":["MISSING_TARGET"]},
+{"id":"tense-after-verb","input":"ja fa na tu","valid":false,"errors":["INVALID_STACK"]},
+{"id":"unknown-token","input":"ja xeno tor","valid":false,"errors":["UNKNOWN_LEXEME"]}
+]}

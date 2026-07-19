@@ -1,4 +1,4 @@
-import type { Invariant } from "../agent/types/invariants";
+import type { Invariant } from "agent/types/invariants";
 
 const dangerousShell = ["rm -rf", "curl | sh", "curl|sh", ":(){ :|:& };:"];
 

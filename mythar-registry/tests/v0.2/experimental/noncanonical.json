@@ -1,0 +1,6 @@
+{"cases":[
+{"id":"raema-strict","input":"raema","mode":"strict","valid":false,"errors":["NON_CANONICAL_EXPRESSION"]},
+{"id":"raema-lenient","input":"raema","mode":"lenient","valid":true},
+{"id":"fak-lenient","input":"ja fak ma","mode":"lenient","valid":true},
+{"id":"tila-lenient","input":"ja fa ma tila","mode":"lenient","valid":true}
+]}

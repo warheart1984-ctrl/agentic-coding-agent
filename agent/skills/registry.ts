@@ -1,8 +1,13 @@
 import * as fs from "fs";
 import * as path from "path";
+import { fileURLToPath } from "url";
+import { ALL_CODEX_SKILLS } from "./codex-skills";
 import type { SkillManifest, SkillRegistryEntry, SkillQuery, SkillSource } from "./types";
 
 const registry = new Map<string, SkillRegistryEntry>();
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 function getEnvPath(key: string, fallback: string): string {
   const env = typeof process !== "undefined" ? process.env : {};
@@ -182,7 +187,10 @@ export function registerSkill(manifest: SkillManifest): SkillRegistryEntry {
 
 export function registerAllDiscovered(): SkillRegistryEntry[] {
   const manifests = discoverAllSkills();
-  return manifests.map((m) => registerSkill(m));
+  const allManifests = [...manifests, ...ALL_CODEX_SKILLS];
+  const deduped = new Map<string, SkillManifest>();
+  for (const m of allManifests) deduped.set(m.id, m);
+  return Array.from(deduped.values()).map((m) => registerSkill(m));
 }
 
 export async function loadSkill(id: string): Promise<SkillRegistryEntry> {

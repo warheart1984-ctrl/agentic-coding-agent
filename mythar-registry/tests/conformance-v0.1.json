@@ -1,0 +1,87 @@
+{
+  "suite": "mythar-constitutional-conformance",
+  "registry_version": "0.1.0",
+  "cases": [
+    {
+      "id": "ROOT-001",
+      "title": "Sovereign root resolution",
+      "input": "tor",
+      "mode": "strict",
+      "expect": {"valid":true,"root_lineage":["ROOT-TOR"],"graph":{"node_types":["root"],"acyclic":true},"diagnostics":[]}
+    },
+    {
+      "id": "COMP-001",
+      "title": "Composite inherits component lineage",
+      "input": "kala",
+      "mode": "strict",
+      "segmentation":["ka","la"],
+      "expect": {"valid":true,"root_lineage":["ROOT-KA","ROOT-LA"],"graph":{"node_types":["root","composite"],"edge_types":["constitutional","inheritance"],"acyclic":true},"meaning_includes":["force","darkness","time","light","clarity"]}
+    },
+    {
+      "id": "COMP-002",
+      "title": "Composite mafu has complete root lineage",
+      "input": "mafu",
+      "mode": "strict",
+      "segmentation":["ma","fu"],
+      "expect": {"valid":true,"root_lineage":["ROOT-MA","ROOT-FU"],"graph":{"acyclic":true},"meaning_includes":["space","origin","fortune","wind"]}
+    },
+    {
+      "id": "OP-001",
+      "title": "Prefix operator attaches to a root",
+      "input": "ra-fa",
+      "mode": "strict",
+      "expect": {"valid":true,"operator_lineage":["OP-RA-PREFIX"],"root_lineage":["ROOT-FA"],"graph":{"edge_types":["operator"],"acyclic":true}}
+    },
+    {
+      "id": "OP-002",
+      "title": "Suffix operator collectivizes a composite",
+      "input": "ka-la-rum",
+      "mode": "strict",
+      "segmentation":["ka","la","-rum"],
+      "expect": {"valid":true,"operator_lineage":["OP-RUM-SUFFIX"],"root_lineage":["ROOT-KA","ROOT-LA"],"graph":{"acyclic":true}}
+    },
+    {
+      "id": "PARTICLE-001",
+      "title": "Initial particle frames the expression",
+      "input": "ja tor",
+      "mode": "strict",
+      "expect": {"valid":true,"particle_frame":"PARTICLE-JA","root_lineage":["ROOT-TOR"],"graph":{"edge_types":["frame"],"acyclic":true}}
+    },
+    {
+      "id": "GRAMMAR-001",
+      "title": "Canonical particle verb subject object modifier order",
+      "input": "ja fa ma tor wie",
+      "mode": "strict",
+      "roles":["particle","root","root","root","root"],
+      "expect": {"valid":true,"sentence_order":["particle_frame","verb","subject","object","modifier"],"particle_frame":"PARTICLE-JA"}
+    },
+    {
+      "id": "INVALID-001",
+      "title": "Operator without target is rejected",
+      "input": "ra-",
+      "mode": "strict",
+      "expect": {"valid":false,"diagnostics":["E_OPERATOR_TARGET"]}
+    },
+    {
+      "id": "INVALID-002",
+      "title": "Unknown form is rejected in strict mode",
+      "input": "ema",
+      "mode": "strict",
+      "expect": {"valid":false,"diagnostics":["E_UNKNOWN_TOKEN"]}
+    },
+    {
+      "id": "EXPLORATORY-001",
+      "title": "Unknown form is preserved for review in exploratory mode",
+      "input": "raema",
+      "mode": "exploratory",
+      "expect": {"valid":false,"unresolved_tokens":["ema"],"diagnostics":["E_UNKNOWN_TOKEN","W_UNRESOLVED_GLOSS"]}
+    },
+    {
+      "id": "GRAPH-001",
+      "title": "Cycles are constitutional errors",
+      "input": "synthetic graph fixture",
+      "fixture":{"nodes":["ROOT-MA","COMP-1"],"edges":[["ROOT-MA","COMP-1"],["COMP-1","ROOT-MA"]]},
+      "expect": {"valid":false,"diagnostics":["E_CYCLIC_GRAPH"]}
+    }
+  ]
+}

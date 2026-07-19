@@ -12,6 +12,7 @@ import { LedgerCompare } from "../flight-deck/LedgerCompare";
 import { ContinuityMatrix } from "../flight-deck/ContinuityMatrix";
 import { DriftVisualizer } from "../drift/DriftVisualizer";
 import { TerminalPanel } from "../panels/TerminalPanel";
+import { AdminPanel } from "../components/AdminPanel";
 import type { CenterMode } from "../types";
 
 function AnimatedContent({ mode }: { mode: CenterMode }) {
@@ -39,6 +40,8 @@ function AnimatedContent({ mode }: { mode: CenterMode }) {
       return <div ref={ref} className={styles.transitionIn}><DriftVisualizer /></div>;
     case "terminal":
       return <div ref={ref} className={styles.transitionIn}><TerminalPanel /></div>;
+    case "admin":
+      return <div ref={ref} className={styles.transitionIn}><AdminPanel /></div>;
     default:
       return <div ref={ref} className={styles.transitionIn}><PlanVisualizer /></div>;
   }

@@ -44,6 +44,8 @@ import {
 
 import type { ConstitutionalStateRecord } from "../agent/sovereign-x/types";
 
+const { sha256Sync } = await import("../agent/lib/hash.js");
+
 const WAL_TEST_DIR = ".sxk-wal-test";
 
 describe("1. CSR Write-Ahead Log (WAL)", () => {
@@ -292,7 +294,6 @@ describe("7. Drift Correction (CSR Fork Reconciliation)", () => {
   after(() => resetKernel());
 
   it("reconciles a divergent CSR fork", () => {
-    const { sha256Sync } = require("../agent/lib/hash");
     const tail = getCsrLedger()[getCsrLedger().length - 1];
     const forkEntry = {
       recordId: "fork-1" as any,
@@ -313,7 +314,6 @@ describe("7. Drift Correction (CSR Fork Reconciliation)", () => {
   });
 
   it("detects and rejects duplicate fork records", () => {
-    const { sha256Sync } = require("../agent/lib/hash");
     const tail = getCsrLedger()[getCsrLedger().length - 1];
     const dup = {
       recordId: "dup-fork" as any,

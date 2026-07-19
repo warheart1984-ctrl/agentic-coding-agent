@@ -1,13 +1,21 @@
 import styles from "./RightRail.module.css";
 import { useCockpitState } from "../state/store";
+import { MonitoringDashboard } from "../components/MonitoringDashboard";
 
 export function RightRail() {
   const violations = useCockpitState((s) => s.governance.violations);
   const kernelStatus = useCockpitState((s) => s.kernel.status);
   const lastViolationId = useCockpitState((s) => s.uiSignals.lastViolationId);
+  const showMonitoring = useCockpitState((s) => s.uiSignals.showMonitoring);
 
   return (
     <aside className={styles.rightRail}>
+      {showMonitoring && (
+        <section className={styles.monitoringSection}>
+          <MonitoringDashboard />
+        </section>
+      )}
+
       <section>
         <h3 className={styles.sectionTitle}>Violations</h3>
         {violations.length === 0 ? (

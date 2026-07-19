@@ -22,6 +22,7 @@ export function NovaShell() {
       if (e.key === "k" && !e.metaKey && !e.ctrlKey) { setCenterMode("kernel"); e.preventDefault(); }
       if (e.key === "f" && !e.metaKey && !e.ctrlKey) { setCenterMode("flight-deck"); e.preventDefault(); }
       if (e.key === "t" && !e.metaKey && !e.ctrlKey) { setCenterMode("terminal"); e.preventDefault(); }
+      if (e.key === "a" && !e.metaKey && !e.ctrlKey) { setCenterMode("admin"); e.preventDefault(); }
       if (e.key === "/" && !e.metaKey && !e.ctrlKey) { e.preventDefault(); }
       if (e.key === "Escape" || e.key === "Esc") { setCenterMode("plan"); e.preventDefault(); }
     }
