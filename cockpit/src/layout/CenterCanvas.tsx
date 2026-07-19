@@ -13,6 +13,7 @@ import { ContinuityMatrix } from "../flight-deck/ContinuityMatrix";
 import { DriftVisualizer } from "../drift/DriftVisualizer";
 import { TerminalPanel } from "../panels/TerminalPanel";
 import { AdminPanel } from "../components/AdminPanel";
+import { FourDRenderer } from "../panels/FourDRenderer";
 import type { CenterMode } from "../types";
 
 function AnimatedContent({ mode }: { mode: CenterMode }) {
@@ -38,6 +39,8 @@ function AnimatedContent({ mode }: { mode: CenterMode }) {
       return <div ref={ref} className={styles.transitionIn}><ContinuityMatrix /></div>;
     case "drift":
       return <div ref={ref} className={styles.transitionIn}><DriftVisualizer /></div>;
+    case "four-d":
+      return <div ref={ref} className={styles.transitionIn}><FourDRenderer /></div>;
     case "terminal":
       return <div ref={ref} className={styles.transitionIn}><TerminalPanel /></div>;
     case "admin":

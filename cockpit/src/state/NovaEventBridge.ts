@@ -1,8 +1,22 @@
-import { events, governance, continuity } from "agent";
-import { invariants as defaultInvariants } from "config/nova.config.js";
+import { events, governance, continuity } from "nova-sdk";
 import { useKernelStore } from "./kernelStore";
 import { useCockpitState } from "./store";
 import { useToastStore } from "./toastStore";
+
+const defaultInvariants: import("nova-sdk").Invariant[] = [
+  {
+    id: "no-secrets",
+    description: "No secrets in code",
+    severity: "error",
+    check: async () => true,
+  },
+  {
+    id: "tests-required",
+    description: "All changes require tests",
+    severity: "error",
+    check: async () => true,
+  },
+];
 
 let initialized = false;
 let heartbeatTimer: ReturnType<typeof setInterval> | null = null;

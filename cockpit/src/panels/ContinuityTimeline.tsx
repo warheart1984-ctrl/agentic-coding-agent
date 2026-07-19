@@ -1,4 +1,4 @@
-import { continuity } from "agent";
+import { continuity } from "nova-sdk";
 import { useCockpitState } from "../state/store";
 import { Panel } from "../components/Panel";
 import styles from "./ContinuityTimeline.module.css";

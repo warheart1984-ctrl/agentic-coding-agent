@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { nova } from "agent";
+import { nova } from "nova-sdk";
 import { useCockpitState } from "../state/store";
 import { useToastStore } from "../state/toastStore";
 import { Panel } from "../components/Panel";

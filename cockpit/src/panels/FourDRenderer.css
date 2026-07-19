@@ -1,0 +1,11 @@
+.four-d-canvas {
+  display: block;
+  background: var(--nova-bg, #0d1117);
+  border: 1px solid var(--nova-border, #30363d);
+  border-radius: 8px;
+}
+
+.four-d-canvas:focus {
+  outline: 2px solid var(--nova-accent, #58a6ff);
+  outline-offset: 2px;
+}

@@ -1,7 +1,7 @@
-import type { Plan } from "agent";
-import type { GovernanceReceipt } from "agent";
-import type { Invariant, InvariantViolation } from "agent";
-import type { KernelStatus } from "agent";
+import type { Plan } from "nova-sdk";
+import type { GovernanceReceipt } from "nova-sdk";
+import type { Invariant, InvariantViolation } from "nova-sdk";
+import type { KernelStatus } from "nova-sdk";
 
 export type CenterMode =
   | "plan"
@@ -14,6 +14,7 @@ export type CenterMode =
   | "ledger-compare"
   | "continuity-matrix"
   | "drift"
+  | "four-d"
   | "terminal"
   | "admin";
 

@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { nova, runtime } from "agent";
+import { nova, runtime } from "nova-sdk";
 import { useCockpitState } from "../state/store";
 import { useToastStore } from "../state/toastStore";
 import { Spinner } from "../components/Spinner";
