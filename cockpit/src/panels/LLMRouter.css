@@ -1,0 +1,234 @@
+.llm-router {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.llm-router.loading, .llm-router.error {
+  padding: 32px;
+  text-align: center;
+  color: var(--nova-muted);
+}
+
+.llm-router.error {
+  color: var(--nova-danger);
+}
+
+.router-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--nova-border);
+}
+
+.router-header h2 {
+  margin: 0;
+  font-size: 1.25rem;
+}
+
+.router-status {
+  display: flex;
+  gap: 12px;
+}
+
+.status-badge {
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  background: var(--nova-bg-elevated);
+  border: 1px solid var(--nova-border);
+  color: var(--nova-fg);
+}
+
+.router-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+@media (max-width: 900px) {
+  .router-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.router-panel {
+  background: var(--nova-bg-elevated);
+  border: 1px solid var(--nova-border);
+  border-radius: 8px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.router-panel h3 {
+  margin: 0;
+  font-size: 1rem;
+  color: var(--nova-fg);
+}
+
+.task-selector .task-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.task-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 10px 16px;
+  border: 1px solid var(--nova-border);
+  border-radius: 6px;
+  background: var(--nova-bg);
+  color: var(--nova-fg);
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: all 0.15s;
+}
+
+.task-btn:hover {
+  border-color: var(--nova-accent);
+}
+
+.task-btn.active {
+  border-color: var(--nova-accent);
+  background: var(--nova-accent-dim);
+  color: var(--nova-accent);
+}
+
+.task-name {
+  font-weight: 500;
+}
+
+.task-code {
+  font-size: 0.7rem;
+  color: var(--nova-muted);
+  font-family: monospace;
+  text-transform: uppercase;
+}
+
+.prefer-free-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85rem;
+  color: var(--nova-fg);
+  cursor: pointer;
+}
+
+.hardware pre {
+  font-size: 0.7rem;
+  max-height: 200px;
+  overflow: auto;
+  background: var(--nova-bg);
+  padding: 12px;
+  border-radius: 6px;
+  border: 1px solid var(--nova-border);
+}
+
+.hw-recommendation {
+  font-size: 0.85rem;
+  padding: 8px 12px;
+  background: var(--nova-accent-dim);
+  border: 1px solid var(--nova-accent);
+  border-radius: 6px;
+  color: var(--nova-accent);
+}
+
+.config-controls {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.btn-primary {
+  padding: 10px 20px;
+  background: var(--nova-accent);
+  color: #000;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.error {
+  color: var(--nova-danger);
+  font-size: 0.85rem;
+}
+
+.config-display {
+  background: var(--nova-bg);
+  border: 1px solid var(--nova-border);
+  border-radius: 6px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.config-row {
+  font-size: 0.9rem;
+  color: var(--nova-fg);
+}
+
+.config-empty {
+  color: var(--nova-muted);
+  font-style: italic;
+}
+
+.completion-test textarea {
+  width: 100%;
+  min-height: 100px;
+  padding: 12px;
+  background: var(--nova-bg);
+  border: 1px solid var(--nova-border);
+  border-radius: 6px;
+  color: var(--nova-fg);
+  font-family: inherit;
+  font-size: 0.9rem;
+  resize: vertical;
+}
+
+.completion-controls {
+  display: flex;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.completion-output {
+  margin-top: 12px;
+  padding: 12px;
+  background: var(--nova-bg);
+  border: 1px solid var(--nova-border);
+  border-radius: 6px;
+}
+
+.completion-output pre {
+  margin: 8px 0 0;
+  font-size: 0.8rem;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.task-table pre {
+  font-size: 0.7rem;
+  max-height: 300px;
+  overflow: auto;
+  background: var(--nova-bg);
+  padding: 12px;
+  border-radius: 6px;
+  border: 1px solid var(--nova-border);
+  font-family: monospace;
+  white-space: pre;
+}

@@ -16,6 +16,7 @@ export type CenterMode =
   | "drift"
   | "four-d"
   | "compute-fabric"
+  | "llm-router"
   | "terminal"
   | "admin";
 

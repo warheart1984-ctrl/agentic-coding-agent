@@ -4,6 +4,10 @@ import { eventsGateway } from "./events-gateway";
 import { listReceipts } from "../crk2/ledger/ledger-v2";
 import { controlTowerService } from "./control-tower-service";
 import { generateCompletion } from "../agent/completion/engine";
+import { selectModel, listTaskProfiles, formatTaskTable, getHardwareRecommendation, type TaskType } from "../src/model/router";
+import { probeHardware, suggestLLMBackend } from "../src/runtime/hardwareRouter";
+import { listProviders, hasProvider } from "../src/providers/provider-registry";
+import { runCompletion } from "../src/services/completion";
 
 const PORT = Number(process.env.NOVA_API_PORT) || 3737;
 
@@ -175,6 +179,77 @@ const router: Record<string, Record<string, (req: IncomingMessage, res: ServerRe
     GET: async (_req, res) => {
       const cluster = controlTowerService.getClusterState();
       json(res, 200, cluster);
+    },
+  },
+  "/api/llm/tasks": {
+    GET: async (_req, res) => {
+      const profiles = listTaskProfiles();
+      json(res, 200, { tasks: profiles });
+    },
+  },
+  "/api/llm/select": {
+    POST: async (req, res) => {
+      try {
+        const body = (await readBody(req)) as { task?: string; preferFree?: boolean; overrides?: Record<string, { provider?: string; model?: string }> };
+        if (!body?.task) return error(res, 400, "Missing 'task' in body");
+        const config = selectModel(body.task as TaskType, {
+          preferFree: body.preferFree,
+          overrides: body.overrides,
+        });
+        json(res, 200, { config });
+      } catch (err) {
+        error(res, 500, err instanceof Error ? err.message : String(err));
+      }
+    },
+  },
+  "/api/llm/hardware": {
+    GET: async (_req, res) => {
+      const hw = probeHardware();
+      const recommendation = suggestLLMBackend(hw);
+      json(res, 200, { hardware: hw, recommendation });
+    },
+  },
+  "/api/llm/providers": {
+    GET: async (_req, res) => {
+      const providers = listProviders();
+      json(res, 200, { providers });
+    },
+  },
+  "/api/llm/table": {
+    GET: async (_req, res) => {
+      const table = formatTaskTable();
+      json(res, 200, { table });
+    },
+  },
+  "/api/llm/complete": {
+    POST: async (req, res) => {
+      try {
+        const body = (await readBody(req)) as { prompt: string; provider?: string; intent?: string; system?: string; context?: Record<string, unknown> };
+        if (!body?.prompt) return error(res, 400, "Missing 'prompt' in body");
+        
+        const providerName = body.provider ?? (hasProvider("openai") ? "openai" : listProviders()[0]);
+        if (!hasProvider(providerName)) return error(res, 400, `Provider not available: ${providerName}`);
+        
+        const result = await runCompletion({
+          providerName,
+          actor: "api-user",
+          intent: body.intent ?? "code",
+          prompt: body.prompt,
+          system: body.system,
+          context: body.context,
+        });
+        
+        json(res, 200, {
+          ledgerId: result.ledgerId,
+          provider: result.output.provider,
+          model: result.output.model,
+          text: result.output.text,
+          usage: result.output.tokens,
+          cost: result.output.cost,
+        });
+      } catch (err) {
+        error(res, 500, err instanceof Error ? err.message : String(err));
+      }
     },
   },
 };
