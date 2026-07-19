@@ -1,0 +1,139 @@
+.reality {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  padding: var(--space-md);
+  border-radius: var(--radius-panel);
+  background: var(--color-bg-panel);
+  border: 1px solid var(--color-border-strong);
+  border-top: 2px solid var(--color-accent-governance);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-sm);
+}
+
+.title {
+  margin: 0;
+  font-size: var(--font-size-sm);
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-accent-governance);
+}
+
+.score {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-sm);
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+.scoreHigh {
+  color: var(--color-status-ok);
+  background: rgba(39, 174, 96, 0.12);
+}
+
+.scoreMid {
+  color: var(--color-status-warn);
+  background: rgba(242, 201, 76, 0.12);
+}
+
+.scoreLow {
+  color: var(--color-status-error);
+  background: rgba(235, 87, 87, 0.12);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  margin: 0;
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 6px 8px;
+  border-radius: 4px;
+  background: var(--color-bg-panel-alt);
+  border: 1px solid var(--color-border-soft);
+}
+
+.stat dt {
+  margin: 0;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-text-muted);
+}
+
+.stat dd {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.verified dd {
+  color: var(--color-status-ok);
+}
+
+.unknown dd {
+  color: var(--color-accent-continuity);
+}
+
+.failed dd {
+  color: var(--color-status-error);
+}
+
+.scoreBarTrack {
+  height: 4px;
+  border-radius: 2px;
+  background: var(--color-border-soft);
+  overflow: hidden;
+}
+
+.scoreBarFill {
+  height: 100%;
+  border-radius: 2px;
+  transition: width 0.35s ease;
+}
+
+.scoreBarFill.scoreHigh {
+  background: var(--color-status-ok);
+}
+
+.scoreBarFill.scoreMid {
+  background: var(--color-status-warn);
+}
+
+.scoreBarFill.scoreLow {
+  background: var(--color-status-error);
+}
+
+.footer {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.footerLabel {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-text-muted);
+}
+
+.experiment {
+  margin: 0;
+  font-size: var(--font-size-xs);
+  line-height: 1.4;
+  color: var(--color-text-secondary);
+}

@@ -47,8 +47,6 @@ function AnimatedContent({ mode }: { mode: CenterMode }) {
       return <div ref={ref} className={styles.transitionIn}><ComputeFabric /></div>;
     case "llm-router":
       return <div ref={ref} className={styles.transitionIn}><LLMRouter /></div>;
-    case "llm-router":
-      return <div ref={ref} className={styles.transitionIn}><LLMRouter /></div>;
     case "terminal":
       return <div ref={ref} className={styles.transitionIn}><TerminalPanel /></div>;
     case "admin":

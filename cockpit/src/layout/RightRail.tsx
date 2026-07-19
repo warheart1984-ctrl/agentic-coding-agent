@@ -1,6 +1,7 @@
 import styles from "./RightRail.module.css";
 import { useCockpitState } from "../state/store";
 import { MonitoringDashboard } from "../components/MonitoringDashboard";
+import { RealityPanel } from "../panels/RealityPanel";
 
 export function RightRail() {
   const violations = useCockpitState((s) => s.governance.violations);
@@ -10,6 +11,8 @@ export function RightRail() {
 
   return (
     <aside className={styles.rightRail}>
+      <RealityPanel />
+
       {showMonitoring && (
         <section className={styles.monitoringSection}>
           <MonitoringDashboard />

@@ -352,7 +352,7 @@ graph TD
 **Frozen baseline gaps (1–6) are closed.** Remaining product surface:
 
 1. **Wire completion engine through `selectModel`** — `agent/completion/engine.ts` still uses `configFromEnv()` directly
-2. **Cockpit Reality Panel** — permanent assumptions/verified/unknown/failed surface bound to E0–E12
+2. **Cockpit Reality Panel** — permanent right-rail surface bound to live receipts/violations/kernel (`cockpit/src/panels/RealityPanel.tsx`) — started
 3. **Replayable IDE timeline** — workspace rewind from CSR + ledger
 4. **Agent Swarm identities** — Architect / Builder / Reviewer / Security with authority + heartbeat
 
