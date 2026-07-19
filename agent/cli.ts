@@ -4,11 +4,15 @@ import { AgentRuntime, governance, continuity } from "./index";
 import { getContext } from "./runtime/workspace";
 import { invariants } from "../config/nova.config";
 import { refineCode } from "./core/agentLoop";
+import { GenerationBlockedError } from "./core/agent";
+import { registerSpineObserve } from "./governance/observe";
 
 async function bootstrapGovernance(): Promise<void> {
   for (const inv of invariants) {
     await governance.requireInvariant(inv);
   }
+  // When NOVA_OBSERVE=1 or NOVA_SPINE_URL / NOVA_SPINE_INGEST_URL is set, forward receipts to spine
+  registerSpineObserve();
 }
 
 /** Spinner with elapsed time tracking. */
@@ -118,11 +122,16 @@ program
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
       console.error("\n✖ BLOCKED:", message);
-      const receipts = await governance.listReceipts();
-      const last = receipts[receipts.length - 1];
-      if (last) {
+      if (err instanceof GenerationBlockedError && err.receipts.length > 0) {
         console.log("\nReceipts:");
-        console.log(JSON.stringify([last], null, 2));
+        console.log(JSON.stringify(err.receipts, null, 2));
+      } else {
+        const receipts = await governance.listReceipts();
+        const last = receipts[receipts.length - 1];
+        if (last) {
+          console.log("\nReceipts:");
+          console.log(JSON.stringify([last], null, 2));
+        }
       }
       process.exit(1);
     }

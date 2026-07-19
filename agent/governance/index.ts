@@ -1,8 +1,17 @@
 export { recordReceipt, getReceipt, listReceipts } from "./receipts";
+export type { RecordReceiptOptions } from "./receipts";
 export { onReceiptRecorded } from "./receipt-hooks";
+export { registerSpineObserve, isObserveEnabled } from "./observe";
 export { requireInvariant, getInvariants } from "./invariants";
 export { validateAction, trace } from "./validator";
-export { getLedger, getLedgerTailHash, appendToLedger } from "./ledger";
+export {
+  getLedger,
+  getLedgerTailHash,
+  appendToLedger,
+  clearLedger,
+  getLedgerWalPath,
+  readLedgerWal,
+} from "./ledger";
 export { kernelStatus, emitKernelHeartbeat } from "./kernelStatus";
 export type { KernelStatus, KernelHeartbeat } from "./kernelStatus";
 

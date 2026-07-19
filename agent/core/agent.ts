@@ -9,6 +9,7 @@ import type {
   ApplyPatchInput,
   ApplyPatchResult,
 } from "../types/actions";
+import type { Crk1Provenance, GovernanceReceipt } from "../types/receipts";
 import { validateAction } from "../governance/validator";
 import { recordReceipt } from "../governance/receipts";
 import { getInvariants } from "../governance/invariants";
@@ -17,10 +18,32 @@ import { updateContinuity } from "../continuity/substrate";
 import { plan as createPlan } from "./planner";
 import { applyDiff, openFile, getContext } from "../runtime/workspace";
 import { governedPredict, GovernedRefusalError } from "../../src/runtime/governedPredict";
+import type { GovernedResult } from "../../src/runtime/types";
 
 const DEFAULT_OPERATOR_ID = process.env.NOVA_OPERATOR_ID ?? "agent-sdk";
 const DEFAULT_MODE = (process.env.NOVA_GOVERNED_MODE ?? "predict") as "predict" | "observe" | "correct";
 const DEFAULT_INVARIANT_SET = process.env.NOVA_INVARIANT_SET ?? "K0-K12-v1";
+
+/** Thrown when generate/refactor is blocked after a receipt was written — carries receipts for HTTP/CLI. */
+export class GenerationBlockedError extends Error {
+  readonly receipts: GovernanceReceipt[];
+
+  constructor(message: string, receipts: GovernanceReceipt[]) {
+    super(message);
+    this.name = "GenerationBlockedError";
+    this.receipts = receipts;
+  }
+}
+
+function crk1FromGoverned(result: GovernedResult): Crk1Provenance {
+  return {
+    receipt: result.receipt,
+    lineage: result.lineage,
+    ce1: result.ce1,
+    crr1: result.crr1,
+    clg1: result.clg1,
+  };
+}
 
 async function resolveFileContext(context?: GenerateCodeInput["context"]): Promise<{
   files: Array<{ path: string; content: string }>;
@@ -58,7 +81,7 @@ export async function generateCode(input: GenerateCodeInput): Promise<GenerateCo
   if (!validation.ok) {
     const receipt = await recordReceipt(action, [], { blocked: true, blockReason: validation.reason });
     emitReceipt(receipt);
-    throw new Error(validation.reason ?? "Generation blocked by invariant");
+    throw new GenerationBlockedError(validation.reason ?? "Generation blocked by invariant", [receipt]);
   }
 
   const resolvedCtx = await resolveFileContext(input.context);
@@ -74,7 +97,10 @@ export async function generateCode(input: GenerateCodeInput): Promise<GenerateCo
     });
 
     const invIds = getInvariants().map((i) => i.id);
-    const receipt = await recordReceipt(action, invIds, { assuranceLevel: governed.receipt.invariants_passed ? "A1" : "A0" });
+    const receipt = await recordReceipt(action, invIds, {
+      assuranceLevel: governed.receipt.invariants_passed ? "A1" : "A0",
+      crk1: crk1FromGoverned(governed),
+    });
     await updateContinuity(action);
     emitReceipt(receipt);
     return { code: governed.output, receipts: [receipt] };
@@ -84,9 +110,13 @@ export async function generateCode(input: GenerateCodeInput): Promise<GenerateCo
       const receipt = await recordReceipt(action, err.result.receipt.violation_ids ?? [], {
         blocked: true,
         blockReason: `CRK-1 violations: ${(err.result.receipt.violation_ids ?? []).join(", ")}`,
+        crk1: crk1FromGoverned(err.result),
       });
       emitReceipt(receipt);
-      throw new Error(`Generation blocked by invariant: ${(err.result.receipt.violation_ids ?? []).join(", ")}`);
+      throw new GenerationBlockedError(
+        `Generation blocked by invariant: ${(err.result.receipt.violation_ids ?? []).join(", ")}`,
+        [receipt]
+      );
     }
     throw err;
   }
