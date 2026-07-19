@@ -12,12 +12,16 @@
     "test": "tsc --noEmit && node --require tsx --test tests/**/*.test.ts",
     "test:integration": "tsc --noEmit && node --require tsx --test tests/integration/**/*.test.ts",
     "db:migrate": "tsx src/persistence/migrate.ts",
-    "lint": "eslint src --ext .ts"
+    "lint": "eslint src --ext .ts",
+    "mythar:compile": "echo Compile Mythar",
+    "ulx:build": "npm run build --prefix ulx"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.27.3",
     "@fastify/helmet": "^11.1.1",
     "@fastify/rate-limit": "^9.1.0",
+    "@fastify/swagger": "^9.8.1",
+    "@fastify/swagger-ui": "^6.1.0",
     "@prisma/client": "^7.8.0",
     "bcryptjs": "^2.4.3",
     "fastify": "^4.26.2",

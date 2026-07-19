@@ -7,11 +7,13 @@ import { openaiProvider } from "./providers/openai-provider.js";
 import { anthropicProvider } from "./providers/anthropic-provider.js";
 import { localProvider } from "./providers/local-provider.js";
 import { getEnv } from "./config/env.js";
-import { closeDb } from "./persistence/sqlite.js";
+import { closePrisma } from "./persistence/prisma.js";
 import { findUserByEmail, createUser, generateApiKey } from "./persistence/users.js";
 import { hashPassword } from "./auth/middleware.js";
 import fastifyRateLimit from "@fastify/rate-limit";
 import fastifyHelmet from "@fastify/helmet";
+import fastifySwagger from "@fastify/swagger";
+import fastifySwaggerUi from "@fastify/swagger-ui";
 
 async function buildApp() {
   const env = getEnv();
@@ -25,7 +27,7 @@ async function buildApp() {
 
   // Security headers
   await app.register(fastifyHelmet, {
-    contentSecurityPolicy: false, // Disable CSP for API
+    contentSecurityPolicy: false,
     crossOriginEmbedderPolicy: false,
   });
 
@@ -39,6 +41,158 @@ async function buildApp() {
       code: "RATE_LIMIT_EXCEEDED",
       retryAfter: Math.ceil(context.ttl / 1000),
     }),
+  });
+
+  // Swagger/OpenAPI documentation
+  await app.register((fastify, opts, done) => {
+    fastifySwagger(fastify, opts, done);
+  }, {
+    openapi: {
+      info: {
+        title: "Sovereign Agentic Coding Agent API",
+        description: "Constitutional agentic coding system with governed execution. Provides LLM completion, quantum circuit execution, and constitutional governance APIs.",
+        version: "1.0.0",
+        contact: {
+          name: "Sovereign Agent Team",
+          url: "https://github.com/warheart1984-ctrl/agentic-coding-agent",
+        },
+        license: {
+          name: "MIT",
+          url: "https://opensource.org/licenses/MIT",
+        },
+      },
+      servers: [
+        {
+          url: `http://${env.HOST}:${env.PORT}/api`,
+          description: "Development server",
+        },
+      ],
+      components: {
+        securitySchemes: {
+          apiKey: {
+            type: "apiKey",
+            in: "header",
+            name: "x-api-key",
+            description: "API key for authentication",
+          },
+        },
+        schemas: {
+          Error: {
+            type: ["object"] as const,
+            properties: {
+              error: { type: "string" },
+              code: { type: "string" },
+            },
+          },
+          CompletionRequest: {
+            type: ["object"] as const,
+            required: ["prompt"],
+            properties: {
+              prompt: { type: "string", minLength: 1, description: "The prompt to complete" },
+              system: { type: "string", description: "Optional system prompt" },
+              provider: { type: "string", enum: ["openai", "anthropic", "ollama"], description: "LLM provider to use" },
+              intent: { type: "string", maxLength: 200, description: "Intent classification for governance" },
+              context: { type: "object", description: "Additional context for governance" },
+            },
+          },
+          CompletionResponse: {
+            type: ["object"] as const,
+            properties: {
+              ledgerId: { type: "integer", description: "Ledger entry ID" },
+              provider: { type: "string" },
+              model: { type: "string" },
+              text: { type: "string" },
+              usage: {
+                type: ["object"] as const,
+                properties: {
+                  input: { type: "integer" },
+                  output: { type: "integer" },
+                },
+              },
+              cost: { type: "number" },
+            },
+          },
+          ProviderList: {
+            type: ["object"] as const,
+            properties: {
+              providers: { type: ["array"] as const, items: { type: "string" } },
+            },
+          },
+          LedgerEntry: {
+            type: ["object"] as const,
+            properties: {
+              id: { type: "integer" },
+              timestamp: { type: "integer" },
+              actor: { type: "string" },
+              intent: { type: "string" },
+              evidence: { type: "object" },
+              result: { type: "object" },
+            },
+          },
+          LedgerList: {
+            type: ["object"] as const,
+            properties: {
+              entries: { type: ["array"] as const, items: { $ref: "#/components/schemas/LedgerEntry" } },
+              total: { type: "integer" },
+              limit: { type: "integer" },
+              offset: { type: "integer" },
+            },
+          },
+          SnapshotRequest: {
+            type: ["object"] as const,
+            required: ["config", "recentLedgerIds", "providerState"],
+            properties: {
+              config: { type: "object" },
+              recentLedgerIds: { type: ["array"] as const, items: { type: "integer" } },
+              providerState: { type: "object" },
+              version: { type: "string" },
+            },
+          },
+          SnapshotResponse: {
+            type: ["object"] as const,
+            properties: {
+              snapshotId: { type: "integer" },
+            },
+          },
+          SnapshotData: {
+            type: ["object"] as const,
+            properties: {
+              id: { type: "integer" },
+              timestamp: { type: "integer" },
+              state: { type: "object" },
+            },
+          },
+          ProvidersResponse: {
+            type: ["object"] as const,
+            properties: {
+              providers: { type: ["array"] as const, items: { type: "string" } },
+            },
+          },
+        },
+        security: [
+          { apiKey: [] },
+        ],
+      },
+      // Transform fastify routes to OpenAPI
+      transform: ({ route }: { route: { url: string } }) => {
+        // Hide internal routes from docs
+        if (route.url.includes("/health") || route.url.includes("/ready")) {
+          return route;
+        }
+        return route;
+      },
+    } as any,
+  });
+
+  // Swagger UI
+  await app.register(fastifySwaggerUi, {
+    routePrefix: "/docs",
+    uiConfig: {
+      docExpansion: "list",
+      deepLinking: true,
+      defaultModelsExpandDepth: 1,
+    },
+    staticCSP: true,
   });
 
   app.addHook("onRequest", requestIdMiddleware);
@@ -61,14 +215,26 @@ async function buildApp() {
   const availableProviders = [localProvider.name, ...(env.OPENAI_API_KEY ? ["openai"] : []), ...(env.ANTHROPIC_API_KEY ? ["anthropic"] : [])];
   logger.info({ msg: "providers_available", providers: availableProviders });
 
-  // Ensure default admin user exists
+  // Ensure default organization and admin user exist
+  const { getPrisma } = await import("./persistence/prisma.js");
+  const prisma = getPrisma();
+
+  const defaultOrg = await prisma.organization.upsert({
+    where: { slug: "default" },
+    update: {},
+    create: {
+      name: "Default Organization",
+      slug: "default",
+    },
+  });
+
   const adminEmail = "admin@sovereign.local";
   const existingAdmin = await findUserByEmail(adminEmail);
   if (!existingAdmin) {
     const passwordHash = await hashPassword("admin123");
     const apiKey = generateApiKey();
-    await createUser({ email: adminEmail, password_hash: passwordHash, api_key: apiKey, role: "admin" });
-    logger.info({ msg: "default_admin_created", email: adminEmail, apiKey });
+    await createUser({ email: adminEmail, passwordHash, apiKey, role: "ADMIN", organizationId: defaultOrg.id });
+    logger.info({ msg: "default_admin_created", email: adminEmail, organizationId: defaultOrg.id });
   }
 
   app.setErrorHandler((error, request, reply) => {
@@ -85,7 +251,7 @@ async function buildApp() {
   const shutdown = async (signal: string) => {
     logger.info({ msg: "shutdown_signal", signal });
     await app.close();
-    closeDb();
+    await closePrisma();
     process.exit(0);
   };
 

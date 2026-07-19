@@ -1,0 +1,12 @@
+.pytest_cache/
+__pycache__/
+**/__pycache__/
+*.py[cod]
+dist/
+.ulx-junk-lab/
+.ulx-migration/
+.ulx-migration-run2/
+.ulx-migration-run3/
+.ulx-migration-run4/
+.ulx-migration-temp/
+.ulx-migration-test/

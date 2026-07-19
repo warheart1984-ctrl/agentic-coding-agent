@@ -8,6 +8,8 @@ export function TopBar() {
   const lastHeartbeatAt = useCockpitState((s) => s.kernel.lastHeartbeatAt);
   const kernelVersion = useKernelStore((s) => s.kernelVersion);
   const pitBand = useKernelStore((s) => s.pitBand);
+  const showMonitoring = useCockpitState((s) => s.uiSignals.showMonitoring);
+  const setUiSignals = useCockpitState((s) => s.actions.setUiSignals);
 
   const nominal =
     kernelStatus.invariantEngine === "ok" &&
@@ -16,6 +18,10 @@ export function TopBar() {
 
   function toggleTheme() {
     document.body.classList.toggle("theme-light");
+  }
+
+  function toggleMonitoring() {
+    setUiSignals({ ...useCockpitState.getState().uiSignals, showMonitoring: !showMonitoring });
   }
 
   return (
@@ -39,6 +45,14 @@ export function TopBar() {
         <span className={styles.invariantsCount}>
           {invariants.length} invariants active
         </span>
+        <button 
+          type="button" 
+          className={`${styles.monitoringToggle} ${showMonitoring ? styles.active : ''}`} 
+          onClick={toggleMonitoring} 
+          title="Toggle monitoring dashboard"
+        >
+          📊
+        </button>
         <button type="button" className={styles.themeToggle} onClick={toggleTheme} title="Toggle dark/light theme">
           ◐
         </button>

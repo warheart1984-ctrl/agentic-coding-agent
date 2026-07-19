@@ -1,0 +1,12 @@
+{
+  "name": "ulx",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "cli": "npx tsx src/cli/index.ts",
+    "tui": "npx tsx src/cli/index.ts tui sovereign-os",
+    "daemon": "npx tsx src/daemon/index.ts",
+    "build": "npx tsc -p tsconfig.json",
+    "test": "npx tsx --test tests/node/*.test.ts"
+  }
+}

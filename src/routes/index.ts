@@ -8,6 +8,8 @@ import { getReceiptByLedgerId } from "../persistence/receipts.js";
 import { listUsers } from "../persistence/users.js";
 import { listProviders, hasProvider } from "../providers/provider-registry.js";
 import { logger } from "../logging/logger.js";
+import { monitoringRoutes } from "./monitoring.js";
+import { cockpitRoutes } from "./cockpit.js";
 
 // JSON schemas for Fastify validation
 const completionBodySchema = {
@@ -27,7 +29,7 @@ const snapshotBodySchema = {
   required: ["config", "recentLedgerIds", "providerState"],
   properties: {
     config: { type: "object" },
-    recentLedgerIds: { type: "array", items: { type: "integer" } },
+    recentLedgerIds: { type: "array", items: { type: "string" } },
     providerState: { type: "object" },
     version: { type: "string" },
   },
@@ -46,6 +48,10 @@ const ledgerQuerySchema = {
 };
 
 export const routes: FastifyPluginAsync = async (app) => {
+  // Register monitoring routes
+  await app.register(monitoringRoutes, { prefix: "/monitoring" });
+  await app.register(cockpitRoutes, { prefix: "/api" });
+
   app.post(
     "/complete",
     { preHandler: requireApiKey, schema: { body: completionBodySchema } },
@@ -99,7 +105,7 @@ export const routes: FastifyPluginAsync = async (app) => {
     async (request, reply) => {
       const body = request.body as {
         config: Record<string, unknown>;
-        recentLedgerIds: number[];
+        recentLedgerIds: string[];
         providerState: Record<string, unknown>;
         version?: string;
       };
@@ -124,23 +130,23 @@ export const routes: FastifyPluginAsync = async (app) => {
     }
 
     try {
-      const state = JSON.parse(snapshot.state_json) as NodeSnapshotState;
-      return { snapshot: { id: snapshot.id, timestamp: snapshot.timestamp, state } };
+      const state = snapshot.state as unknown as NodeSnapshotState;
+      return { snapshot: { id: snapshot.id, timestamp: snapshot.createdAt.getTime(), state } };
     } catch {
       return { snapshot: null };
     }
   });
 
   app.get("/snapshot/:id", { preHandler: requireApiKey }, async (request, reply) => {
-    const id = Number((request.params as any).id);
+    const id = (request.params as any).id as string;
     const snapshot = await getNodeSnapshotById(id);
     if (!snapshot) {
       return reply.code(404).send({ error: "Snapshot not found" });
     }
 
     try {
-      const state = JSON.parse(snapshot.state_json) as NodeSnapshotState;
-      return { snapshot: { id: snapshot.id, timestamp: snapshot.timestamp, state } };
+      const state = snapshot.state as unknown as NodeSnapshotState;
+      return { snapshot: { id: snapshot.id, timestamp: snapshot.createdAt.getTime(), state } };
     } catch {
       return reply.code(500).send({ error: "Invalid snapshot data" });
     }
@@ -155,16 +161,24 @@ export const routes: FastifyPluginAsync = async (app) => {
       limit?: number;
       offset?: number;
     };
+    const ledgerQuery = {
+      actor: query.actor,
+      intent: query.intent as any,
+      fromTimestamp: query.fromTimestamp ? new Date(query.fromTimestamp) : undefined,
+      toTimestamp: query.toTimestamp ? new Date(query.toTimestamp) : undefined,
+      limit: query.limit,
+      offset: query.offset,
+    };
     const [entries, total] = await Promise.all([
-      queryLedger(query),
-      countLedger(query),
+      queryLedger(ledgerQuery),
+      countLedger(ledgerQuery),
     ]);
 
     return { entries, total, limit: query.limit ?? 100, offset: query.offset ?? 0 };
   });
 
   app.get("/ledger/:id", { preHandler: requireApiKey }, async (request, reply) => {
-    const id = Number((request.params as any).id);
+    const id = (request.params as any).id as string;
     const entry = await getLedgerById(id);
     if (!entry) {
       return reply.code(404).send({ error: "Ledger entry not found" });
@@ -178,7 +192,7 @@ export const routes: FastifyPluginAsync = async (app) => {
   });
 
   app.get("/users", { preHandler: requireApiKey }, async () => {
-    return { users: await listUsers(100, 0) };
+    return { users: await listUsers("default", 100, 0) };
   });
 
   app.get("/health", async () => {

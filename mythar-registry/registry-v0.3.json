@@ -1,0 +1,47 @@
+{
+  "$extends": "registry-v0.2.json",
+  "registry": {
+    "id": "mythar-constitutional-registry",
+    "version": "0.3.0",
+    "status": "candidate-amendment"
+  },
+  "ratified_lexemes": {
+    "roots": [
+      {
+        "id": "ROOT-EMA",
+        "form": "ema",
+        "domain": "Aesthetic Existence",
+        "meanings": ["beautiful existence", "beauty embodied"],
+        "default_polarity": "positive",
+        "phonology": "VCV",
+        "allowed_positions": ["verb", "subject", "object", "modifier"]
+      }
+    ],
+    "particles": [
+      {
+        "id": "PARTICLE-FAK",
+        "form": "fak",
+        "frame": "craft",
+        "meanings": ["craft", "making", "formation"],
+        "governing": false,
+        "stackable": true,
+        "allowed_positions": ["particle_stack"]
+      }
+    ],
+    "meta_operators": [
+      {
+        "id": "META-TILA",
+        "form": "tila",
+        "effect": "purify, refine, make pure",
+        "targets": ["root", "composite", "operator_application"],
+        "notation": "postfix standalone",
+        "allowed_positions": ["immediately_after_target"]
+      }
+    ]
+  },
+  "composites": [
+    {"id":"COMP-MAIA","form":"maia","components":["ROOT-MA","ROOT-IA"],"canonical":true,"meaning":"spring goddess"},
+    {"id":"COMP-RAEMA","form":"raema","components":["ROOT-RA","ROOT-EMA"],"canonical":true,"meaning":"proclaimed beauty"}
+  ],
+  "supersedes_candidates": ["CANDIDATE-EMA", "CANDIDATE-FAK", "CANDIDATE-TILA"]
+}

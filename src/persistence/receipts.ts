@@ -1,46 +1,82 @@
-import { getDb } from "./sqlite.js";
+import { getPrisma } from "./prisma.js";
+import type { ProviderName } from "@prisma/client";
 
 export interface Receipt {
-  id?: number;
-  ledger_id: number;
-  provider: string;
-  tokens_in?: number;
-  tokens_out?: number;
-  cost?: number;
+  id: string;
+  ledgerEntryId: string;
+  provider: ProviderName;
+  model: string;
+  tokensIn: number;
+  tokensOut: number;
+  costUsd: number;
+  latencyMs: number;
+  rawResponse?: Record<string, unknown>;
+  createdAt: Date;
 }
 
-export async function insertReceipt(r: Receipt): Promise<number> {
-  const db = await getDb();
-  const stmt = db.prepare(`
-    INSERT INTO receipts (ledger_id, provider, tokens_in, tokens_out, cost)
-    VALUES (?, ?, ?, ?, ?)
-  `);
-  stmt.run([r.ledger_id, r.provider, r.tokens_in ?? null, r.tokens_out ?? null, r.cost ?? null]);
-  stmt.free();
-  const result = db.exec("SELECT last_insert_rowid() as id");
-  return result[0].values[0][0] as number;
+export async function insertReceipt(r: Omit<Receipt, "id" | "createdAt">): Promise<string> {
+  const prisma = getPrisma();
+  const created = await prisma.receipt.create({
+    data: {
+      ledgerEntryId: r.ledgerEntryId,
+      provider: r.provider,
+      model: r.model,
+      tokensIn: r.tokensIn,
+      tokensOut: r.tokensOut,
+      costUsd: r.costUsd,
+      latencyMs: r.latencyMs,
+      rawResponse: r.rawResponse as any,
+    },
+  });
+  return created.id;
 }
 
-export async function getReceiptByLedgerId(ledgerId: number): Promise<Receipt | null> {
-  const db = await getDb();
-  const stmt = db.prepare(`SELECT * FROM receipts WHERE ledger_id = ?`);
-  const row = stmt.getAsObject([ledgerId]);
-  stmt.free();
-  return row as unknown as Receipt ?? null;
+export async function getReceiptByLedgerId(ledgerEntryId: string): Promise<Receipt | null> {
+  const prisma = getPrisma();
+  const receipt = await prisma.receipt.findUnique({
+    where: { ledgerEntryId },
+  });
+  if (!receipt) return null;
+  return {
+    id: receipt.id,
+    ledgerEntryId: receipt.ledgerEntryId,
+    provider: receipt.provider,
+    model: receipt.model,
+    tokensIn: receipt.tokensIn,
+    tokensOut: receipt.tokensOut,
+    costUsd: receipt.costUsd,
+    latencyMs: receipt.latencyMs,
+    rawResponse: receipt.rawResponse as Record<string, unknown> | undefined,
+    createdAt: receipt.createdAt,
+  };
 }
 
-export async function getReceiptsByProvider(provider: string, limit = 100): Promise<Receipt[]> {
-  const db = await getDb();
-  const stmt = db.prepare(`SELECT * FROM receipts WHERE provider = ? ORDER BY id DESC LIMIT ?`);
-  const rows = stmt.all([provider, limit]);
-  stmt.free();
-  return rows as unknown as Receipt[];
+export async function getReceiptsByProvider(provider: ProviderName, limit = 100): Promise<Receipt[]> {
+  const prisma = getPrisma();
+  const receipts = await prisma.receipt.findMany({
+    where: { provider },
+    take: limit,
+    orderBy: { createdAt: "desc" },
+  });
+  return receipts.map((r) => ({
+    id: r.id,
+    ledgerEntryId: r.ledgerEntryId,
+    provider: r.provider,
+    model: r.model,
+    tokensIn: r.tokensIn,
+    tokensOut: r.tokensOut,
+    costUsd: r.costUsd,
+    latencyMs: r.latencyMs,
+    rawResponse: r.rawResponse as Record<string, unknown> | undefined,
+    createdAt: r.createdAt,
+  }));
 }
 
-export async function getTotalCostByProvider(provider: string): Promise<number> {
-  const db = await getDb();
-  const stmt = db.prepare(`SELECT SUM(cost) as total FROM receipts WHERE provider = ?`);
-  const row = stmt.getAsObject([provider]);
-  stmt.free();
-  return (row?.total as number) ?? 0;
+export async function getTotalCostByProvider(provider: ProviderName): Promise<number> {
+  const prisma = getPrisma();
+  const result = await prisma.receipt.aggregate({
+    where: { provider },
+    _sum: { costUsd: true },
+  });
+  return result._sum.costUsd ?? 0;
 }

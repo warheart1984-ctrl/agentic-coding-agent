@@ -1,0 +1,36 @@
+{
+  "$extends": "registry-v0.1.json",
+  "registry": {"id":"mythar-constitutional-registry","version":"0.2.0","status":"candidate-freeze"},
+  "parser_contract": {
+    "entrypoint":"parse(expression: str, mode: strict|lenient) -> MytharParseTree",
+    "ast_node_kinds":["Root","Composite","Particle","OperatorApplication","TenseLexeme","CaseLexeme","PronounLexeme","Clause","Expression"],
+    "segmentation":"Only registered bare roots/composites and explicitly hyphenated constructions are accepted. Arbitrary root splitting is prohibited.",
+    "ambiguity":"Strict mode rejects an unresolved or non-canonical entry; lenient mode preserves experimental entries with diagnostics."
+  },
+  "grammar_lexemes": [
+    {"id":"TENSE-NA","form":"na","category":"tense","features":{"tense":"past"},"positions":["after_particle_stack","before_verb"],"canonical":true},
+    {"id":"TENSE-SA","form":"sa","category":"tense","features":{"tense":"present"},"positions":["after_particle_stack","before_verb"],"canonical":true},
+    {"id":"TENSE-VA","form":"va","category":"tense","features":{"tense":"future"},"positions":["after_particle_stack","before_verb"],"canonical":true},
+    {"id":"CASE-KO","form":"ko","category":"case","features":{"case":"accusative"},"positions":["after_noun"],"canonical":true},
+    {"id":"CASE-SO","form":"so","category":"case","features":{"case":"genitive"},"positions":["after_noun"],"canonical":true},
+    {"id":"CASE-MU","form":"mu","category":"case","features":{"case":"dative"},"positions":["after_noun"],"canonical":true},
+    {"id":"PRONOUN-MI","form":"mi","category":"pronoun","features":{"person":1,"number":"singular","case":"object"},"positions":["object"],"canonical":true},
+    {"id":"PRONOUN-TU","form":"tu","category":"pronoun","features":{"person":2,"number":"singular","case":"subject"},"positions":["subject"],"canonical":true},
+    {"id":"PRONOUN-TI","form":"ti","category":"pronoun","features":{"person":2,"number":"singular","case":"object"},"positions":["object"],"canonical":true},
+    {"id":"PRONOUN-SHE","form":"she","category":"pronoun","features":{"person":3,"number":"singular","gender":"feminine"},"positions":["subject","object"],"canonical":true},
+    {"id":"PRONOUN-JARUM","form":"jarum","category":"pronoun","features":{"person":1,"number":"plural","case":"subject"},"positions":["subject"],"canonical":true},
+    {"id":"PRONOUN-TURUM","form":"turum","category":"pronoun","features":{"person":2,"number":"plural","case":"subject"},"positions":["subject"],"canonical":true},
+    {"id":"PRONOUN-TARUM","form":"tarum","category":"pronoun","features":{"person":3,"number":"plural","case":"subject"},"positions":["subject"],"canonical":true}
+  ],
+  "composites": [
+    {"id":"COMP-KALA","form":"kala","components":["ROOT-KA","ROOT-LA"],"canonical":true},
+    {"id":"COMP-MAFU","form":"mafu","components":["ROOT-MA","ROOT-FU"],"canonical":true},
+    {"id":"COMP-RAMAFA","form":"ramafa","components":["ROOT-RA","ROOT-MA","ROOT-FA"],"canonical":true}
+  ],
+  "experimental_lexemes": [
+    {"id":"EXP-EMA","form":"ema","category":"unresolved","canonical":false,"reason":"unresolved: ema root lineage and meaning are not ratified"},
+    {"id":"EXP-FAK","form":"fak","category":"unresolved","canonical":false,"reason":"unresolved: fak category, lineage, and meaning are not ratified"},
+    {"id":"EXP-TILA","form":"tila","category":"unresolved","canonical":false,"reason":"unresolved: tila category, lineage, and meaning are not ratified"},
+    {"id":"EXP-RAEMA","form":"raema","category":"experimental_expression","canonical":false,"reason":"unresolved: expression depends on ema"}
+  ]
+}

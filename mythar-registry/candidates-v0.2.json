@@ -1,0 +1,34 @@
+{
+  "candidate_lexemes": [
+    {
+      "id": "CANDIDATE-EMA",
+      "form": "ema",
+      "permitted_categories": ["Root", "Particle", "MetaOperator"],
+      "canonical": false,
+      "required_for_ratification": ["selected_category", "constitutional_meaning", "allowed_positions", "canonical_example"],
+      "attested_examples": ["raema"],
+      "strict_behavior": "NON_CANONICAL_EXPRESSION",
+      "lenient_behavior": "preserve as CandidateLexeme with warning"
+    },
+    {
+      "id": "CANDIDATE-FAK",
+      "form": "fak",
+      "permitted_categories": ["Root", "Particle", "MetaOperator"],
+      "canonical": false,
+      "required_for_ratification": ["selected_category", "constitutional_meaning", "allowed_positions", "canonical_example"],
+      "attested_examples": ["ja fak la ma"],
+      "strict_behavior": "NON_CANONICAL_EXPRESSION",
+      "lenient_behavior": "preserve as CandidateLexeme with warning"
+    },
+    {
+      "id": "CANDIDATE-TILA",
+      "form": "tila",
+      "permitted_categories": ["Root", "Particle", "MetaOperator"],
+      "canonical": false,
+      "required_for_ratification": ["selected_category", "constitutional_meaning", "allowed_positions", "canonical_example"],
+      "attested_examples": ["maia tila"],
+      "strict_behavior": "NON_CANONICAL_EXPRESSION",
+      "lenient_behavior": "preserve as CandidateLexeme with warning"
+    }
+  ]
+}

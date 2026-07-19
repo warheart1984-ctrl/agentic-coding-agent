@@ -2,8 +2,7 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-  provider = "prisma-client"
-  output   = "../src/generated/prisma"
+  provider = "prisma-client-js"
 }
 
 datasource db {
@@ -14,6 +13,38 @@ enum UserRole {
   ADMIN
   OPERATOR
   VIEWER
+}
+
+enum Permission {
+  // User permissions
+  USER_READ
+  USER_WRITE
+  USER_DELETE
+  
+  // Organization permissions
+  ORG_READ
+  ORG_WRITE
+  ORG_DELETE
+  
+  // Project permissions
+  PROJECT_READ
+  PROJECT_WRITE
+  PROJECT_DELETE
+  
+  // Ledger permissions
+  LEDGER_READ
+  LEDGER_WRITE
+  LEDGER_DELETE
+  
+  // Backup permissions
+  BACKUP_READ
+  BACKUP_WRITE
+  BACKUP_RESTORE
+  
+  // System permissions
+  SYSTEM_READ
+  SYSTEM_WRITE
+  SYSTEM_ADMIN
 }
 
 enum ProviderName {
@@ -58,9 +89,9 @@ model Organization {
 
   users           User[]
   projects        Project[]
-  apiKeys         ApiKey[]
   featureFlags    FeatureFlag[]
   webhooks        Webhook[]
+  inviteTokens    InviteToken[]
 
   @@index([slug])
 }
@@ -69,6 +100,7 @@ model User {
   id              String    @id @default(uuid())
   email           String    @unique
   passwordHash    String
+  apiKey          String    @unique
   role            UserRole  @default(VIEWER)
   firstName       String?
   lastName        String?
@@ -81,11 +113,13 @@ model User {
   organizationId  String
   organization    Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 
-  apiKeys         ApiKey[]
   auditLogs       AuditLog[]
+  inviteTokens    InviteToken[] @relation("InvitedTokens")
+  permissions     UserPermission[]
 
   @@index([organizationId])
   @@index([email])
+  @@index([apiKey])
 }
 
 model Project {
@@ -105,27 +139,6 @@ model Project {
   @@index([organizationId])
 }
 
-model ApiKey {
-  id              String    @id @default(uuid())
-  name            String
-  keyHash         String    @unique
-  keyPrefix       String    // First 8 chars for identification
-  permissions     String[]  @default(["read", "write"])
-  expiresAt       DateTime?
-  lastUsedAt      DateTime?
-  isActive        Boolean   @default(true)
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
-
-  organizationId  String
-  organization    Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-
-  createdById     String
-  createdBy       User      @relation(fields: [createdById], references: [id])
-
-  @@index([organizationId])
-  @@index([keyPrefix])
-}
 
 model LedgerEntry {
   id              String    @id @default(uuid())
@@ -255,6 +268,8 @@ model AuditLog {
   organizationId  String
   userId          String?
 
+  user            User?     @relation(fields: [userId], references: [id])
+
   @@index([organizationId])
   @@index([userId])
   @@index([action])
@@ -292,8 +307,23 @@ model InviteToken {
   organizationId  String
   organization    Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   invitedById     String
-  invitedBy       User      @relation(fields: [invitedById], references: [id])
+  invitedBy       User      @relation("InvitedTokens", fields: [invitedById], references: [id])
 
   @@index([organizationId])
   @@index([token])
+}
+
+model UserPermission {
+  id              String    @id @default(uuid())
+  permission      Permission
+  scope           String?   // Optional scope (e.g., project ID)
+  grantedAt       DateTime  @default(now())
+  grantedBy       String?   // User ID who granted this permission
+
+  userId          String
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, permission, scope])
+  @@index([userId])
+  @@index([permission])
 }

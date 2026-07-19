@@ -1,73 +1,115 @@
-import { getDb } from "./sqlite.js";
+import { getPrisma } from "./prisma.js";
 import { randomUUID } from "crypto";
+import type { UserRole } from "@prisma/client";
 
 export interface User {
-  id?: number;
+  id: string;
   email: string;
-  password_hash: string;
-  api_key: string;
-  role: string;
-  created_at?: number;
-  updated_at?: number;
+  passwordHash: string;
+  apiKey: string;
+  role: UserRole;
+  organizationId: string;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
-export async function createUser(user: Omit<User, "id" | "created_at" | "updated_at">): Promise<number> {
-  const db = await getDb();
-  const now = Date.now();
-  const stmt = db.prepare(`
-    INSERT INTO users (email, password_hash, api_key, role, created_at, updated_at)
-    VALUES (?, ?, ?, ?, ?, ?)
-  `);
-  stmt.run([user.email, user.password_hash, user.api_key, user.role ?? "operator", now, now]);
-  stmt.free();
-  const result = db.exec("SELECT last_insert_rowid() as id");
-  return result[0].values[0][0] as number;
+export async function createUser(user: Omit<User, "id" | "createdAt" | "updatedAt">): Promise<string> {
+  const prisma = getPrisma();
+  const created = await prisma.user.create({
+    data: {
+      email: user.email,
+      passwordHash: user.passwordHash,
+      apiKey: user.apiKey,
+      role: user.role,
+      organizationId: user.organizationId,
+    },
+  });
+  return created.id;
 }
 
 export async function findUserByEmail(email: string): Promise<User | null> {
-  const db = await getDb();
-  const stmt = db.prepare(`SELECT * FROM users WHERE email = ?`);
-  const row = stmt.getAsObject([email]);
-  stmt.free();
-  return row as unknown as User ?? null;
+  const prisma = getPrisma();
+  const user = await prisma.user.findUnique({
+    where: { email },
+  });
+  if (!user) return null;
+  return {
+    id: user.id,
+    email: user.email,
+    passwordHash: user.passwordHash,
+    apiKey: user.apiKey,
+    role: user.role,
+    organizationId: user.organizationId,
+    createdAt: user.createdAt,
+    updatedAt: user.updatedAt,
+  };
 }
 
 export async function findUserByApiKey(apiKey: string): Promise<User | null> {
-  const db = await getDb();
-  const stmt = db.prepare(`SELECT * FROM users WHERE api_key = ?`);
-  const row = stmt.getAsObject([apiKey]);
-  stmt.free();
-  return row as unknown as User ?? null;
+  const prisma = getPrisma();
+  const user = await prisma.user.findUnique({
+    where: { apiKey },
+  });
+  if (!user) return null;
+  return {
+    id: user.id,
+    email: user.email,
+    passwordHash: user.passwordHash,
+    apiKey: user.apiKey,
+    role: user.role,
+    organizationId: user.organizationId,
+    createdAt: user.createdAt,
+    updatedAt: user.updatedAt,
+  };
 }
 
-export async function findUserById(id: number): Promise<User | null> {
-  const db = await getDb();
-  const stmt = db.prepare(`SELECT * FROM users WHERE id = ?`);
-  const row = stmt.getAsObject([id]);
-  stmt.free();
-  return row as unknown as User ?? null;
+export async function findUserById(id: string): Promise<User | null> {
+  const prisma = getPrisma();
+  const user = await prisma.user.findUnique({
+    where: { id },
+  });
+  if (!user) return null;
+  return {
+    id: user.id,
+    email: user.email,
+    passwordHash: user.passwordHash,
+    apiKey: user.apiKey,
+    role: user.role,
+    organizationId: user.organizationId,
+    createdAt: user.createdAt,
+    updatedAt: user.updatedAt,
+  };
 }
 
 export function generateApiKey(): string {
   return `sk_${randomUUID().replace(/-/g, "")}`;
 }
 
-export async function updateUserApiKey(userId: number, newApiKey: string): Promise<boolean> {
-  const db = await getDb();
-  const now = Date.now();
-  const stmt = db.prepare(`UPDATE users SET api_key = ?, updated_at = ? WHERE id = ?`);
-  stmt.run([newApiKey, now, userId]);
-  const changes = stmt.getChanges();
-  stmt.free();
-  return changes > 0;
+export async function updateUserApiKey(userId: string, newApiKey: string): Promise<boolean> {
+  const prisma = getPrisma();
+  const result = await prisma.user.update({
+    where: { id: userId },
+    data: { apiKey: newApiKey },
+  });
+  return !!result;
 }
 
-export async function listUsers(limit = 100, offset = 0): Promise<Omit<User, "password_hash">[]> {
-  const db = await getDb();
-  const stmt = db.prepare(`
-    SELECT id, email, api_key, role, created_at, updated_at FROM users ORDER BY created_at DESC LIMIT ? OFFSET ?
-  `);
-  const rows = stmt.all([limit, offset]);
-  stmt.free();
-  return rows as unknown as Omit<User, "password_hash">[];
+export async function listUsers(organizationId: string, limit = 100, offset = 0): Promise<Omit<User, "passwordHash">[]> {
+  const prisma = getPrisma();
+  const users = await prisma.user.findMany({
+    where: { organizationId },
+    skip: offset,
+    take: limit,
+    orderBy: { createdAt: "desc" },
+    select: {
+      id: true,
+      email: true,
+      apiKey: true,
+      role: true,
+      organizationId: true,
+      createdAt: true,
+      updatedAt: true,
+    },
+  });
+  return users as unknown as Omit<User, "passwordHash">[];
 }

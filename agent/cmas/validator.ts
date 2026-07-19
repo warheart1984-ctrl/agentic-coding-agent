@@ -3,8 +3,10 @@ import { recordReceipt } from "../governance/receipts";
 import { validateAction } from "../governance/validator";
 import { getLedger } from "../governance/ledger";
 import { getSnapshots } from "../continuity/substrate";
+import { MytharClient } from "../mythar/mytharClient";
 import type { AgentAction } from "../types/actions";
 import type { CMASAgentDef, ValidationReport } from "./types";
+import type { MytharConstitutionalRule, MytharInvariantDef, MytharGovernedReceipt } from "../mythar/mytharTypes";
 
 export interface IntegrityCertificate {
   agentId: string;
@@ -19,13 +21,16 @@ export async function validatorValidate(
   workflowId: string,
   agentRole: string,
   action: AgentAction,
-): Promise<{ agent: CMASAgentDef; report: ValidationReport; certificate?: IntegrityCertificate }> {
+  mytharRules?: MytharConstitutionalRule[],
+  mytharHost?: string,
+): Promise<{ agent: CMASAgentDef; report: ValidationReport; certificate?: IntegrityCertificate; mytharReceipts?: MytharGovernedReceipt[] }> {
   const agent = spawnAgent("validator", "Constitutional Validator", `Validate: ${agentRole} action for ${workflowId}`);
 
   try {
     updateAgentStatus(agent.id, "running");
 
     const checks: ValidationReport["checks"] = [];
+    const mytharReceipts: MytharGovernedReceipt[] = [];
 
     const validation = await validateAction(action);
     checks.push({
@@ -35,6 +40,37 @@ export async function validatorValidate(
       detail: validation.ok ? "Action passes all constitutional invariants" : `Blocked: ${validation.reason}`,
       severity: validation.ok ? "info" : "error",
     });
+
+    if (mytharRules && mytharHost) {
+      try {
+        const mythar = new MytharClient({ host: mytharHost, port: 8080 });
+        for (const rule of mytharRules) {
+          for (const inv of rule.invariants) {
+            if (inv.compilation) {
+              const receipt = await mythar.generateInvariantReceipt(agentRole, rule.color, inv.expression);
+              mytharReceipts.push(receipt);
+              checks.push({
+                checkId: `MYTH-${inv.expression.replace(/[^a-zA-Z0-9]/g, "-")}`,
+                name: `Mythar invariant: ${inv.description}`,
+                passed: receipt.valid,
+                detail: receipt.valid
+                  ? `Expression "${inv.expression}" compiles with ${receipt.lineage.length} registry refs`
+                  : `Compilation failed: ${JSON.stringify(inv.compilation.diagnostics)}`,
+                severity: receipt.valid ? "info" : "error",
+              });
+            }
+          }
+        }
+      } catch (err) {
+        checks.push({
+          checkId: "MYTH-ERR",
+          name: "Mythar API connectivity",
+          passed: false,
+          detail: err instanceof Error ? err.message : String(err),
+          severity: "warning",
+        });
+      }
+    }
 
     const availableSnapshots = getSnapshots();
     checks.push({
@@ -91,7 +127,7 @@ export async function validatorValidate(
     await recordReceipt(receiptAction, ["CMAS-VAL-001", "CMAS-VAL-002", "CMAS-VAL-003", "CMAS-VAL-004"], { assuranceLevel: "A2" });
 
     updateAgentStatus(agent.id, report.passed ? "done" : "failed", { report, certificate });
-    return { agent, report, certificate };
+    return { agent, report, certificate, mytharReceipts: mytharReceipts.length > 0 ? mytharReceipts : undefined };
   } catch (err) {
     updateAgentStatus(agent.id, "failed", undefined, err instanceof Error ? err.message : String(err));
     throw err;

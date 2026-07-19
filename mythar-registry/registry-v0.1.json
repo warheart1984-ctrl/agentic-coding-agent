@@ -1,0 +1,173 @@
+{
+  "$schema": "./registry.schema.json",
+  "registry": {
+    "id": "mythar-constitutional-registry",
+    "version": "0.1.0",
+    "status": "implementation-baseline",
+    "source": {
+      "title": "MYTHAR SEMANTIC ENGINE SPECIFICATION",
+      "version": "1.0 Constitutional Draft",
+      "date": "2026-07-16",
+      "path": "G:/MYTHAR SEMANTIC ENGINE SPECIFICATION.docx"
+    },
+    "normative_language": "en",
+    "canonicalization": {
+      "case": "lowercase",
+      "whitespace": "single-space token separation",
+      "hyphen": "operator notation only; lexical lookup uses the bare form"
+    }
+  },
+  "governance": {
+    "authority": "The supplied Mythar Constitutional Suite is authoritative; this registry is an executable representation.",
+    "change_policy": "All changes require a version bump and a provenance note.",
+    "implementation_decisions": [
+      {
+        "id": "ID-001",
+        "decision": "A lexical form may have multiple roles. Position and explicit prefix/suffix notation resolve the role before semantic compilation.",
+        "reason": "ma, la, ta, and ra are specified as roots and particles; ma, ta, and ra also occur as operators."
+      },
+      {
+        "id": "ID-002",
+        "decision": "Undefined lexical forms are rejected in strict mode and returned as unresolved tokens in exploratory mode.",
+        "reason": "The specification uses forms such as ema, fir, tila, and fak without a complete root inventory or derivation declaration."
+      }
+    ],
+    "open_questions": [
+      {
+        "id": "OQ-001",
+        "question": "What are the root segmentation and constitutional meaning of ema in raema?",
+        "impact": "raema cannot receive a complete lineage in strict mode."
+      },
+      {
+        "id": "OQ-002",
+        "question": "Which listed English gloss is canonical when examples conflict with stated syntax or morphology?",
+        "impact": "Natural-language translations remain non-normative until a curated corpus is ratified."
+      },
+      {
+        "id": "OQ-003",
+        "question": "Are na, sa, va, ko, so, mu, mi, tu, ti, she, and ya sovereign roots, derived forms, or closed grammatical forms?",
+        "impact": "They are registered as provisional grammar lexemes, not sovereign roots."
+      }
+    ]
+  },
+  "semantic_model": {
+    "composition_law": {
+      "id": "RAL-001",
+      "expression": "A + B -> C",
+      "meaning": "A composite inherits the constitutional union of its components unless modified by polarity conflict, operator dominance, or particle framing."
+    },
+    "interpretation_modes": ["literal", "symbolic", "constitutional", "mythic"],
+    "polarity": ["positive", "neutral", "negative", "contextual"]
+  },
+  "roots": [
+    {"id":"ROOT-MA","form":"ma","domain":"Existence","meanings":["space","mother","pause","origin"],"default_polarity":"neutral","phonology":"CV"},
+    {"id":"ROOT-LA","form":"la","domain":"Illumination","meanings":["light","clarity"],"default_polarity":"positive","phonology":"CV"},
+    {"id":"ROOT-KA","form":"ka","domain":"Power","meanings":["force","darkness","time"],"default_polarity":"contextual","phonology":"CV"},
+    {"id":"ROOT-TA","form":"ta","domain":"Demonstration","meanings":["this","that","presence"],"default_polarity":"neutral","phonology":"CV"},
+    {"id":"ROOT-RA","form":"ra","domain":"Proclamation","meanings":["intensity","amplification"],"default_polarity":"positive","phonology":"CV"},
+    {"id":"ROOT-FU","form":"fu","domain":"Blessing","meanings":["fortune","wind","positive force"],"default_polarity":"positive","phonology":"CV"},
+    {"id":"ROOT-JOR","form":"jor","domain":"Strength","meanings":["earth","raw force"],"default_polarity":"neutral","phonology":"CVC"},
+    {"id":"ROOT-TOR","form":"tor","domain":"Threshold","meanings":["gate","peak","liminal boundary"],"default_polarity":"neutral","phonology":"CVC"},
+    {"id":"ROOT-FA","form":"fa","domain":"Yield","meanings":["giving","trade","sufficiency"],"default_polarity":"positive","phonology":"CV"},
+    {"id":"ROOT-KIE","form":"kie","domain":"Location","meanings":["where","place"],"default_polarity":"neutral","phonology":"CVV"},
+    {"id":"ROOT-WIE","form":"wie","domain":"Comparison","meanings":["how","like","manner"],"default_polarity":"neutral","phonology":"CVV"},
+    {"id":"ROOT-IA","form":"ia","domain":"Divinity","meanings":["celestial","feminine","sacred"],"default_polarity":"positive","phonology":"VV"},
+    {"id":"ROOT-RUM","form":"rum","domain":"Collective","meanings":["gathering","public","assembly"],"default_polarity":"neutral","phonology":"CVC"}
+  ],
+  "roles": {
+    "root": {"description":"Sovereign semantic unit."},
+    "particle": {"description":"Sentence-level semantic frame; attaches only at graph entry."},
+    "prefix_operator": {"description":"A semantic transformation written before its target."},
+    "suffix_operator": {"description":"A semantic transformation written after its target."},
+    "grammar_lexeme": {"description":"Closed grammatical form provisionally recorded pending root status."}
+  },
+  "role_resolution": {
+    "precedence": ["explicit_suffix", "explicit_prefix", "sentence_initial_particle", "root", "grammar_lexeme"],
+    "rules": [
+      {"id":"ROLE-001","when":"form is immediately followed by a hyphen","assign":"prefix_operator"},
+      {"id":"ROLE-002","when":"form is immediately preceded by a hyphen","assign":"suffix_operator"},
+      {"id":"ROLE-003","when":"form is sentence-initial and listed as a permitted particle","assign":"particle"},
+      {"id":"ROLE-004","when":"form exactly matches a sovereign root","assign":"root"}
+    ]
+  },
+  "operators": {
+    "prefixes": [
+      {"id":"OP-RA-PREFIX","form":"ra","notation":"ra-","effect":"amplify, proclaim, intensify","targets":["root","composite"]},
+      {"id":"OP-TA-PREFIX","form":"ta","notation":"ta-","effect":"demonstrate, specify","targets":["root","composite"]},
+      {"id":"OP-MA-PREFIX","form":"ma","notation":"ma-","effect":"existentialize","targets":["root","composite"]}
+    ],
+    "suffixes": [
+      {"id":"OP-IA-SUFFIX","form":"ia","notation":"-ia","effect":"divinize, feminize, celestialize","targets":["root","composite"]},
+      {"id":"OP-RUM-SUFFIX","form":"rum","notation":"-rum","effect":"collectivize","targets":["root","composite"]},
+      {"id":"OP-WIE-SUFFIX","form":"wie","notation":"-wie","effect":"compare, mannerize","targets":["root","composite"]}
+    ]
+  },
+  "particles": [
+    {"id":"PARTICLE-JA","form":"ja","frame":"affirmation","meanings":["affirmation","truth","self"],"governing":true},
+    {"id":"PARTICLE-LA","form":"la","frame":"illumination","meanings":["illumination","clarity","the"],"governing":true},
+    {"id":"PARTICLE-MA","form":"ma","frame":"existence","meanings":["existence","origin","pause"],"governing":true},
+    {"id":"PARTICLE-TA","form":"ta","frame":"demonstration","meanings":["demonstration","this","that"],"governing":true},
+    {"id":"PARTICLE-RA","form":"ra","frame":"proclamation","meanings":["imperative","proclamation"],"governing":true}
+  ],
+  "grammar": {
+    "sentence": {
+      "canonical_order": ["particle_frame", "verb", "subject", "object", "modifier"],
+      "particle_required": true,
+      "particle_stacking": {"permitted":true,"governing_particle":"first"}
+    },
+    "phonology": {
+      "primary_syllable_shape":"CV",
+      "heavy_syllable_shape":"CVC",
+      "consonant_clusters_permitted":false,
+      "root_stress":"first syllable",
+      "morpheme_rule":"Every syllable carries meaning; silent morphemes are prohibited."
+    },
+    "word_formation": {
+      "verb":"root + optional prefix + optional suffix",
+      "noun":"root + optional prefix + optional suffix + optional particle",
+      "modifier_position":"after object; may chain",
+      "adverbial_suffix":"-wie"
+    },
+    "provisional_grammar_lexemes": [
+      {"form":"na","function":"past tense particle"}, {"form":"sa","function":"present tense particle"}, {"form":"va","function":"future tense particle"},
+      {"form":"ko","function":"accusative case particle"}, {"form":"so","function":"genitive case particle"}, {"form":"mu","function":"dative case particle"},
+      {"form":"mi","function":"first-person object pronoun"}, {"form":"tu","function":"second-person subject pronoun"}, {"form":"ti","function":"second-person object pronoun"},
+      {"form":"she","function":"third-person feminine pronoun"}
+    ]
+  },
+  "semantic_graph": {
+    "kind":"directed_acyclic_graph",
+    "node_types":["root","composite","particle","operator","grammar_lexeme"],
+    "edge_types":["constitutional","operator","frame","inheritance","classification","evidence"],
+    "constraints":[
+      {"id":"GRAPH-001","rule":"Graph must be acyclic."},
+      {"id":"GRAPH-002","rule":"Every composite must trace to at least one sovereign root."},
+      {"id":"GRAPH-003","rule":"Particles attach only at graph entry."},
+      {"id":"GRAPH-004","rule":"Operators attach only to a root or composite target."},
+      {"id":"GRAPH-005","rule":"A composite inherits the domains, polarity, phonological constraints, and constitutional invariants of its components."}
+    ]
+  },
+  "compilation": {
+    "stages":["tokenization","root_resolution","graph_construction","operator_application","particle_framing","composite_reduction","semantic_validation"],
+    "required_output":["meaning_object","semantic_graph","root_lineage","operator_lineage","particle_frame","reduction_trace","diagnostics"],
+    "reduction":"Union of component meanings unless overridden by polarity conflict, operator dominance, or particle framing."
+  },
+  "validation": {
+    "invariants":[
+      {"id":"INV-001","rule":"Every syllable carries meaning."},
+      {"id":"INV-002","rule":"No silent morphemes."},
+      {"id":"INV-003","rule":"No meaningless composites."},
+      {"id":"INV-004","rule":"No operator without a valid target."},
+      {"id":"INV-005","rule":"Particles frame the entire expression."},
+      {"id":"INV-006","rule":"Semantic lineage is preserved."}
+    ],
+    "diagnostics":[
+      {"code":"E_UNKNOWN_TOKEN","severity":"error","condition":"A token cannot be resolved to a registry item in strict mode."},
+      {"code":"E_OPERATOR_TARGET","severity":"error","condition":"An operator lacks a root or composite target."},
+      {"code":"E_PARTICLE_PLACEMENT","severity":"error","condition":"A particle is not attached at graph entry."},
+      {"code":"E_MISSING_ROOT_LINEAGE","severity":"error","condition":"A composite cannot trace to a sovereign root."},
+      {"code":"E_CYCLIC_GRAPH","severity":"error","condition":"The semantic graph contains a cycle."},
+      {"code":"W_UNRESOLVED_GLOSS","severity":"warning","condition":"A natural-language gloss is not established by a ratified lexicon entry."}
+    ]
+  }
+}

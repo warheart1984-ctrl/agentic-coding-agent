@@ -1,8 +1,12 @@
 import { execFile } from "child_process";
 import * as path from "path";
 import * as fs from "fs";
+import { fileURLToPath } from "url";
 import { uuid } from "../lib/uuid";
 import { recordCSR } from "./kernel";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 export type SandboxResult = {
   sandboxId: string;

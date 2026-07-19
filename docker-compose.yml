@@ -1,6 +1,82 @@
-version: "3.9"
+
 
 services:
+  postgres:
+    image: postgres:16-alpine
+    pull_policy: if_not_present
+    environment:
+      POSTGRES_DB: sovereign
+      POSTGRES_USER: sovereign
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-sovereign_password}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./scripts:/scripts
+    ports:
+      - "5432:5432"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U sovereign"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  mythar:
+    build:
+      context: ./mythar-v0.2
+      dockerfile: Dockerfile
+    environment:
+      MYTHAR_REGISTRY_DIR: /app/src/mythar/data/registry
+      MYTHAR_API_KEYS: ""
+      MYTHAR_RATE_LIMIT: "120"
+    ports:
+      - "8081:8080"
+    restart: unless-stopped
+    profiles:
+      - mythar
+
+  backup:
+    image: postgres:16-alpine
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: sovereign
+      DB_USER: sovereign
+      DB_PASSWORD: ${POSTGRES_PASSWORD:-sovereign_password}
+      BACKUP_DIR: /backups
+      RETENTION_DAYS: ${BACKUP_RETENTION_DAYS:-7}
+      DAILY_RETENTION: ${DAILY_RETENTION:-7}
+      WEEKLY_RETENTION: ${WEEKLY_RETENTION:-4}
+      MONTHLY_RETENTION: ${MONTHLY_RETENTION:-6}
+      MIN_DISK_PERCENT: ${MIN_DISK_PERCENT:-20}
+    volumes:
+      - backup_data:/backups
+      - ./scripts:/scripts
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        chmod +x /scripts/backup.sh
+        chmod +x /scripts/verify-backup.sh
+        chmod +x /scripts/restore.sh
+        chmod +x /scripts/test-restore.sh
+        chmod +x /scripts/cleanup-backups.sh
+        while true; do
+          echo "Running scheduled backup at $$(date)"
+          /scripts/backup.sh
+          echo "Verifying latest backup..."
+          LATEST_BACKUP=$$(ls -t /backups/sovereign_backup_*.sql.gz | head -n 1)
+          if [ -n "$$LATEST_BACKUP" ]; then
+            /scripts/verify-backup.sh "$$LATEST_BACKUP"
+          fi
+          echo "Running backup cleanup..."
+          /scripts/cleanup-backups.sh
+          echo "Next backup in 24 hours"
+          sleep 86400
+        done
+
   agent:
     build:
       context: .
@@ -9,26 +85,53 @@ services:
       NODE_ENV: production
       PORT: "8080"
       HOST: "0.0.0.0"
-      DATABASE_PATH: /data/sovereign.db
+      DATABASE_URL: postgresql://sovereign:${POSTGRES_PASSWORD:-sovereign_password}@postgres:5432/sovereign
       LOG_LEVEL: info
       LOG_PRETTY: "false"
       DEFAULT_PROVIDER: local
-      JWT_SECRET: ${JWT_SECRET}
+      JWT_SECRET: ${JWT_SECRET:-dev-secret-change-in-production-min-32-chars}
       OPENAI_API_KEY: ${OPENAI_API_KEY}
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
       LOCAL_MODEL_BASE_URL: ${LOCAL_MODEL_BASE_URL:-http://host.docker.internal:11434}
       LOCAL_MODEL_NAME: ${LOCAL_MODEL_NAME:-codellama}
-    volumes:
-      - ./data:/data
+    depends_on:
+      postgres:
+        condition: service_healthy
     ports:
       - "8080:8080"
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "wget", "-q", "--spider", "http://localhost:8080/health"]
       interval: 30s
-      timeout: 10s
+      timeout: 5s
       retries: 3
       start_period: 10s
 
+  # One-off restore service (not running by default)
+  restore:
+    image: postgres:16-alpine
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: sovereign
+      DB_USER: sovereign
+      DB_PASSWORD: ${POSTGRES_PASSWORD:-sovereign_password}
+      BACKUP_DIR: /backups
+    volumes:
+      - backup_data:/backups
+      - ./scripts:/scripts
+    depends_on:
+      postgres:
+        condition: service_healthy
+    profiles:
+      - restore
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        chmod +x /scripts/restore.sh
+        chmod +x /scripts/verify-backup.sh
+        echo "Restore service ready - run with: docker-compose --profile restore run restore /scripts/restore.sh <backup_file>"
+
 volumes:
-  data:
+  postgres_data:
+  backup_data:

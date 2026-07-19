@@ -2,13 +2,13 @@ import { randomUUID } from "crypto";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { getEnv } from "../config/env.js";
-import { findUserByApiKey, findUserByEmail, findUserById, createUser } from "../persistence/users.js";
+import { findUserByApiKey, findUserByEmail, findUserById, createUser, generateApiKey } from "../persistence/users.js";
 import { logger } from "../logging/logger.js";
 import type { FastifyRequest, FastifyReply, FastifyInstance } from "fastify";
 
 declare module "fastify" {
   interface FastifyRequest {
-    user?: { id: number; email: string; role: string; apiKey?: string };
+    user?: { id: string; email: string; role: string; apiKey?: string };
   }
 }
 
@@ -21,20 +21,16 @@ export async function verifyPassword(password: string, hash: string): Promise<bo
   return bcrypt.compare(password, hash);
 }
 
-export function generateApiKey(): string {
-  return `sk_${randomUUID().replace(/-/g, "")}`;
-}
-
-export async function createUserFn(email: string, password: string): Promise<number> {
+export async function createUserFn(email: string, password: string, organizationId: string): Promise<string> {
   const passwordHash = await hashPassword(password);
   const apiKey = generateApiKey();
-  return createUser({ email, password_hash: passwordHash, api_key: apiKey, role: "operator" });
+  return createUser({ email, passwordHash, apiKey, role: "OPERATOR", organizationId });
 }
 
 export async function authenticateUser(email: string, password: string) {
   const user = await findUserByEmail(email);
   if (!user) return null;
-  const valid = await verifyPassword(password, user.password_hash);
+  const valid = await verifyPassword(password, user.passwordHash);
   if (!valid) return null;
   return user;
 }
@@ -49,17 +45,17 @@ function getJwtSecret(): string {
   return getEnv().JWT_SECRET;
 }
 
-export function signToken(payload: { id: number; email: string; role: string }): string {
+export function signToken(payload: { id: string; email: string; role: string }): string {
   return jwt.sign(payload, getJwtSecret(), {
     algorithm: JWT_ALGORITHM,
     expiresIn: getEnv().JWT_EXPIRY as jwt.SignOptions["expiresIn"],
   });
 }
 
-export function verifyToken(token: string): { id: number; email: string; role: string } | null {
+export function verifyToken(token: string): { id: string; email: string; role: string } | null {
   try {
     const decoded = jwt.verify(token, getJwtSecret(), { algorithms: [JWT_ALGORITHM] }) as {
-      id: number;
+      id: string;
       email: string;
       role: string;
     };
@@ -83,7 +79,7 @@ export async function requireApiKey(request: FastifyRequest, reply: FastifyReply
     return reply.code(401).send({ error: "Invalid API key", code: "INVALID_API_KEY" });
   }
 
-  request.user = { id: user.id!, email: user.email, role: user.role, apiKey: user.api_key };
+  request.user = { id: user.id, email: user.email, role: user.role, apiKey: user.apiKey };
 }
 
 export async function requireJwtAuth(request: FastifyRequest, reply: FastifyReply): Promise<void> {
@@ -106,7 +102,7 @@ export async function requireJwtAuth(request: FastifyRequest, reply: FastifyRepl
     return reply.code(401).send({ error: "User not found", code: "USER_NOT_FOUND" });
   }
 
-  request.user = { id: user.id!, email: user.email, role: user.role, apiKey: user.api_key };
+  request.user = { id: user.id, email: user.email, role: user.role, apiKey: user.apiKey };
 }
 
 export function authPlugin(app: FastifyInstance) {

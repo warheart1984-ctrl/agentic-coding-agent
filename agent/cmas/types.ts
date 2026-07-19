@@ -1,4 +1,11 @@
 import type { GovernanceReceipt } from "../types/receipts";
+import type { MytharInvariantDef, MytharConstitutionalRule } from "../mythar/mytharTypes";
+import type { CapabilityDefinition, SkillzReceipt } from "../skillzmcgee/skillzTypes";
+import type { DiagnosisReport, DriftRecord } from "../mechanic/mechanicTypes";
+import type { SlingshotFrame, SlingshotPacket, ImpactReceipt } from "../slingshot/slingshotTypes";
+import type { LoopRunResponse } from "../emergent-substrate/emergentTypes";
+import type { ProofReceipt } from "../llm-engine/llmTypes";
+import type { SimulationReport } from "../mesh-simulator/meshTypes";
 
 export type AgentRole = "architect" | "builder" | "implementor" | "validator" | "reviewer";
 
@@ -27,6 +34,28 @@ export interface CMASWorkflow {
   validator?: CMASAgentDef;
   reviewer?: CMASAgentDef;
   receipts: GovernanceReceipt[];
+  mytharRules?: MytharConstitutionalRule[];
+  mytharReceipts?: Array<{
+    stage: string;
+    color: string;
+    invariant_expression: string;
+    semantic_dag: unknown;
+    lineage: string[];
+    hash: string;
+    valid: boolean;
+    timestamp: string;
+  }>;
+  skillzCapabilities?: CapabilityDefinition[];
+  skillzReceipts?: SkillzReceipt[];
+  skillzWaveId?: string;
+  mechanicDrifts?: DriftRecord[];
+  mechanicDiagnosis?: DiagnosisReport;
+  slingshotFrame?: SlingshotFrame;
+  slingshotPacket?: SlingshotPacket;
+  slingshotReceipt?: ImpactReceipt;
+  emergentLoopResult?: LoopRunResponse;
+  llmProofReceipt?: ProofReceipt;
+  meshReport?: SimulationReport;
   createdAt: string;
   updatedAt: string;
 }
@@ -82,6 +111,7 @@ export interface ArchitecturalConstitution {
   purpose: string;
   scope: string[];
   invariants: Array<{ id: string; description: string; severity: string }>;
+  mytharInvariants?: MytharInvariantDef[];
   interfaces: string[];
   evidenceRequirements: string[];
 }

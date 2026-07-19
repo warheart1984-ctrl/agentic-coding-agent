@@ -1,0 +1,8 @@
+{"cases":[
+  {"id":"ema-candidate-strict","input":"ema","mode":"strict","valid":false,"errors":["NON_CANONICAL_EXPRESSION"]},
+  {"id":"ema-candidate-lenient","input":"ema","mode":"lenient","valid":true},
+  {"id":"fak-candidate-strict","input":"ja fak ma","mode":"strict","valid":false,"errors":["NON_CANONICAL_EXPRESSION"]},
+  {"id":"fak-candidate-lenient","input":"ja fak ma","mode":"lenient","valid":true},
+  {"id":"tila-candidate-strict","input":"ja fa ma tila","mode":"strict","valid":false,"errors":["NON_CANONICAL_EXPRESSION"]},
+  {"id":"tila-candidate-lenient","input":"ja fa ma tila","mode":"lenient","valid":true}
+]}

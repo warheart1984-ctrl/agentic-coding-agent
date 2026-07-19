@@ -37,7 +37,9 @@
     "MISSION-002.md",
     "observer-bundle-mission-002.zip",
     "docs/**/*",
-    "config/**/*"
+    "config/**/*",
+    "mythar-registry/**/*",
+    "ulx/**/*"
   ],
   "binaries": {
     "cli": "dist/agent/cli.js"

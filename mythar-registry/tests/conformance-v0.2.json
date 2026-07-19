@@ -1,0 +1,21 @@
+{
+  "suite": "mythar-constitutional-conformance-v0.2",
+  "cases": [
+    {"id":"COMPOUND-KALA","input":"kala","expect":{"valid":true,"roots":["ROOT-KA","ROOT-LA"]}},
+    {"id":"COMPOUND-MAFU","input":"mafu","expect":{"valid":true,"roots":["ROOT-MA","ROOT-FU"]}},
+    {"id":"STACKED-PARTICLES","input":"ja la tor","expect":{"valid":true,"frame":"PARTICLE-JA"}},
+    {"id":"TENSE","input":"la na fa ma tor","expect":{"valid":true,"frame":"PARTICLE-LA"}},
+    {"id":"FULL-ORDER","input":"ja fa ma tor wie","expect":{"valid":true,"frame":"PARTICLE-JA"}},
+    {"id":"INVALID-EMPTY","input":"","expect":{"valid":false,"diagnostics":["E_UNKNOWN_TOKEN"]}},
+    {"id":"INVALID-OPERATOR","input":"ra-","expect":{"valid":false,"diagnostics":["E_UNKNOWN_TOKEN"]}},
+    {"id":"INVALID-UNKNOWN","input":"ema","expect":{"valid":false,"diagnostics":["E_UNKNOWN_TOKEN"]}},
+    {"id":"INVALID-UNFRAMED","input":"fa ma","expect":{"valid":false,"diagnostics":["E_PARTICLE_PLACEMENT"]}},
+    {"id":"EXPLORATORY-RAEMA","input":"raema","mode":"exploratory","expect":{"valid":false,"diagnostics":["E_UNKNOWN_TOKEN","W_UNRESOLVED_GLOSS"]}}
+  ],
+  "generators": {
+    "roots":{"ma":"ROOT-MA","la":"ROOT-LA","ka":"ROOT-KA","ta":"ROOT-TA","ra":"ROOT-RA","fu":"ROOT-FU","jor":"ROOT-JOR","tor":"ROOT-TOR","fa":"ROOT-FA","kie":"ROOT-KIE","wie":"ROOT-WIE","ia":"ROOT-IA","rum":"ROOT-RUM"},
+    "prefix_operators":{"ra":["ma","la","ka","ta","ra","fu","jor","tor","fa","kie","wie","ia","rum"],"ta":["ma","la","ka","ta","ra","fu","jor","tor","fa","kie","wie","ia","rum"],"ma":["ma","la","ka","ta","ra","fu","jor","tor","fa","kie","wie","ia","rum"]},
+    "suffix_operators":{"ia":["ma","la","ka","ta","ra","fu","jor","tor","fa","kie","wie","ia","rum"],"rum":["ma","la","ka","ta","ra","fu","jor","tor","fa","kie","wie","ia","rum"],"wie":["ma","la","ka","ta","ra","fu","jor","tor","fa","kie","wie","ia","rum"]},
+    "particles":["ja","la","ma","ta","ra"]
+  }
+}

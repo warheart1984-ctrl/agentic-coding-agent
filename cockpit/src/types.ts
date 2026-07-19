@@ -1,7 +1,7 @@
-import type { Plan } from "nova-sdk";
-import type { GovernanceReceipt } from "nova-sdk";
-import type { Invariant, InvariantViolation } from "nova-sdk";
-import type { KernelStatus } from "nova-sdk";
+import type { Plan } from "agent";
+import type { GovernanceReceipt } from "agent";
+import type { Invariant, InvariantViolation } from "agent";
+import type { KernelStatus } from "agent";
 
 export type CenterMode =
   | "plan"
@@ -14,7 +14,8 @@ export type CenterMode =
   | "ledger-compare"
   | "continuity-matrix"
   | "drift"
-  | "terminal";
+  | "terminal"
+  | "admin";
 
 export interface AgentLogEntry {
   id: string;
@@ -48,6 +49,7 @@ export interface UiSignals {
   lastViolationId?: string;
   lastReceiptId?: string;
   lastPlanId?: string;
+  showMonitoring?: boolean;
 }
 
 export type StepStatus = "pending" | "running" | "done" | "failed";
