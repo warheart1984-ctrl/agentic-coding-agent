@@ -1,0 +1,485 @@
+.computeFabric {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.header {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--nova-border);
+}
+
+.header h2 {
+  margin: 0;
+  font-size: 1.25rem;
+  color: var(--nova-fg);
+}
+
+.stats {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 8px 12px;
+  background: var(--nova-bg-alt);
+  border-radius: 6px;
+  border: 1px solid var(--nova-border);
+  min-width: 70px;
+}
+
+.statValue {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--nova-fg);
+}
+
+.statLabel {
+  font-size: 0.7rem;
+  color: var(--nova-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+@media (max-width: 1200px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.panel {
+  background: var(--nova-bg-alt);
+  border: 1px solid var(--nova-border);
+  border-radius: 8px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.panel h3 {
+  margin: 0 0 8px;
+  font-size: 0.9rem;
+  color: var(--nova-fg);
+}
+
+.nodeList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.nodeCard {
+  padding: 12px;
+  background: var(--nova-bg);
+  border: 1px solid var(--nova-border);
+  border-radius: 6px;
+}
+
+.nodeHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.nodeName {
+  font-weight: 600;
+  color: var(--nova-fg);
+}
+
+.nodeId {
+  font-size: 0.75rem;
+  color: var(--nova-muted);
+  font-family: monospace;
+}
+
+.nodeMeta {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
+}
+
+.badge {
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 0.65rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--nova-bg);
+}
+
+.capabilities {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.capability {
+  padding: 2px 6px;
+  background: var(--nova-accent);
+  color: var(--nova-bg);
+  border-radius: 3px;
+  font-size: 0.65rem;
+  text-transform: uppercase;
+}
+
+.nodeSpecs {
+  display: flex;
+  gap: 12px;
+  font-size: 0.75rem;
+  color: var(--nova-muted);
+  margin-bottom: 8px;
+}
+
+.nodeAuthority {
+  font-size: 0.7rem;
+  color: var(--nova-muted);
+}
+
+.nodeAuthority code {
+  background: var(--nova-bg);
+  padding: 1px 4px;
+  border-radius: 3px;
+  font-size: 0.7rem;
+}
+
+.workloadSelector {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.workloadSelector label {
+  font-size: 0.8rem;
+  color: var(--nova-muted);
+}
+
+.select {
+  padding: 6px 10px;
+  background: var(--nova-bg);
+  border: 1px solid var(--nova-border);
+  border-radius: 4px;
+  color: var(--nova-fg);
+  font-size: 0.85rem;
+}
+
+.routeResult {
+  background: var(--nova-bg);
+  border: 1px solid var(--nova-border);
+  border-radius: 6px;
+  padding: 12px;
+}
+
+.routeCard {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.routeHeader {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.routeResource {
+  padding: 4px 10px;
+  background: var(--nova-accent);
+  color: var(--nova-bg);
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.routeTier {
+  padding: 4px 10px;
+  background: var(--nova-success);
+  color: var(--nova-bg);
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.routeBackend {
+  padding: 4px 10px;
+  background: var(--nova-warning);
+  color: var(--nova-bg);
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.routeReason {
+  font-size: 0.8rem;
+  color: var(--nova-muted);
+}
+
+.routeMeta {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  font-size: 0.75rem;
+  color: var(--nova-muted);
+}
+
+.hardwareDetails {
+  margin-top: 12px;
+}
+
+.hardwareDetails summary {
+  cursor: pointer;
+  font-size: 0.75rem;
+  color: var(--nova-accent);
+  margin-bottom: 4px;
+}
+
+.hardwareDetails pre {
+  font-size: 0.65rem;
+  background: var(--nova-bg);
+  padding: 8px;
+  border-radius: 4px;
+  overflow-x: auto;
+  color: var(--nova-muted);
+}
+
+.taskList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.taskCard {
+  padding: 12px;
+  background: var(--nova-bg);
+  border: 1px solid var(--nova-border);
+  border-radius: 6px;
+}
+
+.taskHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.taskId {
+  font-family: monospace;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--nova-fg);
+}
+
+.taskClass {
+  font-size: 0.7rem;
+  padding: 2px 8px;
+  background: var(--nova-accent);
+  color: var(--nova-bg);
+  border-radius: 3px;
+  text-transform: uppercase;
+}
+
+.taskStatus {
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.taskMeta {
+  display: flex;
+  gap: 16px;
+  font-size: 0.7rem;
+  color: var(--nova-muted);
+  margin-bottom: 8px;
+}
+
+.prongList {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.prongItem {
+  display: flex;
+  gap: 12px;
+  font-size: 0.7rem;
+  padding: 4px 8px;
+  background: var(--nova-bg-alt);
+  border-radius: 3px;
+}
+
+.prongIndex {
+  color: var(--nova-muted);
+}
+
+.prongStatus {
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.prongTime {
+  color: var(--nova-muted);
+}
+
+.prongError {
+  color: var(--nova-danger);
+  font-style: italic;
+}
+
+.authInfo {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--nova-border);
+  font-size: 0.7rem;
+  color: var(--nova-muted);
+}
+
+.authInfo code {
+  background: var(--nova-bg);
+  padding: 1px 4px;
+  border-radius: 3px;
+}
+
+.authList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.authCard {
+  padding: 12px;
+  background: var(--nova-bg);
+  border: 1px solid var(--nova-border);
+  border-radius: 6px;
+}
+
+.authHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.authId {
+  font-family: monospace;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--nova-fg);
+}
+
+.authStatus {
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.authMeta {
+  display: flex;
+  gap: 16px;
+  font-size: 0.7rem;
+  color: var(--nova-muted);
+  margin-bottom: 8px;
+}
+
+.authRoute {
+  font-size: 0.75rem;
+  color: var(--nova-muted);
+  margin-bottom: 4px;
+}
+
+.authRoute code {
+  background: var(--nova-bg);
+  padding: 1px 4px;
+  border-radius: 3px;
+}
+
+.authConstitutional {
+  font-size: 0.7rem;
+  color: var(--nova-muted);
+  margin-bottom: 4px;
+}
+
+.authTime {
+  font-size: 0.65rem;
+  color: var(--nova-muted);
+}
+
+.integrationGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+@media (max-width: 900px) {
+  .integrationGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.integrationCard {
+  background: var(--nova-bg);
+  border: 1px solid var(--nova-border);
+  border-radius: 6px;
+  padding: 12px;
+}
+
+.integrationCard h4 {
+  margin: 0 0 12px;
+  font-size: 0.8rem;
+  color: var(--nova-fg);
+}
+
+.mappingTable {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.75rem;
+}
+
+.mappingTable th {
+  text-align: left;
+  padding: 6px 8px;
+  color: var(--nova-muted);
+  border-bottom: 1px solid var(--nova-border);
+  font-weight: 600;
+}
+
+.mappingTable td {
+  padding: 6px 8px;
+  border-bottom: 1px solid var(--nova-border);
+  color: var(--nova-fg);
+}
+
+.badge {
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 0.65rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.integrationCard ul {
+  margin: 0;
+  padding-left: 16px;
+  font-size: 0.75rem;
+  color: var(--nova-muted);
+  line-height: 1.8;
+}

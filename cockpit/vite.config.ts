@@ -12,8 +12,13 @@ export default defineConfig({
   optimizeDeps: {
     exclude: ["nova-sdk"],
   },
+  base: "./",
   server: {
     port: 5173,
     strictPort: true,
+  },
+  build: {
+    outDir: "dist",
+    emptyOutDir: true,
   },
 });

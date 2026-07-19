@@ -2,7 +2,7 @@ const { app, BrowserWindow } = require("electron");
 const path = require("path");
 const { spawn } = require("child_process");
 
-const isDev = process.env.NODE_ENV === "development" || !app.isPackaged;
+const isDev = process.env.NODE_ENV === "development";
 
 let mainWindow = null;
 let serverProcess = null;
@@ -14,7 +14,6 @@ function createWindow() {
     minWidth: 900,
     minHeight: 600,
     title: "Nova Cockpit",
-    icon: path.join(__dirname, "..", "public", "favicon.svg"),
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
@@ -34,16 +33,23 @@ function createWindow() {
 }
 
 function startBackend() {
-  if (!isDev) {
-    const serverPath = path.join(__dirname, "..", "..", "backend", "server.ts");
-    serverProcess = spawn("npx", ["tsx", serverPath], {
-      stdio: "inherit",
-      env: { ...process.env, NOVA_API_PORT: "3737" },
-    });
-    serverProcess.on("error", (err) => {
-      console.error("Failed to start backend server:", err.message);
-    });
-  }
+  const serverPath = path.join(__dirname, "..", "..", "backend", "server.ts");
+  const npxPath = process.platform === "win32" 
+    ? path.join(process.env.SystemRoot || "C:\\Windows", "System32", "cmd.exe")
+    : "npx";
+  
+  const args = process.platform === "win32" 
+    ? ["/c", "npx", "tsx", serverPath]
+    : ["tsx", serverPath];
+    
+  serverProcess = spawn(npxPath, args, {
+    stdio: "inherit",
+    env: { ...process.env, NOVA_API_PORT: "3737" },
+    shell: process.platform === "win32",
+  });
+  serverProcess.on("error", (err) => {
+    console.error("Failed to start backend server:", err.message);
+  });
 }
 
 app.whenReady().then(() => {

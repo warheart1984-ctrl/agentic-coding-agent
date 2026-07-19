@@ -16,6 +16,7 @@ const NAV_ICONS: Record<string, string> = {
   "continuity-matrix": "🔲",
   drift: "🌊",
   "four-d": "🜁",
+  "compute-fabric": "⚡",
 };
 
 const modes: { id: CenterMode; label: string }[] = [
@@ -31,6 +32,7 @@ const modes: { id: CenterMode; label: string }[] = [
   { id: "continuity-matrix", label: "Continuity Matrix" },
   { id: "drift", label: "Drift Map" },
   { id: "four-d", label: "4D State" },
+  { id: "compute-fabric", label: "Compute Fabric" },
 ];
 
 export function LeftRail() {

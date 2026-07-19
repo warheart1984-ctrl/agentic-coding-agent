@@ -14,6 +14,7 @@ import { DriftVisualizer } from "../drift/DriftVisualizer";
 import { TerminalPanel } from "../panels/TerminalPanel";
 import { AdminPanel } from "../components/AdminPanel";
 import { FourDRenderer } from "../panels/FourDRenderer";
+import { ComputeFabric } from "../panels/ComputeFabric";
 import type { CenterMode } from "../types";
 
 function AnimatedContent({ mode }: { mode: CenterMode }) {
@@ -41,6 +42,8 @@ function AnimatedContent({ mode }: { mode: CenterMode }) {
       return <div ref={ref} className={styles.transitionIn}><DriftVisualizer /></div>;
     case "four-d":
       return <div ref={ref} className={styles.transitionIn}><FourDRenderer /></div>;
+    case "compute-fabric":
+      return <div ref={ref} className={styles.transitionIn}><ComputeFabric /></div>;
     case "terminal":
       return <div ref={ref} className={styles.transitionIn}><TerminalPanel /></div>;
     case "admin":

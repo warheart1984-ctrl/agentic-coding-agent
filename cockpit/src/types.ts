@@ -15,6 +15,7 @@ export type CenterMode =
   | "continuity-matrix"
   | "drift"
   | "four-d"
+  | "compute-fabric"
   | "terminal"
   | "admin";
 
