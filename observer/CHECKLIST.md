@@ -8,6 +8,9 @@
 - [ ] Invariant blocks unsafe action (`rm -rf` prompt)
 - [ ] Continuity snapshot visible (`nova continuity`)
 - [ ] `nova plan` returns governed plan
+- [ ] LLM Router `selectModel` returns config + E10 receipt
+- [ ] Hardware Router `probeHardware` returns platform/cpu/memory
+- [ ] `tests/router.test.ts` (C5) passes
 - [ ] Observer signs off
 
 **Observer signature:** _______________ **Date:** _______________

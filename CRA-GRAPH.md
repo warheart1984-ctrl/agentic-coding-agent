@@ -263,14 +263,14 @@ GOVERNANCE DECISIONS:
 
 ## 4. MISSING LINKS (Explicit Gaps)
 
-| Gap | Location | Required To Close |
-|-----|----------|-------------------|
-| **E10 ModelSelectionReceipt** | SPEC-5.selectModel doesn't emit receipt | Add `recordReceipt` in `selectModel` → E0 |
-| **E1→E0 linkage** | ComputeAuthorization not in ledger | Append E1 to ledger in `authorizeCompute` |
-| **C5 LLM Router Tests** | No test file for `src/model/router.ts` | Add `tests/router.test.ts` |
-| **C8 Mission #002** | Observer bundle doesn't test LLM Router | Extend observer protocol |
-| **G3 Model Selection Gate** | No governance decision for model approval | Add `ModelSelectionPolicy` to kernel |
-| **G7 Amendment Process** | No CA-2 (Constitutional Amendment v2) implementation | Implement `docs/CRK-2-SPEC.md` CA-2 section |
+| Gap | Location | Status | Required To Close |
+|-----|----------|--------|-------------------|
+| **E10 ModelSelectionReceipt** | SPEC-5.selectModel | **CLOSED** | `selectModel` → `recordReceipt` → ledger (`src/model/router.ts`) |
+| **E1→E0 linkage** | authorizeCompute | **CLOSED** | E1 appended via `recordReceipt` in `authorizeCompute` |
+| **C5 LLM Router Tests** | `tests/router.test.ts` | **CLOSED** | Covers `selectModel`, `probeHardware`, `formatTaskTable`, E10 |
+| **C8 Mission #002** | `observer/` | **CLOSED** | LLM + Hardware Router steps in protocol/checklist |
+| **G3 Model Selection Gate** | SXK-I006 / ModelSelectionPolicy | **CLOSED** | Kernel invariant: no LLM call without E10 receipt |
+| **G7 Amendment Process** | `crk2/amendment/ca2.ts` | **CLOSED** | CA-2 freeze→export→apply→validate→commit→restart |
 
 ---
 
@@ -349,12 +349,12 @@ graph TD
 
 ## 6. NEXT CONCRETE STEPS (Priority Order)
 
-1. **Add `E10 ModelSelectionReceipt`** — Wire `selectModel()` → `recordReceipt()` → ledger
-2. **Wire `E1→E0`** — `authorizeCompute()` appends `ComputeAuthorization` to ledger
-3. **Create `tests/router.test.ts`** — Covers `selectModel`, `probeHardware`, `formatTaskTable`
-4. **Extend Observer Bundle** — Add LLM Router + Hardware Router to Mission #002 reproduction
-5. **Implement `ModelSelectionPolicy`** — Kernel invariant: "No LLM call without governed selection receipt"
-6. **Implement CA-2** — Constitutional Amendment v2 for evolving specs/governance
+**Frozen baseline gaps (1–6) are closed.** Remaining product surface:
+
+1. **Wire completion engine through `selectModel`** — `agent/completion/engine.ts` still uses `configFromEnv()` directly
+2. **Cockpit Reality Panel** — permanent assumptions/verified/unknown/failed surface bound to E0–E12
+3. **Replayable IDE timeline** — workspace rewind from CSR + ledger
+4. **Agent Swarm identities** — Architect / Builder / Reviewer / Security with authority + heartbeat
 
 ---
 

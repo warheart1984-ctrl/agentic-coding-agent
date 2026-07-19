@@ -58,7 +58,8 @@ describe("Sovereign X Kernel (SXK)", () => {
     const status = getConstitutionalStatus();
     assert.ok(status.seeded);
     assert.ok(status.csrLength >= 1);
-    assert.equal(SOVEREIGN_X_INVARIANTS.length, 5);
+    assert.equal(SOVEREIGN_X_INVARIANTS.length, 6);
+    assert.ok(SOVEREIGN_X_INVARIANTS.some((i) => i.id === "SXK-I006"));
   });
 
   it("R1 — creates and tracks intents via IntentLifecycleContract", () => {
@@ -134,6 +135,30 @@ describe("Sovereign X Kernel (SXK)", () => {
     const fetched = getComputeAuth("test-task-1");
     assert.ok(fetched);
     assert.equal(fetched!.taskId, "test-task-1");
+
+    // E1 → E0 linkage: ComputeAuthorization appears in the governance ledger
+    const { getLedger } = await import("../agent/governance/ledger");
+    const e1 = getLedger().find(
+      (r) => r.action.type === "compute-authorize" && r.action.payload.taskId === "test-task-1",
+    );
+    assert.ok(e1, "ComputeAuthorization must append to governance ledger");
+    assert.ok(e1!.invariantsChecked.includes("E1"));
+  });
+
+  it("G3 — ModelSelectionPolicy blocks llm-inference without E10 receipt", async () => {
+    const { ModelSelectionPolicy } = await import("../agent/sovereign-x/kernel");
+    const blocked = await ModelSelectionPolicy.check({
+      action: { type: "llm-inference", payload: {} },
+      actionType: "llm-inference",
+    });
+    assert.equal(blocked, false);
+
+    const allowed = await ModelSelectionPolicy.check({
+      action: { type: "llm-inference", payload: { modelSelectionReceiptId: "receipt-abc" } },
+      actionType: "llm-inference",
+      modelSelectionReceiptId: "receipt-abc",
+    });
+    assert.equal(allowed, true);
   });
 
   it("R4 — maintains CSR integrity with hash chain", () => {

@@ -27,6 +27,8 @@ The mission bundles:
 - [ ] At least one invariant blocks an unsafe action (`rm -rf` prompt)
 - [ ] `npx nova continuity` returns a snapshot with `stateHash`
 - [ ] `npx nova plan "…"` returns a governed plan with steps
+- [ ] LLM Router + Hardware Router reproduce per `observer/REPRO_PROTOCOL.md` §7
+- [ ] `tests/router.test.ts` (C5) passes
 - [ ] Observer signs off per `observer/CHECKLIST.md`
 
 ---

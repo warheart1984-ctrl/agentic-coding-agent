@@ -1,7 +1,17 @@
 import type { GovernanceReceipt } from "./receipts";
 import type { InvariantViolation } from "./invariants";
 
-export type ActionType = "edit" | "create" | "delete" | "run" | "plan" | "generate" | "refactor";
+export type ActionType =
+  | "edit"
+  | "create"
+  | "delete"
+  | "run"
+  | "plan"
+  | "generate"
+  | "refactor"
+  | "compute-authorize"
+  | "model-select"
+  | "llm-inference";
 
 export interface AgentAction {
   type: ActionType;

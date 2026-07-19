@@ -57,7 +57,27 @@ npx nova plan "Refactor the data access layer"
 
 **Expected:** JSON plan with `steps`, `justification`, `receipts`.
 
-### 7. Complete Checklist
+### 7. LLM Router + Hardware Router (C5 / ARCH-4)
+
+```bash
+npx tsx -e "import { selectModel, formatTaskTable, getLastModelSelectionReceipt } from './src/model/router.ts'; import { probeHardware, suggestLLMBackend } from './src/runtime/hardwareRouter.ts'; const cfg = await selectModel('code'); const hw = probeHardware(); console.log(JSON.stringify({ cfg, receipt: getLastModelSelectionReceipt()?.id, hw: { platform: hw.platform, cpuCores: hw.cpuCores }, backend: suggestLLMBackend(hw), tablePreview: formatTaskTable().split('\\n').slice(0,3) }, null, 2));"
+```
+
+**Expected:**
+
+- `cfg.provider` and `cfg.model` present
+- `receipt` is a non-empty UUID (E10 ModelSelectionReceipt on ledger)
+- Hardware profile with `platform` and `cpuCores > 0`
+- Backend suggestion string (e.g. `cpu`, `cuda`, `metal`)
+- Task table preview includes header row
+
+Or run the conformance suite:
+
+```bash
+node --require tsx --test tests/router.test.ts
+```
+
+### 8. Complete Checklist
 
 See `CHECKLIST.md` and sign off when all items pass.
 

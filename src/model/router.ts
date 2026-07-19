@@ -1,6 +1,44 @@
 import { configFromEnv } from "./llmClient";
 import type { LLMConfig } from "./llmClient";
 import { probeHardware, suggestLLMBackend } from "../runtime/hardwareRouter";
+import { recordReceipt } from "../../agent/governance/receipts";
+import type { GovernanceReceipt } from "../../agent/types/receipts";
+import type { AgentAction } from "../../agent/types/actions";
+
+let lastModelSelectionReceipt: GovernanceReceipt | null = null;
+
+/** Most recent E10 ModelSelectionReceipt emitted by selectModel(). */
+export function getLastModelSelectionReceipt(): GovernanceReceipt | null {
+  return lastModelSelectionReceipt;
+}
+
+async function emitModelSelectionReceipt(
+  operatorId: string,
+  task: TaskType,
+  selectedProvider: string,
+  selectedModel: string,
+  temperature: number,
+  maxTokens: number,
+  preferFree: boolean,
+): Promise<GovernanceReceipt> {
+  const action: AgentAction = {
+    type: "model-select",
+    payload: {
+      operatorId,
+      task,
+      provider: selectedProvider,
+      model: selectedModel,
+      temperature,
+      maxTokens,
+      preferFree,
+    },
+  };
+  const receipt = await recordReceipt(action, ["model-selection", "E10"], {
+    assuranceLevel: "A1",
+  });
+  lastModelSelectionReceipt = receipt;
+  return receipt;
+}
 
 export type TaskType =
   | "code"         // generating / editing source code
@@ -221,6 +259,8 @@ export interface SelectModelOptions {
   preferFree?: boolean;
   /** Custom provider model overrides keyed by task */
   overrides?: Partial<Record<TaskType, { provider?: string; model?: string }>>;
+  /** Operator identity recorded on the E10 ModelSelectionReceipt */
+  operatorId?: string;
 }
 
 /** Default config — the user's configured provider from env */
@@ -270,28 +310,33 @@ function hasApiKeyFor(provider: LLMConfig["provider"]): boolean {
  * 2. Otherwise try task-optimized models in priority order
  * 3. Prefer free-tier providers unless preferFree=false
  * 4. Fall back to the user's default env config
+ *
+ * Emits E10 ModelSelectionReceipt to the governance ledger on every selection.
  */
-export function selectModel(
+export async function selectModel(
   task: TaskType,
   options?: SelectModelOptions,
-): LLMConfig {
+): Promise<LLMConfig> {
   const profile = TASK_PROFILES[task];
   const defaults = getDefaultConfig();
   const envProvider = defaults.provider;
+  const operatorId = options?.operatorId ?? process.env.NOVA_OPERATOR_ID ?? "llm-router";
+  const preferFree = options?.preferFree ?? profile.preferFree;
 
   // If user has a custom override for this task, use it
   const override = options?.overrides?.[task];
   if (override?.provider || override?.model) {
+    const provider = (override.provider ?? profile.provider) as LLMConfig["provider"];
+    const model = override.model ?? profile.model;
+    await emitModelSelectionReceipt(operatorId, task, provider, model, profile.temperature, profile.maxTokens, preferFree);
     return {
       ...defaults,
-      provider: (override.provider ?? profile.provider) as LLMConfig["provider"],
-      model: override.model ?? profile.model,
+      provider,
+      model,
       temperature: profile.temperature,
       maxTokens: profile.maxTokens,
     };
   }
-
-  const preferFree = options?.preferFree ?? profile.preferFree;
 
   // Candidate providers in priority order
   const candidates: Array<{ provider: LLMConfig["provider"]; model: string }> = [];
@@ -323,6 +368,7 @@ export function selectModel(
       if (!primaryFree) continue;
     }
     // Found a match
+    await emitModelSelectionReceipt(operatorId, task, c.provider, c.model, profile.temperature, profile.maxTokens, preferFree);
     return {
       ...defaults,
       provider: c.provider,
@@ -333,6 +379,15 @@ export function selectModel(
   }
 
   // 3. Ultimate fallback — user's env config with task temperature
+  await emitModelSelectionReceipt(
+    operatorId,
+    task,
+    defaults.provider,
+    defaults.model ?? profile.model,
+    profile.temperature,
+    profile.maxTokens,
+    preferFree,
+  );
   return {
     ...defaults,
     temperature: profile.temperature,

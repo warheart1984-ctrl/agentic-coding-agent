@@ -192,7 +192,7 @@ const router: Record<string, Record<string, (req: IncomingMessage, res: ServerRe
       try {
         const body = (await readBody(req)) as { task?: string; preferFree?: boolean; overrides?: Record<string, { provider?: string; model?: string }> };
         if (!body?.task) return error(res, 400, "Missing 'task' in body");
-        const config = selectModel(body.task as TaskType, {
+        const config = await selectModel(body.task as TaskType, {
           preferFree: body.preferFree,
           overrides: body.overrides,
         });

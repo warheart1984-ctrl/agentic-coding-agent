@@ -7,3 +7,23 @@ export { takeSnapshot, listSnapshots, replay, type Snapshot } from "./continuity
 export { generateCRP, type CRP, type PITTransition } from "./continuity/crp";
 export { appendReceipt, listReceipts, type ReceiptV2 } from "./ledger/ledger-v2";
 export { clusterView, type ClusterState } from "./cluster/macc";
+export {
+  proposeAmendment,
+  freezeForAmendment,
+  markAmendmentFrozen,
+  exportConstitutionalState,
+  applyAmendment,
+  validateAmendment,
+  commitAmendment,
+  restartUnderCRK2,
+  runConstitutionalAmendment,
+  listAmendments,
+  getAmendment,
+  getActiveKernelVersion,
+  isKernelFrozen,
+  resetAmendments,
+  type ConstitutionalAmendment,
+  type AmendmentValidation,
+  type AmendmentExportBundle,
+  type AmendmentStatus,
+} from "./amendment/ca2";

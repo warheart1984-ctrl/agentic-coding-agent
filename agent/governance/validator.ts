@@ -10,9 +10,14 @@ function buildState(action: AgentAction): InvariantState {
   const payload = action.payload;
   return {
     action,
+    actionType: action.type,
     diff: typeof payload.diff === "string" ? payload.diff : undefined,
     code: typeof payload.code === "string" ? payload.code : undefined,
     prompt: typeof payload.prompt === "string" ? payload.prompt : undefined,
+    modelSelectionReceiptId:
+      typeof payload.modelSelectionReceiptId === "string"
+        ? payload.modelSelectionReceiptId
+        : undefined,
   };
 }
 

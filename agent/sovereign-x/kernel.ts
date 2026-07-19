@@ -3,8 +3,9 @@ import { sha256Sync } from "../lib/hash";
 import { requireInvariant } from "../governance/invariants";
 import { appendToLedger, getLedgerTailHash } from "../governance/ledger";
 import { validateAction } from "../governance/validator";
+import { recordReceipt } from "../governance/receipts";
 import type { AgentAction } from "../types/actions";
-import type { Invariant } from "../types/invariants";
+import type { Invariant, InvariantState } from "../types/invariants";
 import type { GovernanceReceipt } from "../types/receipts";
 import type { Hash, UUID, Authority } from "../../inas/spec/core";
 import type {
@@ -71,6 +72,20 @@ function emitToLedger(authority: string, action: AgentAction, blocked: boolean, 
   return receipt;
 }
 
+/** Kernel invariant: No LLM inference without a governed model selection receipt (E10). */
+export const ModelSelectionPolicy: Invariant = {
+  id: "SXK-I006",
+  description: "No LLM inference without governed model selection receipt (E10)",
+  severity: "critical",
+  category: "execution",
+  check: async (state: InvariantState) => {
+    if (state.action.type === "llm-inference" || state.actionType === "llm-inference") {
+      return typeof state.modelSelectionReceiptId === "string" && state.modelSelectionReceiptId.length > 0;
+    }
+    return true;
+  },
+};
+
 export const SOVEREIGN_X_INVARIANTS: Invariant[] = [
   {
     id: "SXK-I001", description: "No execution without constitutional justification", severity: "critical",
@@ -92,6 +107,7 @@ export const SOVEREIGN_X_INVARIANTS: Invariant[] = [
     id: "SXK-I005", description: "User sovereignty overrides all agent decisions", severity: "critical",
     check: async () => true, category: "execution",
   },
+  ModelSelectionPolicy,
 ];
 
 let seeded = false;
@@ -294,6 +310,18 @@ export async function authorizeCompute(
   };
   COMPUTE_AUTHORIZATIONS.push(auth);
   recordCSR("compute-authorized", "compute", { taskId, nodeId, workloadClass, authorized: auth.authorized, route: auth.routedVia, signed: signPayload(auth.authId) }, null, "sovereign-x-kernel");
+
+  // E1 → E0: ComputeAuthorization lands in the governance ledger
+  const receiptAction: AgentAction = {
+    type: "compute-authorize",
+    payload: { taskId, nodeId, workloadClass, authId: auth.authId, routedVia: auth.routedVia },
+  };
+  await recordReceipt(receiptAction, ["compute-authorized", "E1"], {
+    blocked: !auth.authorized,
+    blockReason: auth.authorized ? undefined : "Governor denied",
+    assuranceLevel: "A2",
+  });
+
   return auth;
 }
 

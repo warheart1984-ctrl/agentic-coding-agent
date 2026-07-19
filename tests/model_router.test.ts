@@ -4,7 +4,7 @@ import type { LLMConfig } from "../src/model/llmClient";
 import type { TaskType } from "../src/model/router";
 
 describe("Model Router", () => {
-  let selectModel: (task: TaskType, options?: Record<string, unknown>) => LLMConfig;
+  let selectModel: (task: TaskType, options?: Record<string, unknown>) => Promise<LLMConfig>;
   let listTaskProfiles: () => Array<{ task: string; profile: { label: string; model: string; provider: string; temperature: number; maxTokens: number; fallbacks: unknown[] } }>;
   let formatTaskTable: () => string;
 
@@ -19,10 +19,10 @@ describe("Model Router", () => {
   });
 
   describe("selectModel", () => {
-    it("returns a valid LLMConfig for every task type", () => {
+    it("returns a valid LLMConfig for every task type", async () => {
       const tasks: TaskType[] = ["code", "plan", "debug", "validate", "chat", "analyze", "complete", "test", "refactor", "explain", "review"];
       for (const task of tasks) {
-        const config = selectModel(task);
+        const config = await selectModel(task);
         assert.ok(config.provider, `task=${task} should have a provider`);
         assert.ok(config.model, `task=${task} should have a model`);
         assert.ok(typeof config.temperature === "number");
@@ -30,9 +30,9 @@ describe("Model Router", () => {
       }
     });
 
-    it("code task prefers deepseek with low temperature", () => {
+    it("code task prefers deepseek with low temperature", async () => {
       process.env.DEEPSEEK_API_KEY = "test-key";
-      const config = selectModel("code");
+      const config = await selectModel("code");
       assert.strictEqual(config.provider, "deepseek");
       assert.strictEqual(config.model, "deepseek-chat");
       assert.ok((config.temperature ?? 0) <= 0.2);
@@ -40,33 +40,33 @@ describe("Model Router", () => {
       delete process.env.DEEPSEEK_API_KEY;
     });
 
-    it("plan task prefers gemini with moderate temperature", () => {
+    it("plan task prefers gemini with moderate temperature", async () => {
       process.env.GEMINI_API_KEY = "test-key";
-      const config = selectModel("plan");
+      const config = await selectModel("plan");
       assert.strictEqual(config.provider, "gemini");
       assert.strictEqual(config.model, "gemini-2.0-flash");
       delete process.env.GEMINI_API_KEY;
     });
 
-    it("validate task uses low temperature for deterministic output", () => {
+    it("validate task uses low temperature for deterministic output", async () => {
       process.env.GEMINI_API_KEY = "test-key";
-      const config = selectModel("validate");
+      const config = await selectModel("validate");
       assert.ok((config.temperature ?? 99) <= 0.1);
       delete process.env.GEMINI_API_KEY;
     });
 
-    it("complete task uses low max tokens for speed", () => {
+    it("complete task uses low max tokens for speed", async () => {
       process.env.DEEPSEEK_API_KEY = "test-key";
-      const config = selectModel("complete");
+      const config = await selectModel("complete");
       assert.ok((config.maxTokens ?? 9999) <= 1024);
       delete process.env.DEEPSEEK_API_KEY;
     });
 
-    it("returns a config even when no API keys set", () => {
+    it("returns a config even when no API keys set", async () => {
       const keys = ["LLM_API_KEY", "GEMINI_API_KEY", "GROQ_API_KEY", "DEEPSEEK_API_KEY", "HF_API_KEY", "OPENROUTER_API_KEY", "MISTRAL_API_KEY", "NVIDIA_API_KEY"];
       const saved = keys.map((k) => { const v = process.env[k]; delete process.env[k]; return v; });
 
-      const config = selectModel("code");
+      const config = await selectModel("code");
       assert.ok(config.provider, "should have a provider even without keys");
       assert.ok(config.model);
 

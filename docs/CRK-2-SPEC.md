@@ -159,7 +159,37 @@ ClusterState {
 
 ## 8. Constitutional Amendments v2 (CA-2)
 
-Freeze → export → apply amendment → validate dLAP, ledger, continuity, PIT → commit version → restart under CRK-2.
+Constitutional evolution preserves continuity. Implementation: `crk2/amendment/ca2.ts`.
+
+### Pipeline
+
+```
+Freeze → export → apply amendment → validate dLAP, ledger, continuity, PIT → commit version → restart under CRK-2
+```
+
+### API
+
+```ts
+proposeAmendment({ title, rationale, changes, version })
+freezeForAmendment()
+markAmendmentFrozen(id)
+exportConstitutionalState(id)   // hash-chained cluster + ledger + snapshots
+applyAmendment(id)
+validateAmendment(id)           // dLAP + ledger chain + continuity + PIT + MACC
+commitAmendment(id)             // advances active kernel version
+restartUnderCRK2(id)            // unfreeze; resume under new version
+
+// Or one-shot:
+runConstitutionalAmendment({ title, rationale, changes, version })
+```
+
+### Guarantees
+
+- No amendment apply without freeze + export hash
+- Validation fails closed (status → `rejected`)
+- Commit refused unless `validation.ok`
+- Continuity snapshot taken during validate
+- Ledger receives a CA-2 validation receipt
 
 ---
 

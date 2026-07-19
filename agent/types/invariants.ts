@@ -7,6 +7,8 @@ export interface InvariantState {
   diff?: string;
   code?: string;
   prompt?: string;
+  modelSelectionReceiptId?: string;
+  actionType?: string;
 }
 
 export interface Invariant {

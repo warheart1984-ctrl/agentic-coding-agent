@@ -13,6 +13,7 @@ export {
   getConstitutionalStatus,
   kernelGovernAction,
   SOVEREIGN_X_INVARIANTS,
+  ModelSelectionPolicy,
 } from "./kernel";
 
 export {

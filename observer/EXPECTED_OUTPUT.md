@@ -44,6 +44,32 @@ Receipts:
 }
 ```
 
+## LLM Router Selection (E10)
+
+```json
+{
+  "provider": "deepseek",
+  "model": "deepseek-chat",
+  "temperature": 0.1,
+  "maxTokens": 4096,
+  "selectionReceiptId": "<uuid>",
+  "invariantsChecked": ["model-selection", "E10"]
+}
+```
+
+## Hardware Probe
+
+```json
+{
+  "platform": "win32|linux|darwin",
+  "arch": "x64|arm64",
+  "cpuCores": 8,
+  "totalMemoryGB": 16,
+  "hasGPU": false,
+  "recommendation": "cpu"
+}
+```
+
 ## Receipt JSON Schema
 
 | Field | Type | Required |
