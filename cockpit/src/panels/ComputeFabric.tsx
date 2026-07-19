@@ -262,14 +262,67 @@ function mockAgents(): RegisteredAgent[] {
 }
 
 export function ComputeFabric() {
-  const [nodes] = useState<FabricNode[]>(mockNodes());
-  const [tasks] = useState<FabricTask[]>(mockTasks());
-  const [prongs] = useState<VielthornProng[]>(mockProngs());
-  const [authorizations] = useState<ComputeAuthorization[]>(mockAuthorizations());
-  const [hardware] = useState<HardwareProfile>(mockHardware());
+  const [nodes, setNodes] = useState<FabricNode[]>(mockNodes());
+  const [tasks, setTasks] = useState<FabricTask[]>(mockTasks());
+  const [prongs, setProngs] = useState<VielthornProng[]>(mockProngs());
+  const [authorizations, setAuthorizations] = useState<ComputeAuthorization[]>(mockAuthorizations());
+  const [hardware, setHardware] = useState<HardwareProfile>(mockHardware());
   const [selectedWorkload] = useState<WorkloadProfile>(mockWorkload());
-  const [routeDecision] = useState<RouteDecision>(mockRouteDecision());
-  const [agents] = useState<RegisteredAgent[]>(mockAgents());
+  const [routeDecision, setRouteDecision] = useState<RouteDecision>(mockRouteDecision());
+  const [agents, setAgents] = useState<RegisteredAgent[]>(mockAgents());
+  const [live, setLive] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    const load = async () => {
+      try {
+        const res = await fetch("/api/fabric");
+        if (!res.ok) return;
+        const data = await res.json() as {
+          nodes?: FabricNode[];
+          tasks?: FabricTask[];
+          prongs?: VielthornProng[];
+          hardware?: HardwareProfile;
+          routeDecision?: RouteDecision;
+          agents?: RegisteredAgent[];
+          status?: { integrity?: string };
+        };
+        if (cancelled) return;
+        if (data.nodes?.length) setNodes(data.nodes);
+        if (data.tasks) setTasks(data.tasks);
+        if (data.prongs) setProngs(data.prongs);
+        if (data.hardware) setHardware(data.hardware);
+        if (data.routeDecision) setRouteDecision(data.routeDecision);
+        if (data.agents?.length) setAgents(data.agents);
+        setLive(true);
+        // Authorizations derive from live tasks when present
+        if (data.tasks?.length) {
+          setAuthorizations(
+            data.tasks.map((t) => ({
+              authId: t.authId,
+              taskId: t.taskId,
+              nodeId: t.nodeId,
+              workloadClass: t.workloadClass,
+              authorized: t.status !== "failed",
+              routedVia: data.routeDecision?.route
+                ? `${data.routeDecision.route.resource}/${data.routeDecision.route.preferredBackend}`
+                : "cpu/local",
+              constitutionalApproval: true,
+              timestamp: t.startedAt,
+            })),
+          );
+        }
+      } catch {
+        /* keep mocks until spine is up */
+      }
+    };
+    void load();
+    const id = setInterval(() => void load(), 10000);
+    return () => {
+      cancelled = true;
+      clearInterval(id);
+    };
+  }, []);
 
   const taskProngs = (taskId: string) => prongs.filter(p => p.taskId === taskId);
 
@@ -288,8 +341,8 @@ export function ComputeFabric() {
       <header className="fabric-header">
         <h2>⚡ Constitutional Compute Fabric</h2>
         <div className="fabric-status">
-          <span className="status-badge active">Fabric: INTEGRITY OK</span>
-          <span className="status-badge">{nodes.filter(n => n.status === "active").length}/{nodes.length} Nodes Active</span>
+          <span className="status-badge active">Fabric: {live ? "LIVE" : "DEMO"}</span>
+          <span className="status-badge">{nodes.filter(n => n.status === "active" || n.status === "idle").length}/{nodes.length} Nodes Active</span>
           <span className="status-badge">{tasks.filter(t => t.status === "running").length} Tasks Running</span>
           <span className="status-badge">{authorizations.filter(a => a.authorized).length}/{authorizations.length} Authorized</span>
         </div>

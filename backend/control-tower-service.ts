@@ -6,5 +6,5 @@ export const controlTowerService = {
   getClusterState: () => clusterManager.getClusterState(),
   replayCluster,
   simulateDrift,
-  ensureDefaultCluster: () => clusterManager.ensureDefaultAgents(),
+  ensureDefaultCluster: (ids?: string[]) => clusterManager.ensureDefaultAgents(ids),
 };

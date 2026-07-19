@@ -7,6 +7,7 @@ import type { AssuranceLevel } from "../../inas/spec/assurance";
 import type { Hash } from "../../inas/spec/core";
 import { getContinuityHash } from "../continuity/substrate";
 import { appendToLedger, getLedgerTailHash } from "./ledger";
+import { notifyReceiptRecorded } from "./receipt-hooks";
 
 const LEVEL_PRIMITIVES: Record<AssuranceLevel, EvidencePrimitiveType[]> = {
   A0: ["intent"],
@@ -56,6 +57,7 @@ export async function recordReceipt(
   };
 
   appendToLedger(receipt);
+  notifyReceiptRecorded(receipt);
   return receipt;
 }
 

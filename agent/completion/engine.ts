@@ -1,5 +1,5 @@
 import { llmGenerate } from "../../src/model/llmClient";
-import { configFromEnv } from "../../src/model/llmClient";
+import { selectModel, getLastModelSelectionReceipt } from "../../src/model/router";
 import type { CompletionContext } from "./context";
 
 export interface CompletionSuggestion {
@@ -111,7 +111,8 @@ export async function generateCompletion(
   };
 
   const prompt = buildContinuePrompt(ctx);
-  const config = configFromEnv();
+  const config = await selectModel("complete");
+  const selectionReceiptId = getLastModelSelectionReceipt()?.id;
 
   let suggestions: CompletionSuggestion[] = [];
 
@@ -123,7 +124,11 @@ export async function generateCompletion(
 
     const text = postProcessCompletion(response.text, request.prefix);
     if (text) {
-      suggestions.push({ text, score: 1.0, label: "primary" });
+      suggestions.push({
+        text,
+        score: 1.0,
+        label: selectionReceiptId ? `primary:${selectionReceiptId.slice(0, 8)}` : "primary",
+      });
     }
   } catch {
     // LLM unavailable — try FIM prompt style

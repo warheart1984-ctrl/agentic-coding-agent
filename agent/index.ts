@@ -26,6 +26,7 @@ export * as earthosPilotB from "./earthos-pilot-b";
 export * as projectInfinity from "./project-infinity";
 export * as repoReview from "./repo-review";
 export * as hydra from "./hydra";
+export * as sovereignX from "./sovereign-x";
 export type { KernelStatus, KernelHeartbeat } from "./governance/kernelStatus";
 
 /** @deprecated Use AgentRuntime — kept for backward compatibility */

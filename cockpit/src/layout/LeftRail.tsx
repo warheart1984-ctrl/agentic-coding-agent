@@ -18,6 +18,7 @@ const NAV_ICONS: Record<string, string> = {
   "four-d": "🜁",
   "compute-fabric": "⚡",
   "llm-router": "🧠",
+  admin: "🛡",
 };
 
 const modes: { id: CenterMode; label: string }[] = [
@@ -35,6 +36,7 @@ const modes: { id: CenterMode; label: string }[] = [
   { id: "four-d", label: "4D State" },
   { id: "compute-fabric", label: "Compute Fabric" },
   { id: "llm-router", label: "LLM Router" },
+  { id: "admin", label: "Admin" },
 ];
 
 export function LeftRail() {

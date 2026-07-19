@@ -274,6 +274,46 @@ GOVERNANCE DECISIONS:
 
 ---
 
+## 5.5 RUNTIME TOPOLOGY (Canonical)
+
+This repository is **dual-surface, single-spine** — not dual-stack.
+
+```
+                    ┌─────────────────────────────┐
+                    │   SPINE (one real runtime)   │
+                    │  AgentRuntime · governance   │
+                    │  CRK-2 · Sovereign X         │
+                    │  Control Tower · LLM Router  │
+                    │  hosted by backend/server.ts │
+                    │         port 3737            │
+                    └──────────────┬──────────────┘
+                                   │
+              ┌────────────────────┼────────────────────┐
+              ▼                                         ▼
+   SURFACE A (live)                          SURFACE B (demo stub)
+   Cockpit → Vite proxy /api                 Fastify src/index.ts
+   Nova CLI (agent/cli.ts)                   src/routes/cockpit.ts
+   npm run start:api / nova                  returns fake plan/generate
+```
+
+| Layer | Role | Status |
+|-------|------|--------|
+| **Spine** | `AgentRuntime` + `backend/server.ts` + `backend/nova-spine.ts` | **Active host** |
+| **Surface A** | Cockpit + Nova CLI against :3737 | **Live** |
+| **Surface B** | Fastify demo (`npm run dev`) | **Stub — not the runtime** |
+
+### CRK-2: mounted, not dormant
+
+CRK-2 was always fully implemented. It was **unmounted** (AgentRuntime wrote only to the agent ledger; cockpit read an empty CRK-2 list).
+
+**Mount path (now active):**
+
+`recordReceipt()` → `onReceiptRecorded` hook → `crk2/ledger/ledger-v2.appendReceipt` + SSE `eventsGateway.emit("receipt")` → Cockpit `/api/receipts` + Reality Panel
+
+Once receipts flow, CRK-2 is immediately useful for observability, CRP, and Mission #002.
+
+---
+
 ## 5. CRA GRAPH VISUALIZATION (Mermaid)
 
 ```mermaid
@@ -351,10 +391,12 @@ graph TD
 
 **Frozen baseline gaps (1–6) are closed.** Remaining product surface:
 
-1. **Wire completion engine through `selectModel`** — `agent/completion/engine.ts` still uses `configFromEnv()` directly
-2. **Cockpit Reality Panel** — permanent right-rail surface bound to live receipts/violations/kernel (`cockpit/src/panels/RealityPanel.tsx`) — started
-3. **Replayable IDE timeline** — workspace rewind from CSR + ledger
-4. **Agent Swarm identities** — Architect / Builder / Reviewer / Security with authority + heartbeat
+1. **Wire completion engine through `selectModel`** — **CLOSED** (`agent/completion/engine.ts`, `localPredict`, `/api/llm/complete`)
+2. **Cockpit Reality Panel** — **ACTIVE** (right rail + receipt fan-out + SSE/REST sync)
+3. **Nova spine boot** — **ACTIVE** (`backend/nova-spine.ts`: Sovereign X + Control Tower + fabric + **CRK-2 mounted** on receipt path)
+4. **Dual-surface clarification** — Fastify = demo stub (`dev:demo`); spine = `start:api` :3737
+5. **Replayable IDE timeline** — workspace rewind from CSR + ledger
+6. **Agent Swarm identities** — Architect / Builder / Reviewer / Security with authority + heartbeat
 
 ---
 

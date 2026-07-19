@@ -7,14 +7,25 @@
   "types": "dist/src/index.d.ts",
   "scripts": {
     "build": "tsc",
-    "dev": "tsx watch src/index.ts",
-    "start": "node dist/src/index.js",
-    "test": "tsc --noEmit && node --require tsx --test tests/**/*.test.ts",
-    "test:integration": "tsc --noEmit && node --require tsx --test tests/integration/**/*.test.ts",
+    "dev": "tsx watch backend/server.ts",
+    "dev:spine": "tsx watch backend/server.ts",
+    "dev:api": "tsx watch backend/server.ts",
+    "dev:cockpit": "npm run dev --prefix cockpit",
+    "dev:demo": "tsx watch src/index.ts",
+    "start": "tsx backend/server.ts",
+    "start:api": "tsx backend/server.ts",
+    "start:demo": "node dist/src/index.js",
+    "nova": "tsx agent/cli.ts",
+    "test": "node --require tsx --test tests/**/*.test.ts",
+    "test:typecheck": "tsc --noEmit",
+    "test:integration": "node --require tsx --test tests/integration/**/*.test.ts",
     "db:migrate": "tsx src/persistence/migrate.ts",
     "lint": "eslint src --ext .ts",
     "mythar:compile": "echo Compile Mythar",
     "ulx:build": "npm run build --prefix ulx"
+  },
+  "bin": {
+    "nova": "./scripts/nova.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.27.3",
@@ -24,6 +35,7 @@
     "@fastify/swagger-ui": "^6.1.0",
     "@prisma/client": "^7.8.0",
     "bcryptjs": "^2.4.3",
+    "commander": "^12.1.0",
     "fastify": "^4.26.2",
     "jsonwebtoken": "^9.0.2",
     "openai": "^4.28.0",

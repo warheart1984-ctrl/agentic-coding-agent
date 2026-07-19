@@ -1,13 +1,16 @@
 import { createServer, IncomingMessage, ServerResponse } from "http";
 import { AgentRuntime } from "../agent/runtime/agent-runtime";
 import { eventsGateway } from "./events-gateway";
-import { listReceipts } from "../crk2/ledger/ledger-v2";
+import { listReceipts as listCrk2Receipts } from "../crk2/ledger/ledger-v2";
+import { listReceipts as listAgentReceipts } from "../agent/governance/receipts";
 import { controlTowerService } from "./control-tower-service";
 import { generateCompletion } from "../agent/completion/engine";
-import { selectModel, listTaskProfiles, formatTaskTable, getHardwareRecommendation, type TaskType } from "../src/model/router";
+import { selectModel, listTaskProfiles, formatTaskTable, getLastModelSelectionReceipt, type TaskType } from "../src/model/router";
 import { probeHardware, suggestLLMBackend } from "../src/runtime/hardwareRouter";
 import { listProviders, hasProvider } from "../src/providers/provider-registry";
 import { runCompletion } from "../src/services/completion";
+import { bootNovaSpine, getFabricSnapshot } from "./nova-spine";
+import { isSovereignXInitialized, getConstitutionalStatus, SOVEREIGN_X_INVARIANTS } from "../agent/sovereign-x";
 
 const PORT = Number(process.env.NOVA_API_PORT) || 3737;
 
@@ -79,6 +82,7 @@ const router: Record<string, Record<string, (req: IncomingMessage, res: ServerRe
     GET: async (_req, res) => {
       const { governance } = await import("../agent");
       const kernelStatus = await governance.kernelStatus();
+      const sx = isSovereignXInitialized() ? getConstitutionalStatus() : null;
       json(res, 200, {
         invariantEngine: kernelStatus.invariantEngine,
         ledger: kernelStatus.ledger,
@@ -88,6 +92,14 @@ const router: Record<string, Record<string, (req: IncomingMessage, res: ServerRe
         snapshotCount: kernelStatus.snapshotCount,
         activeInvariants: kernelStatus.activeInvariants,
         engine: "crk-2",
+        sovereignX: sx
+          ? {
+              seeded: sx.seeded,
+              csrLength: sx.csrLength,
+              invariants: SOVEREIGN_X_INVARIANTS.length,
+              keyFingerprint: sx.keyFingerprint,
+            }
+          : null,
         timestamp: Date.now(),
       });
     },
@@ -164,21 +176,46 @@ const router: Record<string, Record<string, (req: IncomingMessage, res: ServerRe
       const unsub = eventsGateway.subscribe((event) => {
         sseSend(res, event.type, event.payload);
       });
-      // Keep-alive ping every 15s
       const keepAlive = setInterval(() => sseSend(res, "ping", { ts: Date.now() }), 15_000);
       req.on("close", () => { clearInterval(keepAlive); unsub(); });
     },
   },
   "/api/receipts": {
     GET: async (_req, res) => {
-      const receipts = listReceipts();
-      json(res, 200, receipts);
+      const agentReceipts = await listAgentReceipts();
+      const crk2 = listCrk2Receipts();
+      json(res, 200, {
+        agent: agentReceipts,
+        crk2,
+        count: agentReceipts.length,
+      });
     },
   },
   "/api/cluster": {
     GET: async (_req, res) => {
       const cluster = controlTowerService.getClusterState();
       json(res, 200, cluster);
+    },
+  },
+  "/api/fabric": {
+    GET: async (_req, res) => {
+      json(res, 200, getFabricSnapshot());
+    },
+  },
+  "/api/status": {
+    GET: async (_req, res) => {
+      const { governance } = await import("../agent");
+      const kernelStatus = await governance.kernelStatus();
+      json(res, 200, {
+        ok: true,
+        port: PORT,
+        spine: "nova",
+        sovereignX: isSovereignXInitialized(),
+        clusterAgents: controlTowerService.getClusterState().agents.length,
+        fabric: getFabricSnapshot().status,
+        kernel: kernelStatus,
+        lastModelSelection: getLastModelSelectionReceipt()?.id ?? null,
+      });
     },
   },
   "/api/llm/tasks": {
@@ -196,7 +233,7 @@ const router: Record<string, Record<string, (req: IncomingMessage, res: ServerRe
           preferFree: body.preferFree,
           overrides: body.overrides,
         });
-        json(res, 200, { config });
+        json(res, 200, { config, receiptId: getLastModelSelectionReceipt()?.id ?? null });
       } catch (err) {
         error(res, 500, err instanceof Error ? err.message : String(err));
       }
@@ -224,21 +261,32 @@ const router: Record<string, Record<string, (req: IncomingMessage, res: ServerRe
   "/api/llm/complete": {
     POST: async (req, res) => {
       try {
-        const body = (await readBody(req)) as { prompt: string; provider?: string; intent?: string; system?: string; context?: Record<string, unknown> };
+        const body = (await readBody(req)) as {
+          prompt: string;
+          provider?: string;
+          intent?: string;
+          system?: string;
+          context?: Record<string, unknown>;
+          task?: TaskType;
+        };
         if (!body?.prompt) return error(res, 400, "Missing 'prompt' in body");
-        
-        const providerName = body.provider ?? (hasProvider("openai") ? "openai" : listProviders()[0]);
-        if (!hasProvider(providerName)) return error(res, 400, `Provider not available: ${providerName}`);
-        
+
+        const task = (body.task ?? "code") as TaskType;
+        const selected = await selectModel(task);
+        const providerName = body.provider ?? selected.provider;
+        if (!hasProvider(providerName) && providerName !== "ollama" && providerName !== "custom") {
+          return error(res, 400, `Provider not available: ${providerName}`);
+        }
+
         const result = await runCompletion({
           providerName,
           actor: "api-user",
-          intent: body.intent ?? "code",
+          intent: body.intent ?? task,
           prompt: body.prompt,
           system: body.system,
-          context: body.context,
+          context: { ...body.context, selectedModel: selected.model, task },
         });
-        
+
         json(res, 200, {
           ledgerId: result.ledgerId,
           provider: result.output.provider,
@@ -246,6 +294,7 @@ const router: Record<string, Record<string, (req: IncomingMessage, res: ServerRe
           text: result.output.text,
           usage: result.output.tokens,
           cost: result.output.cost,
+          selectionReceiptId: getLastModelSelectionReceipt()?.id ?? null,
         });
       } catch (err) {
         error(res, 500, err instanceof Error ? err.message : String(err));
@@ -277,9 +326,18 @@ const server = createServer(async (req, res) => {
   }
 });
 
-server.listen(PORT, () => {
-  console.log(`Nova API server listening on http://localhost:${PORT}`);
-  console.log(`Endpoints: POST /api/generate, POST /api/plan, GET /api/kernel, GET /api/events (SSE), GET /api/receipts, GET /api/cluster, POST /api/apply-patch, POST /api/refactor, POST /api/verify, POST /api/explain, POST /api/complete`);
-});
+bootNovaSpine()
+  .then(() => {
+    server.listen(PORT, () => {
+      console.log(`Nova API spine listening on http://localhost:${PORT}`);
+      console.log(
+        "Active: AgentRuntime · CRK-2 · Sovereign X · Control Tower · LLM Router · Fabric · SSE receipts",
+      );
+    });
+  })
+  .catch((err) => {
+    console.error("Failed to boot Nova spine:", err);
+    process.exit(1);
+  });
 
 export { server };

@@ -125,6 +125,18 @@ function emitReceipt(action: AgentAction, blocked = false): GovernanceReceipt {
 }
 
 async function kernelStatus(): Promise<KernelStatus> {
+  const remote = await apiFetch<KernelStatus & { engine?: string }>("/api/kernel", "GET");
+  if (remote) {
+    return {
+      invariantEngine: remote.invariantEngine,
+      ledger: remote.ledger,
+      continuity: remote.continuity,
+      violationsLastMinute: remote.violationsLastMinute,
+      receiptCount: remote.receiptCount,
+      snapshotCount: remote.snapshotCount,
+      activeInvariants: remote.activeInvariants,
+    };
+  }
   return {
     invariantEngine: invariants.length > 0 ? "ok" : "warn",
     ledger: "ok",
@@ -191,7 +203,7 @@ export const runtime = {
   async getContext(): Promise<typeof workspaceContext> { return workspaceContext; },
 };
 
-const API_BASE = "http://localhost:3737";
+const API_BASE = typeof window !== "undefined" ? "" : "http://localhost:3737";
 
 async function apiFetch<T>(path: string, method: string, body?: unknown): Promise<T | null> {
   try {
@@ -208,10 +220,19 @@ async function apiFetch<T>(path: string, method: string, body?: unknown): Promis
   }
 }
 
+function fanOutReceipts(receiptList: GovernanceReceipt[] | undefined): void {
+  if (!receiptList?.length) return;
+  for (const receipt of receiptList) {
+    receipts.unshift(receipt);
+    listeners.receipt.forEach((listener) => listener(receipt));
+  }
+}
+
 export const nova = {
   async plan(input: { goal: string; context?: unknown }): Promise<Plan> {
     const backendPlan = await apiFetch<Plan>("/api/plan", "POST", input);
     if (backendPlan) {
+      fanOutReceipts(backendPlan.receipts);
       listeners.plan.forEach((listener) => listener(backendPlan));
       return backendPlan;
     }
@@ -230,6 +251,7 @@ export const nova = {
   async generateCode(input: { prompt: string; context?: { files?: string[]; language?: string } }): Promise<{ code: string; receipts: GovernanceReceipt[] }> {
     const backendResult = await apiFetch<{ code: string; receipts: GovernanceReceipt[] }>("/api/generate", "POST", input);
     if (backendResult) {
+      fanOutReceipts(backendResult.receipts);
       listeners.action.forEach((listener) => listener({ type: "generate", payload: input }));
       return backendResult;
     }

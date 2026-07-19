@@ -1,3 +1,12 @@
+/**
+ * DEMO SURFACE ONLY — not the Nova runtime spine.
+ *
+ * These Fastify cockpit routes return stub plan/generate payloads.
+ * The live spine is `backend/server.ts` (port 3737) + AgentRuntime.
+ * Prefer: `npm run start:api` / `npm run nova` / Cockpit Vite proxy → :3737.
+ *
+ * Kept for historical demo / Prisma surface experiments (`npm run dev:demo`).
+ */
 import type { FastifyPluginAsync } from "fastify";
 import { requireApiKey } from "../auth/middleware.js";
 import { getPrisma } from "../persistence/prisma.js";

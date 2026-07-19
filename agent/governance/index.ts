@@ -1,4 +1,5 @@
 export { recordReceipt, getReceipt, listReceipts } from "./receipts";
+export { onReceiptRecorded } from "./receipt-hooks";
 export { requireInvariant, getInvariants } from "./invariants";
 export { validateAction, trace } from "./validator";
 export { getLedger, getLedgerTailHash, appendToLedger } from "./ledger";
