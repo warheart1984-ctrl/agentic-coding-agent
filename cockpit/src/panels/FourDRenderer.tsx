@@ -140,38 +140,45 @@ export function FourDRenderer({
   const edges = useRef(makeEdges(vertices4D.current));
 
   useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext("2d")!;
-    
+    const canvasEl = canvasRef.current;
+    if (!canvasEl) return;
+    const maybeCtx = canvasEl.getContext("2d");
+    if (!maybeCtx) return;
+    const ctx: CanvasRenderingContext2D = maybeCtx;
+
     function resize() {
+      const canvas = canvasRef.current;
+      if (!canvas) return;
       const dpr = window.devicePixelRatio || 1;
       canvas.width = canvas.clientWidth * dpr;
       canvas.height = canvas.clientHeight * dpr;
-      ctx.scale(dpr, dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     }
     resize();
     window.addEventListener("resize", resize);
 
     let rafId: number;
     let lastTime = performance.now();
-    
+
     function animate(now: number) {
+      const canvas = canvasRef.current;
+      if (!canvas) return;
+
       const dt = (now - lastTime) / 1000;
       lastTime = now;
-      
+
       const speed = 0.5 + intentIntensity * 2;
-      setTime(t => t + dt * speed);
-      
+      setTime((t) => t + dt * speed);
+
       const width = canvas.clientWidth;
       const height = canvas.clientHeight;
-      
+
       ctx.clearRect(0, 0, width, height);
       ctx.lineWidth = 1.5;
       ctx.lineCap = "round";
 
       const projected: { X: number; Y: number; depth: number; w: number }[] = [];
-      
+
       for (const v of vertices4D.current) {
         const rotated = rotate4D(v, time * speed);
         const p3 = project4Dto3D(rotated);
@@ -182,11 +189,12 @@ export function FourDRenderer({
       for (const edge of edges.current) {
         const a = projected[edge.a];
         const b = projected[edge.b];
+        if (!a || !b) continue;
         const avgDepth = (a.depth + b.depth) / 2;
         const avgW = (a.w + b.w) / 2;
-        
+
         ctx.strokeStyle = depthColor(avgW);
-        ctx.globalAlpha = 0.3 + 0.7 * (avgW + 1) / 2;
+        ctx.globalAlpha = 0.3 + (0.7 * (avgW + 1)) / 2;
         ctx.beginPath();
         ctx.moveTo(a.X, a.Y);
         ctx.lineTo(b.X, b.Y);

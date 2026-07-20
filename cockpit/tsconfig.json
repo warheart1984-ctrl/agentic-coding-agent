@@ -17,6 +17,7 @@
     "noFallthroughCasesInSwitch": true,
     "baseUrl": ".",
     "paths": {
+      "nova-sdk": ["src/bridge/nova-sdk-browser.ts"],
       "agent/*": ["../../agent/*"]
     }
   },

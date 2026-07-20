@@ -119,7 +119,12 @@ export const useCockpitState = create<CockpitState>((set) => ({
         agent: {
           ...s.agent,
           currentPlan: plan,
-          stepStatuses: plan.steps.map((st) => ({ id: st.id, description: st.description, action: st.action, status: "pending" as const })),
+          stepStatuses: plan.steps.map((st: Plan["steps"][number]) => ({
+            id: st.id,
+            description: st.description,
+            action: st.action,
+            status: "pending" as const,
+          })),
         },
       })),
     setStepStatus: (stepId, status) =>

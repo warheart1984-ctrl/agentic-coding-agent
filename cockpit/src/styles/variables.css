@@ -1,21 +1,46 @@
 :root {
-  --color-bg-shell: #050711;
-  --color-bg-panel: #0b0e1a;
-  --color-bg-panel-alt: #101426;
-  --color-bg-rail: #070914;
-  --color-text-primary: #f5f7ff;
-  --color-text-secondary: #a3b0d9;
-  --color-text-muted: #6b7390;
-  --color-accent-nova: #3a7bff;
-  --color-accent-governance: #f2c94c;
-  --color-accent-continuity: #56ccf2;
-  --color-status-ok: #27ae60;
-  --color-status-warn: #f2c94c;
-  --color-status-error: #eb5757;
-  --color-border-soft: #1c2238;
-  --color-border-strong: #2c3550;
-  --font-ui: Inter, system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  --hud-bg: #02040a;
+  --hud-bg-panel: rgba(6, 12, 28, 0.88);
+  --hud-bg-panel-solid: #060c1c;
+  --hud-bg-elevated: #0a1428;
+  --hud-border: rgba(56, 189, 248, 0.28);
+  --hud-border-strong: rgba(125, 211, 252, 0.55);
+  --hud-cyan: #38bdf8;
+  --hud-cyan-dim: #0ea5e9;
+  --hud-violet: #a78bfa;
+  --hud-amber: #fbbf24;
+  --hud-amber-glow: rgba(251, 191, 36, 0.45);
+  --hud-green: #34d399;
+  --hud-red: #f87171;
+  --hud-text: #e8f4ff;
+  --hud-text-dim: #7dd3fc;
+  --hud-text-muted: #64748b;
+  --hud-grid: rgba(56, 189, 248, 0.06);
+  --font-hud: "Rajdhani", "Segoe UI", sans-serif;
+  --font-hud-display: "Orbitron", "Rajdhani", sans-serif;
+  --font-hud-mono: "Share Tech Mono", "JetBrains Mono", monospace;
+  --radius-hud: 4px;
+  --glow-cyan: 0 0 12px rgba(56, 189, 248, 0.35);
+  --glow-amber: 0 0 18px rgba(251, 191, 36, 0.4);
+
+  /* Back-compat aliases used by older panels */
+  --color-bg-shell: var(--hud-bg);
+  --color-bg-panel: var(--hud-bg-panel-solid);
+  --color-bg-panel-alt: var(--hud-bg-elevated);
+  --color-bg-rail: #040814;
+  --color-text-primary: var(--hud-text);
+  --color-text-secondary: var(--hud-text-dim);
+  --color-text-muted: var(--hud-text-muted);
+  --color-accent-nova: var(--hud-cyan);
+  --color-accent-governance: var(--hud-amber);
+  --color-accent-continuity: var(--hud-violet);
+  --color-status-ok: var(--hud-green);
+  --color-status-warn: var(--hud-amber);
+  --color-status-error: var(--hud-red);
+  --color-border-soft: var(--hud-border);
+  --color-border-strong: var(--hud-border-strong);
+  --font-ui: var(--font-hud);
+  --font-mono: var(--font-hud-mono);
   --font-size-xs: 11px;
   --font-size-sm: 12px;
   --font-size-md: 14px;
@@ -26,51 +51,22 @@
   --space-md: 12px;
   --space-lg: 16px;
   --space-xl: 24px;
-  --radius-panel: 8px;
-  --shadow-panel: 0 12px 40px rgba(0, 0, 0, 0.45);
+  --radius-panel: var(--radius-hud);
+  --shadow-panel: var(--glow-cyan);
 }
 
-body.theme-light {
-  --color-bg-shell: #f5f7ff;
-  --color-bg-panel: #ffffff;
-  --color-bg-rail: #f0f2fa;
-  --color-text-primary: #111322;
-  --color-text-secondary: #4a4f6b;
-  --color-text-muted: #7c8199;
-  --color-border-soft: #d5dae8;
-  --color-border-strong: #b5bed8;
-}
+* { box-sizing: border-box; }
 
-@keyframes flash-red {
-  0% { background-color: rgba(235, 87, 87, 0.25); }
-  100% { background-color: transparent; }
-}
-
-@keyframes pulse-gold {
-  0% { box-shadow: 0 0 0 0 rgba(242, 201, 76, 0.55); }
-  100% { box-shadow: 0 0 0 14px rgba(242, 201, 76, 0); }
-}
-
-@keyframes fade-plan {
-  from { opacity: 0; transform: translateY(6px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-* {
-  box-sizing: border-box;
-}
-
-html,
-body,
-#root {
+html, body, #root {
   height: 100%;
   margin: 0;
 }
 
 body {
-  font-family: var(--font-ui);
-  background: var(--color-bg-shell);
-  color: var(--color-text-primary);
+  font-family: var(--font-hud);
+  background: var(--hud-bg);
+  color: var(--hud-text);
+  overflow: hidden;
 }
 
 button {
@@ -78,15 +74,6 @@ button {
   cursor: pointer;
 }
 
-::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar { width: 5px; height: 5px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: var(--color-border-soft); border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: var(--color-border-strong); }
-
-@media (max-width: 1100px) {
-  .shell [class*="rightRail"] { display: none; }
-  .shell [class*="leftRail"] { width: 180px; }
-}
-@media (max-width: 800px) {
-  .shell [class*="leftRail"] { display: none; }
-}
+::-webkit-scrollbar-thumb { background: rgba(56, 189, 248, 0.35); border-radius: 2px; }

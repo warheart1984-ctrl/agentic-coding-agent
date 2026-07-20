@@ -3,6 +3,7 @@ import { useCockpitStore } from "../state/cockpitStore";
 import { useCockpitState } from "../state/store";
 import { handleEvent } from "./events-gateway";
 import type { GovernanceReceipt } from "../types";
+import { requestEvidenceRefresh } from "../crvs/refresh";
 
 /** Prefer Vite proxy (/api → :3737). Absolute fallback for non-proxied builds. */
 const API_BASE =
@@ -16,8 +17,7 @@ let cleanup: (() => void) | null = null;
 export function connectClusterBridge(): void {
   if (connected) return;
   connected = true;
-
-  useClusterStore.getState().actions.seedDemoAgents();
+  // Do not seedDemoAgents — fabricated cluster identity violates CRVS evidence law.
   trySSE();
 }
 
@@ -59,6 +59,7 @@ function trySSE(): void {
       if (data.type && data.agentId) {
         handleEvent(data);
       }
+      requestEvidenceRefresh(`sse:${event.type}`);
     } catch {
       /* ignore malformed SSE */
     }
@@ -69,7 +70,18 @@ function trySSE(): void {
     startRESTPolling();
   };
 
-  for (const t of ["heartbeat", "receipt", "continuity", "drift", "event", "ping"]) {
+  for (const t of [
+    "heartbeat",
+    "receipt",
+    "continuity",
+    "drift",
+    "event",
+    "ping",
+    "isl.intent",
+    "governance.amendments",
+    "controlTower.delegation",
+    "stewardship.events",
+  ]) {
     eventSource.addEventListener(t, onNamed as EventListener);
   }
 
@@ -92,6 +104,7 @@ function startRESTPolling(soft = false): void {
       store.actions.setLastHeartbeat(Date.now());
       useCockpitState.getState().actions.updateKernelStatus(data);
       useCockpitState.getState().actions.setLastHeartbeat(Date.now());
+      requestEvidenceRefresh("rest:kernel");
     } catch {
       /* backend not available */
     }
@@ -112,6 +125,7 @@ function startRESTPolling(soft = false): void {
       }
       if (Object.keys(agents).length > 0) {
         useClusterStore.getState().actions.setClusterHeartbeat(agents);
+        requestEvidenceRefresh("rest:cluster");
       }
     } catch {
       /* backend not available */
@@ -130,6 +144,7 @@ function startRESTPolling(soft = false): void {
       for (const r of list) {
         if (r?.id) store.actions.addReceipt(r);
       }
+      if (list.length) requestEvidenceRefresh("rest:receipts");
     } catch {
       /* backend not available */
     }
