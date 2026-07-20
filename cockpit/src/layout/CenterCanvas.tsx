@@ -16,6 +16,7 @@ import { AdminPanel } from "../components/AdminPanel";
 import { FourDRenderer } from "../panels/FourDRenderer";
 import { ComputeFabric } from "../panels/ComputeFabric";
 import { LLMRouter } from "../panels/LLMRouter";
+import { RealityPanel } from "../panels/RealityPanel";
 import type { CenterMode } from "../types";
 
 function AnimatedContent({ mode }: { mode: CenterMode }) {
@@ -51,6 +52,8 @@ function AnimatedContent({ mode }: { mode: CenterMode }) {
       return <div ref={ref} className={styles.transitionIn}><TerminalPanel /></div>;
     case "admin":
       return <div ref={ref} className={styles.transitionIn}><AdminPanel /></div>;
+    case "reality":
+      return <div ref={ref} className={styles.transitionIn}><RealityPanel /></div>;
     default:
       return <div ref={ref} className={styles.transitionIn}><PlanVisualizer /></div>;
   }

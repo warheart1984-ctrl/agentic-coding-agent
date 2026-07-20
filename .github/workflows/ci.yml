@@ -49,3 +49,29 @@ jobs:
 
       - name: Lint TypeScript
         run: npx tsc --noEmit
+
+  cockpit-crvs:
+    name: Cockpit tsc + CRVS evidence gates
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Use Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install root dependencies
+        run: npm ci
+
+      - name: Install cockpit dependencies
+        run: npm ci
+        working-directory: cockpit
+
+      - name: Cockpit TypeScript (strict)
+        run: npx tsc --noEmit
+        working-directory: cockpit
+
+      - name: CRVS contract + anti-fabrication tests
+        run: node --require tsx --test tests/crvs.test.ts

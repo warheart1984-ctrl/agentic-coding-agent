@@ -1,7 +1,7 @@
 import { sha256Sync } from "../lib/hash";
 import { uuid } from "../lib/uuid";
 import type { AgentAction } from "../types/actions";
-import type { GovernanceReceipt } from "../types/receipts";
+import type { Crk1Provenance, GovernanceReceipt } from "../types/receipts";
 import type { EvidencePrimitive, EvidencePrimitiveType } from "../../inas/spec/evidence";
 import type { AssuranceLevel } from "../../inas/spec/assurance";
 import type { Hash } from "../../inas/spec/core";
@@ -15,6 +15,14 @@ const LEVEL_PRIMITIVES: Record<AssuranceLevel, EvidencePrimitiveType[]> = {
   A2: ["intent", "event", "state", "authority", "execution", "validation"],
   A3: ["intent", "event", "state", "authority", "execution", "validation"],
 };
+
+export interface RecordReceiptOptions {
+  blocked?: boolean;
+  blockReason?: string;
+  assuranceLevel?: AssuranceLevel;
+  /** Nest CRK-1 GovernedReceipt + provenance into the agent receipt. */
+  crk1?: Crk1Provenance;
+}
 
 function buildEvidencePrimitives(action: AgentAction, level: AssuranceLevel): EvidencePrimitive[] {
   const types = LEVEL_PRIMITIVES[level] ?? LEVEL_PRIMITIVES.A0;
@@ -30,7 +38,7 @@ function buildEvidencePrimitives(action: AgentAction, level: AssuranceLevel): Ev
 export async function recordReceipt(
   action: AgentAction,
   invariantsChecked: string[],
-  options?: { blocked?: boolean; blockReason?: string; assuranceLevel?: AssuranceLevel }
+  options?: RecordReceiptOptions
 ): Promise<GovernanceReceipt> {
   const continuityHash = await getContinuityHash();
   const prevHash = getLedgerTailHash();
@@ -40,11 +48,13 @@ export async function recordReceipt(
   const tailHash: Hash = prevHash;
   const id = uuid();
   const ts = new Date().toISOString();
+  const crk1 = options?.crk1;
 
   const preHash = {
     id, timestamp: ts, authority: "nova-kernel", lineage: [tailHash], previousHash: tailHash,
     action, invariantsChecked, continuityHash, evidencePrimitives: primitives,
     assuranceLevel: level, blocked: options?.blocked, blockReason: options?.blockReason,
+    crk1,
   };
   const computedHash = sha256Sync(JSON.stringify(preHash)) as Hash;
 
@@ -54,6 +64,7 @@ export async function recordReceipt(
     action, invariantsChecked, continuityHash, ledgerHash: computedHash,
     blocked: options?.blocked, blockReason: options?.blockReason,
     evidencePrimitives: primitives, assuranceLevel: level,
+    crk1,
   };
 
   appendToLedger(receipt);

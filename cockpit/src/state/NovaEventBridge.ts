@@ -1,9 +1,18 @@
 import { events, governance, continuity } from "nova-sdk";
+import type {
+  AgentAction,
+  GovernanceReceipt,
+  Invariant,
+  InvariantViolation,
+  KernelHeartbeat,
+  Plan,
+  Snapshot,
+} from "nova-sdk";
 import { useKernelStore } from "./kernelStore";
 import { useCockpitState } from "./store";
 import { useToastStore } from "./toastStore";
 
-const defaultInvariants: import("nova-sdk").Invariant[] = [
+const defaultInvariants: Invariant[] = [
   {
     id: "no-secrets",
     description: "No secrets in code",
@@ -33,7 +42,7 @@ export async function initializeNovaEventBridge(): Promise<void> {
   }
   actions.setInvariants([...defaultInvariants]);
 
-  events.onPlan((plan) => {
+  events.onPlan((plan: Plan) => {
     actions.setPlan(plan);
     actions.signalPlan(plan.id);
     actions.appendLog({
@@ -44,7 +53,7 @@ export async function initializeNovaEventBridge(): Promise<void> {
     setTimeout(() => actions.clearSignal("lastPlanId"), 800);
   });
 
-  events.onAction((action) => {
+  events.onAction((action: AgentAction) => {
     actions.appendLog({
       type: "action",
       timestamp: Date.now(),
@@ -52,7 +61,7 @@ export async function initializeNovaEventBridge(): Promise<void> {
     });
   });
 
-  events.onReceipt((receipt) => {
+  events.onReceipt((receipt: GovernanceReceipt) => {
     actions.addReceipt(receipt);
     actions.signalReceipt(receipt.id);
     actions.appendLog({
@@ -60,13 +69,13 @@ export async function initializeNovaEventBridge(): Promise<void> {
       timestamp: Date.now(),
       message: `Receipt ${receipt.id.slice(0, 8)}… emitted`,
     });
-    void continuity.snapshot().then((snapshot) => {
+    void continuity.snapshot().then((snapshot: Snapshot) => {
       actions.updateContinuity(snapshot);
     });
     setTimeout(() => actions.clearSignal("lastReceiptId"), 800);
   });
 
-  events.onViolation((violation) => {
+  events.onViolation((violation: InvariantViolation) => {
     actions.addViolation(violation);
     actions.signalViolation(violation.id);
     actions.appendLog({
@@ -78,7 +87,7 @@ export async function initializeNovaEventBridge(): Promise<void> {
     setTimeout(() => actions.clearSignal("lastViolationId"), 600);
   });
 
-  events.onKernelHeartbeat((hb) => {
+  events.onKernelHeartbeat((hb: KernelHeartbeat) => {
     actions.updateKernelStatus(hb);
     actions.setLastHeartbeat(Date.now());
     useKernelStore.getState().actions.updateStatus(hb);

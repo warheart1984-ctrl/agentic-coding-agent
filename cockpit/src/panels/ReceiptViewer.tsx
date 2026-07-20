@@ -35,7 +35,7 @@ export function ReceiptViewer() {
     ? receipts.filter((r) =>
         r.id.toLowerCase().includes(search.toLowerCase()) ||
         r.action.type.toLowerCase().includes(search.toLowerCase()) ||
-        r.invariantsChecked.some((inv) => inv.toLowerCase().includes(search.toLowerCase()))
+        r.invariantsChecked.some((inv: string) => inv.toLowerCase().includes(search.toLowerCase()))
       )
     : receipts;
 

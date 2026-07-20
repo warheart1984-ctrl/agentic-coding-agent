@@ -18,7 +18,8 @@ export type CenterMode =
   | "compute-fabric"
   | "llm-router"
   | "terminal"
-  | "admin";
+  | "admin"
+  | "reality";
 
 export interface AgentLogEntry {
   id: string;

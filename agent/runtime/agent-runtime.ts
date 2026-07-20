@@ -1,8 +1,7 @@
 import type { AgentAction, ValidationResult } from "../types/actions";
 import type { GovernanceReceipt } from "../types/receipts";
-import type { AssuranceLevel } from "../../inas/spec/assurance";
 import { validateAction } from "../governance/validator";
-import { recordReceipt } from "../governance/receipts";
+import { recordReceipt, type RecordReceiptOptions } from "../governance/receipts";
 import { appendToLedger, getLedger, getLedgerTailHash } from "../governance/ledger";
 import { requireInvariant } from "../governance/invariants";
 import * as agent from "../core/agent";
@@ -41,7 +40,7 @@ export class AgentRuntime {
   async receipt(
     action: AgentAction,
     invariantsChecked: string[],
-    options?: { blocked?: boolean; blockReason?: string; assuranceLevel?: AssuranceLevel }
+    options?: RecordReceiptOptions
   ): Promise<GovernanceReceipt> {
     await this.ensureReady();
     return recordReceipt(action, invariantsChecked, options);
