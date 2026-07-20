@@ -35,7 +35,14 @@ function syncReceiptToObservability(receipt: GovernanceReceipt): void {
     blocked: receipt.blocked,
     blockReason: receipt.blockReason,
     assuranceLevel: receipt.assuranceLevel,
+    authority: receipt.authority,
+    crk1: receipt.crk1,
   });
+}
+
+/** Ingest a receipt from CLI observe / remote agent (CRK-2 + SSE only — no double ledger write). */
+export function ingestObservedReceipt(receipt: GovernanceReceipt): void {
+  syncReceiptToObservability(receipt);
 }
 
 export async function bootNovaSpine(): Promise<void> {

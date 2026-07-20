@@ -9,7 +9,13 @@ import { selectModel, listTaskProfiles, formatTaskTable, getLastModelSelectionRe
 import { probeHardware, suggestLLMBackend } from "../src/runtime/hardwareRouter";
 import { listProviders, hasProvider } from "../src/providers/provider-registry";
 import { runCompletion } from "../src/services/completion";
-import { bootNovaSpine, getFabricSnapshot } from "./nova-spine";
+import {
+  bootNovaSpine,
+  getFabricSnapshot,
+  ingestObservedReceipt,
+} from "./nova-spine";
+import { GenerationBlockedError } from "../agent/core/agent";
+import type { GovernanceReceipt } from "../agent/types/receipts";
 import { isSovereignXInitialized, getConstitutionalStatus, SOVEREIGN_X_INVARIANTS } from "../agent/sovereign-x";
 
 const PORT = Number(process.env.NOVA_API_PORT) || 3737;
@@ -62,7 +68,15 @@ const router: Record<string, Record<string, (req: IncomingMessage, res: ServerRe
         json(res, 200, result);
       } catch (err) {
         const msg = err instanceof Error ? err.message : String(err);
-        json(res, 400, { code: "", receipts: [], error: msg });
+        let receipts: GovernanceReceipt[] = [];
+        if (err instanceof GenerationBlockedError) {
+          receipts = err.receipts;
+        } else {
+          const all = await listAgentReceipts();
+          const last = all[all.length - 1];
+          if (last?.blocked) receipts = [last];
+        }
+        json(res, 400, { code: "", receipts, error: msg });
       }
     },
   },
@@ -189,6 +203,18 @@ const router: Record<string, Record<string, (req: IncomingMessage, res: ServerRe
         crk2,
         count: agentReceipts.length,
       });
+    },
+  },
+  "/api/receipts/ingest": {
+    POST: async (req, res) => {
+      try {
+        const body = (await readBody(req)) as GovernanceReceipt;
+        if (!body?.id || !body?.hash) return error(res, 400, "Missing receipt id/hash");
+        ingestObservedReceipt(body);
+        json(res, 200, { ok: true, id: body.id });
+      } catch (err) {
+        error(res, 500, err instanceof Error ? err.message : String(err));
+      }
     },
   },
   "/api/cluster": {
